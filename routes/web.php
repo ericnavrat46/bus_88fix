@@ -97,6 +97,7 @@ Route::middleware(['auth', \App\Http\Middleware\AdminMiddleware::class])
         Route::get('/transactions/bookings', [TransactionController::class, 'bookings'])->name('transactions.bookings');
         Route::get('/transactions/rentals', [TransactionController::class, 'rentals'])->name('transactions.rentals');
         Route::get('/transactions/tours', [TransactionController::class, 'tours'])->name('transactions.tours');
+        Route::get('/transactions/tours/{booking}', [TransactionController::class, 'tourShow'])->name('transactions.tours.show');
         Route::get('/transactions/payments', [TransactionController::class, 'payments'])->name('transactions.payments');
 
         // Rental Approval

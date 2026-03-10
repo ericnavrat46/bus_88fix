@@ -7,7 +7,7 @@
     <div class="absolute inset-0" style="background-image: radial-gradient(circle at 25% 25%, rgba(255,255,255,0.05) 1px, transparent 1px); background-size: 50px 50px;"></div>
     <div class="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center text-white">
         <h1 class="text-4xl lg:text-5xl font-black mb-4">Tentang <span class="underline decoration-4 decoration-white/30 underline-offset-4">Bus 88</span></h1>
-        <p class="text-lg text-white/80 max-w-2xl mx-auto">Menghubungkan kota-kota di Indonesia dengan layanan transportasi bus yang aman, nyaman, dan terpercaya sejak 2010.</p>
+        <p class="text-lg text-white/80 max-w-2xl mx-auto">Menghubungkan kota-kota di Indonesia dengan layanan transportasi bus yang aman, nyaman, dan terpercaya sejak 2012.</p>
     </div>
 </section>
 
@@ -22,7 +22,7 @@
                 </div>
                 <h2 class="text-3xl font-black text-dark mb-6">Perjalanan yang Dimulai dari <span class="text-gradient-merah">Semangat Melayani</span></h2>
                 <p class="text-gray-warm-600 leading-relaxed mb-4">
-                    Bus 88 didirikan pada tahun 2010 dengan visi sederhana: memberikan layanan transportasi bus yang aman, nyaman, dan terjangkau bagi seluruh masyarakat Indonesia. Berawal dari 3 armada kecil yang melayani rute Jakarta–Bandung, kini kami telah berkembang menjadi salah satu penyedia jasa transportasi bus terkemuka.
+                    Bus 88 didirikan pada tahun 2012 dengan visi sederhana: memberikan layanan transportasi bus yang aman, nyaman, dan terjangkau bagi seluruh masyarakat Indonesia. Berawal dari 3 armada kecil yang melayani rute Jakarta–Bandung, kini kami telah berkembang menjadi salah satu penyedia jasa transportasi bus terkemuka.
                 </p>
                 <p class="text-gray-warm-600 leading-relaxed mb-4">
                     Nama "88" melambangkan keberuntungan dan kemakmuran — sebuah harapan kami bahwa setiap perjalanan bersama Bus 88 membawa kebaikan bagi penumpang kami. Dengan semangat Merah Putih, kami bangga menjadi bagian dari solusi transportasi nasional.

@@ -43,7 +43,7 @@
                                 @if($booking->payment_proof && $booking->payment_status !== 'paid')
                                 <button onclick="openProofModal('{{ asset('storage/' . $booking->payment_proof) }}', '{{ route('admin.tour.approve-manual', $booking) }}')" class="btn-primary btn-sm">Periksa Bukti</button>
                                 @endif
-                                <a href="{{ route('dashboard.tour', $booking) }}" target="_blank" class="btn-secondary btn-sm">Detail</a>
+                                <a href="{{ route('admin.transactions.tours.show', $booking) }}" class="btn-secondary btn-sm">Detail</a>
                             </div>
                         </td>
                     </tr>

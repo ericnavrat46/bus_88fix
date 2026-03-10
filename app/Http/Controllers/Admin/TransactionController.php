@@ -38,6 +38,13 @@ class TransactionController extends Controller
         return view('admin.transactions.tours', compact('bookings'));
     }
 
+    public function tourShow(TourBooking $booking)
+    {
+        $booking->load(['user', 'tourPackage', 'payments']);
+
+        return view('admin.transactions.tour-detail', compact('booking'));
+    }
+
     public function approveRental(Rental $rental, Request $request)
     {
         $validated = $request->validate([

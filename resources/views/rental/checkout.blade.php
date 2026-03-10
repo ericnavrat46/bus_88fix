@@ -25,34 +25,32 @@
                     <span class="text-xs font-bold text-gray-warm-400 uppercase tracking-widest">ATAU</span>
                     <div class="h-px flex-1 bg-gray-warm-200"></div>
                 </div>
-
-                {{-- Manual Option --}}
-                <div class="p-6 bg-white rounded-xl border border-gray-warm-100 shadow-sm text-left">
-                    <h3 class="font-bold text-dark mb-4 text-center">Opsi 2: Transfer Manual</h3>
-                    <div class="p-4 bg-gray-warm-50 rounded-xl mb-6 text-sm">
-                        <p class="text-gray-warm-600 mb-2">Silakan transfer ke rekening berikut:</p>
-                        <div class="flex items-center justify-between mb-1">
-                            <span class="font-bold text-dark">BANK BRI</span>
-                            <span class="text-merah-600 font-mono text-base">1234-5678-9012-345</span>
-                        </div>
-                        <p class="text-xs text-gray-warm-500">a.n. PT Bus 88 Merah Putih</p>
-                    </div>
-
-                    <form action="{{ route('rental.upload-proof', $rental) }}" method="POST" enctype="multipart/form-data" class="space-y-4">
-                        @csrf
-                        <div>
-                            <label class="label-field text-xs">Unggah Bukti Pembayaran</label>
-                            <input type="file" name="payment_proof" class="input-field py-2.5 text-sm" required accept="image/*">
-                            <p class="text-[10px] text-gray-warm-400 mt-1">*Format: JPG, PNG, JPEG. Maks 2MB</p>
-                        </div>
-                        <button type="submit" class="btn-secondary w-full py-4 font-bold tracking-wide">
-                            KLIK UNTUK UNGGAH BUKTI
-                        </button>
-                    </form>
-                </div>
-            @else
-                <p class="text-amber-700">Token pembayaran tidak tersedia.</p>
             @endif
+
+            {{-- Transfer Manual — selalu tampil --}}
+            <div class="p-6 bg-white rounded-xl border border-gray-warm-100 shadow-sm text-left">
+                <h3 class="font-bold text-dark mb-4 text-center">{{ $snapToken ? 'Opsi 2: Transfer Manual' : 'Transfer Manual' }}</h3>
+                <div class="p-4 bg-gray-warm-50 rounded-xl mb-6 text-sm">
+                    <p class="text-gray-warm-600 mb-2">Silakan transfer ke rekening berikut:</p>
+                    <div class="flex items-center justify-between mb-1">
+                        <span class="font-bold text-dark">BANK BRI</span>
+                        <span class="text-merah-600 font-mono text-base">1234-5678-9012-345</span>
+                    </div>
+                    <p class="text-xs text-gray-warm-500">a.n. PT Bus 88 Merah Putih</p>
+                </div>
+
+                <form action="{{ route('rental.upload-proof', $rental) }}" method="POST" enctype="multipart/form-data" class="space-y-4">
+                    @csrf
+                    <div>
+                        <label class="label-field text-xs">Unggah Bukti Pembayaran</label>
+                        <input type="file" name="payment_proof" class="input-field py-2.5 text-sm" required accept="image/*">
+                        <p class="text-[10px] text-gray-warm-400 mt-1">*Format: JPG, PNG, JPEG. Maks 2MB</p>
+                    </div>
+                    <button type="submit" class="btn-secondary w-full py-4 font-bold tracking-wide">
+                        KLIK UNTUK UNGGAH BUKTI
+                    </button>
+                </form>
+            </div>
         </div>
     </div>
 </div>

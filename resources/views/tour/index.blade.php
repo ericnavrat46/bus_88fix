@@ -37,13 +37,6 @@
                             </span>
                         </div>
 
-                        {{-- Capacity Badge (Top Right) --}}
-                        <div class="absolute top-4 right-4 z-10">
-                            <span class="bg-emerald-600 text-white text-[10px] uppercase font-bold px-3 py-1.5 rounded shadow-lg">
-                                53 Orang
-                            </span>
-                        </div>
-
                         {{-- Hover Overlay --}}
                         <div class="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                     </div>

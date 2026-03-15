@@ -68,4 +68,52 @@ class AuthController extends Controller
         ]);
     }
 
+
+
+    // GOOGLE LOGIN (TAMBAHAN)
+    public function googleLogin(Request $request)
+    {
+        $request->validate([
+            "google_id"=>"required",
+            "email"=>"required|email",
+            "name"=>"required"
+        ]);
+
+        // cek user berdasarkan google_id
+        $user = User::where('google_id',$request->google_id)->first();
+
+        if(!$user){
+
+            // cek jika email sudah ada
+            $user = User::where('email',$request->email)->first();
+
+            if($user){
+
+                // update google_id jika user sudah ada
+                $user->update([
+                    "google_id"=>$request->google_id,
+                    "avatar"=>$request->photo ?? null
+                ]);
+
+            }else{
+
+                // buat user baru jika belum ada
+                $user = User::create([
+                    "name"=>$request->name,
+                    "email"=>$request->email,
+                    "google_id"=>$request->google_id,
+                    "avatar"=>$request->photo ?? null,
+                    "password"=>Hash::make("google_login"),
+                    "role"=>"customer"
+                ]);
+            }
+        }
+
+        return response()->json([
+            "status"=>true,
+            "message"=>"Login Google berhasil",
+            "data"=>$user
+        ]);
+    }
+
 }

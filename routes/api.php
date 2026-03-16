@@ -9,3 +9,4 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);
 Route::get('/profile/{id}', [ProfileController::class, 'profile']);
 Route::post('/google-login', [AuthController::class, 'googleLogin']);
+Route::post('/upload-avatar', [ProfileController::class, 'uploadAvatar']);

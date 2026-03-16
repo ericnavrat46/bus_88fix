@@ -28,4 +28,52 @@ class ProfileController extends Controller
 
     }
 
+
+    // ===============================
+    // UPLOAD FOTO AVATAR
+    // ===============================
+    public function uploadAvatar(Request $request)
+    {
+
+        $request->validate([
+            'user_id' => 'required',
+            'avatar' => 'required|image|mimes:jpg,jpeg,png|max:2048'
+        ]);
+
+        $user = User::find($request->user_id);
+
+        if(!$user){
+            return response()->json([
+                "status" => false,
+                "message" => "User tidak ditemukan"
+            ]);
+        }
+
+        if($request->hasFile('avatar')){
+
+            // HAPUS FOTO LAMA JIKA ADA
+            if($user->avatar && file_exists(public_path('avatar/'.$user->avatar))){
+                unlink(public_path('avatar/'.$user->avatar));
+            }
+
+            $file = $request->file('avatar');
+
+            $filename = time().".".$file->getClientOriginalExtension();
+
+            // SIMPAN FOTO BARU
+            $file->move(public_path('avatar'), $filename);
+
+            // UPDATE DATABASE
+            $user->avatar = $filename;
+            $user->save();
+        }
+
+        return response()->json([
+            "status" => true,
+            "message" => "Avatar berhasil diupdate",
+            "avatar" => $filename
+        ]);
+
+    }
+
 }

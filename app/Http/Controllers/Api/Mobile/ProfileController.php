@@ -76,4 +76,36 @@ class ProfileController extends Controller
 
     }
 
+
+    // ===============================
+    // UPDATE NAMA USER
+    // ===============================
+    public function updateName(Request $request)
+    {
+
+        $request->validate([
+            'user_id' => 'required',
+            'name' => 'required|string|max:255'
+        ]);
+
+        $user = User::find($request->user_id);
+
+        if(!$user){
+            return response()->json([
+                "status" => false,
+                "message" => "User tidak ditemukan"
+            ]);
+        }
+
+        $user->name = $request->name;
+        $user->save();
+
+        return response()->json([
+            "status" => true,
+            "message" => "Nama berhasil diupdate",
+            "name" => $user->name
+        ]);
+
+    }
+
 }

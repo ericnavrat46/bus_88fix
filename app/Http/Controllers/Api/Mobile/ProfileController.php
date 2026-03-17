@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 
 class ProfileController extends Controller
 {
@@ -46,7 +47,6 @@ class ProfileController extends Controller
 
         if($request->hasFile('avatar')){
 
-            // HAPUS FOTO LAMA
             if($user->avatar && file_exists(public_path('avatar/'.$user->avatar))){
                 unlink(public_path('avatar/'.$user->avatar));
             }
@@ -63,7 +63,7 @@ class ProfileController extends Controller
         return response()->json([
             "status" => true,
             "message" => "Avatar berhasil diupdate",
-            "avatar" => $filename
+            "avatar" => $filename ?? null
         ]);
     }
 
@@ -112,7 +112,6 @@ class ProfileController extends Controller
             ]);
         }
 
-        // CEK PASSWORD LAMA
         if(!Hash::check($request->old_password, $user->password)){
             return response()->json([
                 "status" => false,
@@ -120,13 +119,78 @@ class ProfileController extends Controller
             ]);
         }
 
-        // UPDATE PASSWORD
         $user->password = Hash::make($request->new_password);
         $user->save();
 
         return response()->json([
             "status" => true,
             "message" => "Password berhasil diubah"
+        ]);
+    }
+
+    // 🔥 KIRIM OTP KE EMAIL
+    public function sendOtp(Request $request)
+    {
+        $user = User::find($request->user_id);
+
+        if (!$user) {
+            return response()->json([
+                "status" => false,
+                "message" => "User tidak ditemukan"
+            ]);
+        }
+
+        $otp = rand(100000, 999999);
+
+        $user->otp = $otp;
+        $user->expired_otp = now()->addMinutes(5);
+        $user->save();
+
+        Mail::raw("Kode OTP kamu: $otp", function ($message) use ($user) {
+            $message->to($user->email)
+                    ->subject('Kode OTP');
+        });
+
+        return response()->json([
+            "status" => true,
+            "message" => "OTP dikirim ke email"
+        ]);
+    }
+
+    // 🔥 VERIFIKASI OTP + UPDATE NOMOR
+    public function verifyOtp(Request $request)
+    {
+        $user = User::find($request->user_id);
+
+        if (!$user) {
+            return response()->json([
+                "status" => false,
+                "message" => "User tidak ditemukan"
+            ]);
+        }
+
+        if ($user->otp != $request->otp) {
+            return response()->json([
+                "status" => false,
+                "message" => "OTP salah"
+            ]);
+        }
+
+        if (now()->gt($user->expired_otp)) {
+            return response()->json([
+                "status" => false,
+                "message" => "OTP kadaluarsa"
+            ]);
+        }
+
+        $user->phone = $request->phone;
+        $user->otp = null;
+        $user->expired_otp = null;
+        $user->save();
+
+        return response()->json([
+            "status" => true,
+            "message" => "Nomor berhasil diupdate"
         ]);
     }
 

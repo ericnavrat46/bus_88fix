@@ -52,6 +52,7 @@
                         <input type="checkbox" name="remember" class="w-4 h-4 rounded border-gray-warm-300 text-merah-600 focus:ring-merah-500">
                         <span class="text-sm text-gray-warm-600">Ingat saya</span>
                     </label>
+                    <a href="{{ route('password.request') }}" class="text-sm text-merah-600 font-semibold hover:underline">Lupa password?</a>
                 </div>
                 <button type="submit" class="btn-primary w-full text-center">Masuk</button>
             </form>

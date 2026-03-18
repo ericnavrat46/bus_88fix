@@ -14,6 +14,7 @@ Route::post('/update-name', [ProfileController::class, 'updateName']);
 Route::post('/update-password', [ProfileController::class, 'updatePassword']);
 Route::post('/send-otp', [ProfileController::class, 'sendOtp']);
 Route::post('/verify-otp', [ProfileController::class, 'verifyOtp']);
+Route::post('/update-phone', [ProfileController::class, 'updatePhone']);
 
 
 // TEST EMAIL

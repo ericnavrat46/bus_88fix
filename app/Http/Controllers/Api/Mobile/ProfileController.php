@@ -24,7 +24,43 @@ class ProfileController extends Controller
 
         return response()->json([
             "status" => true,
-            "data" => $user
+            "data" => $user,
+            "require_phone" => $user->phone ? false : true
+        ]);
+    }
+
+    // 🔥 INPUT NOMOR PERTAMA (TANPA OTP)
+    public function updatePhone(Request $request)
+    {
+        $request->validate([
+            'user_id' => 'required',
+            'phone' => 'required'
+        ]);
+
+        $user = User::find($request->user_id);
+
+        if(!$user){
+            return response()->json([
+                "status" => false,
+                "message" => "User tidak ditemukan"
+            ]);
+        }
+
+        // ❗ kalau sudah ada nomor, tidak boleh lewat sini
+        if($user->phone){
+            return response()->json([
+                "status" => false,
+                "message" => "Nomor sudah ada, gunakan OTP untuk ganti nomor"
+            ]);
+        }
+
+        $user->phone = $request->phone;
+        $user->save();
+
+        return response()->json([
+            "status" => true,
+            "message" => "Nomor berhasil disimpan",
+            "require_phone" => false
         ]);
     }
 
@@ -190,7 +226,8 @@ class ProfileController extends Controller
 
         return response()->json([
             "status" => true,
-            "message" => "Nomor berhasil diupdate"
+            "message" => "Nomor berhasil diupdate",
+            "require_phone" => false
         ]);
     }
 

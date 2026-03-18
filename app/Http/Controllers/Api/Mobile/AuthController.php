@@ -109,10 +109,14 @@ class AuthController extends Controller
             }
         }
 
+        // 🔥 TAMBAHAN (INI INTINYA)
+        $requirePhone = $user->phone ? false : true;
+
         return response()->json([
             "status"=>true,
             "message"=>"Login Google berhasil",
-            "data"=>$user
+            "data"=>$user,
+            "require_phone"=>$requirePhone
         ]);
     }
 

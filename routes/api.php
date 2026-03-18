@@ -15,6 +15,9 @@ Route::post('/update-password', [ProfileController::class, 'updatePassword']);
 Route::post('/send-otp', [ProfileController::class, 'sendOtp']);
 Route::post('/verify-otp', [ProfileController::class, 'verifyOtp']);
 Route::post('/update-phone', [ProfileController::class, 'updatePhone']);
+Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
+Route::post('/verify-otp-reset', [AuthController::class, 'verifyOtpReset']);
+Route::post('/reset-password', [AuthController::class, 'resetPassword']);
 
 
 // TEST EMAIL

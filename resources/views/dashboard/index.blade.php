@@ -96,6 +96,12 @@
                             <p class="font-semibold text-dark">{{ $booking->schedule->route->origin }} → {{ $booking->schedule->route->destination }}</p>
                             <p class="text-sm text-gray-warm-500">{{ $booking->schedule->departure_date->translatedFormat('d M Y') }} · {{ \Carbon\Carbon::parse($booking->schedule->departure_time)->format('H:i') }} · {{ $booking->schedule->bus->name }}</p>
                             <p class="text-sm text-gray-warm-500">{{ $booking->total_seats }} kursi</p>
+                            @if($booking->payment_status === 'pending' && $booking->expired_at)
+                            <p class="text-xs text-amber-600 font-bold mt-1 inline-flex items-center gap-1">
+                                <svg class="w-3 h-3 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                Bayar sebelum {{ $booking->expired_at->format('H:i') }} WIB
+                            </p>
+                            @endif
                         </div>
                         <div class="text-right flex flex-col items-end gap-2">
                             <p class="text-xl font-black text-merah-600">Rp {{ number_format($booking->total_price, 0, ',', '.') }}</p>
@@ -144,6 +150,12 @@
                             <p class="text-sm text-gray-warm-500">{{ $rental->start_date->translatedFormat('d M Y') }} - {{ $rental->end_date->translatedFormat('d M Y') }} ({{ $rental->duration_days }} hari)</p>
                             @if($rental->bus)
                             <p class="text-sm text-gray-warm-500">Bus: {{ $rental->bus->name }}</p>
+                            @endif
+                            @if($rental->approval_status === 'approved' && in_array($rental->payment_status, ['unpaid', 'pending']))
+                            <p class="text-xs text-amber-600 font-bold mt-1 inline-flex items-center gap-1">
+                                <svg class="w-3 h-3 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                Bayar sebelum {{ $rental->updated_at->addHours(2)->format('H:i') }} WIB
+                            </p>
                             @endif
                         </div>
                         <div class="text-right flex flex-col items-end gap-2">
@@ -194,6 +206,12 @@
                             </div>
                             <p class="font-semibold text-dark">{{ $tBooking->tourPackage->name ?? 'Paket Tidak Tersedia' }}</p>
                             <p class="text-sm text-gray-warm-500">Berangkat: {{ $tBooking->travel_date ? $tBooking->travel_date->format('d M Y') : '-' }} · {{ $tBooking->passenger_count }} Orang</p>
+                            @if($tBooking->payment_status === 'pending')
+                            <p class="text-xs text-amber-600 font-bold mt-1 inline-flex items-center gap-1">
+                                <svg class="w-3 h-3 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                Bayar sebelum {{ $tBooking->created_at->addHours(2)->format('H:i') }} WIB
+                            </p>
+                            @endif
                         </div>
                         <div class="text-right flex flex-col items-end gap-2">
                             <p class="text-xl font-black text-merah-600">Rp {{ number_format($tBooking->total_price, 0, ',', '.') }}</p>

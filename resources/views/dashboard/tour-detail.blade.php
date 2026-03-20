@@ -9,6 +9,18 @@
         </a>
 
         <div class="card p-8">
+            @if($booking->payment_status === 'pending')
+            <div class="mb-8 p-6 bg-amber-50 border border-amber-200 rounded-2xl flex items-center gap-4 shadow-sm animate-pulse-subtle">
+                <div class="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center text-amber-600 flex-shrink-0">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                </div>
+                <div>
+                    <h4 class="font-bold text-amber-900 leading-tight">Batas Waktu Pembayaran</h4>
+                    <p class="text-sm text-amber-800">Paket wisata ini akan dibatalkan otomatis jika tidak dibayar sebelum <span class="font-black underline">{{ $booking->created_at->addHours(2)->translatedFormat('H:i') }} WIB</span> hari ini.</p>
+                </div>
+            </div>
+            @endif
+
             {{-- Header --}}
             <div class="flex items-center justify-between mb-6">
                 <h1 class="text-xl font-bold text-dark">Detail Paket Wisata</h1>

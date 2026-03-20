@@ -25,6 +25,14 @@
             {{-- Booking Details --}}
             <div>
                 <div class="card p-8">
+                    @if($booking->payment_status === 'pending' && $booking->expired_at)
+                    <div class="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-xl flex items-center gap-3">
+                        <svg class="w-5 h-5 text-amber-600 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        <p class="text-sm text-amber-800 font-medium">
+                            Selesaikan pembayaran sebelum <span class="font-bold underline">{{ $booking->expired_at->translatedFormat('H:i') }} WIB</span> agar tidak otomatis dibatalkan.
+                        </p>
+                    </div>
+                    @endif
                     <h2 class="text-xl font-bold text-dark mb-6">Detail Booking</h2>
 
                     <div class="space-y-4 mb-6">

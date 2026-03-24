@@ -3,7 +3,8 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\Mobile\AuthController;
 use App\Http\Controllers\Api\Mobile\ProfileController;
-
+use App\Http\Controllers\Api\Mobile\SeatController;
+use App\Http\Controllers\Api\Mobile\BookingController;
 
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);
@@ -18,6 +19,12 @@ Route::post('/update-phone', [ProfileController::class, 'updatePhone']);
 Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
 Route::post('/verify-otp-reset', [AuthController::class, 'verifyOtpReset']);
 Route::post('/reset-password', [AuthController::class, 'resetPassword']);
+Route::get('/seat-layout/{schedule_id}', [SeatController::class, 'getSeatLayout']);
+Route::post('/book-seats', [SeatController::class, 'bookSeats']);
+Route::get('/schedules', [SeatController::class, 'getSchedules']);
+Route::get('/my-bookings/{user_id}', [BookingController::class,'myBookings']);
+Route::get('/booking-detail/{booking_id}', [BookingController::class,'bookingDetail']);
+Route::post('/upload-payment', [BookingController::class,'uploadPayment']);
 
 
 // TEST EMAIL

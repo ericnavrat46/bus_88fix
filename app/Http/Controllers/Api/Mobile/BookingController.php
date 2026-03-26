@@ -18,6 +18,7 @@ class BookingController extends Controller
         $bookings = DB::table('bookings')
             ->join('schedules','bookings.schedule_id','=','schedules.id')
             ->join('routes','schedules.route_id','=','routes.id')
+            ->join('buses','schedules.bus_id','=','buses.id')
             ->select(
                 'bookings.id',
                 'bookings.booking_code',
@@ -25,14 +26,26 @@ class BookingController extends Controller
                 'bookings.total_seats',
                 'bookings.payment_status',
                 'bookings.payment_proof',
+                'bookings.expired_at',
                 'schedules.departure_date',
                 'schedules.departure_time',
                 'routes.origin',
-                'routes.destination'
+                'routes.destination',
+                'buses.name as bus_name'
             )
             ->where('bookings.user_id',$user_id)
             ->orderBy('bookings.created_at','desc')
             ->get();
+
+        // Tambahkan data passengers ke setiap booking
+        $bookings = $bookings->map(function ($booking) {
+            $booking->passengers = DB::table('booking_passengers')
+                ->where('booking_id', $booking->id)
+                ->select('seat_number as seat', 'passenger_name', 'phone')
+                ->get()
+                ->toArray();
+            return $booking;
+        });
 
         return response()->json([
             'status' => true,
@@ -50,6 +63,7 @@ class BookingController extends Controller
         $booking = DB::table('bookings')
             ->join('schedules','bookings.schedule_id','=','schedules.id')
             ->join('routes','schedules.route_id','=','routes.id')
+            ->join('buses','schedules.bus_id','=','buses.id')
             ->select(
                 'bookings.id',
                 'bookings.booking_code',
@@ -57,23 +71,27 @@ class BookingController extends Controller
                 'bookings.total_seats',
                 'bookings.payment_status',
                 'bookings.payment_proof',
+                'bookings.expired_at',
                 'routes.origin',
                 'routes.destination',
                 'schedules.departure_date',
-                'schedules.departure_time'
+                'schedules.departure_time',
+                'buses.name as bus_name'
             )
             ->where('bookings.id',$booking_id)
             ->first();
 
-        $seats = DB::table('booking_passengers')
+        $passengers = DB::table('booking_passengers')
             ->where('booking_id',$booking_id)
-            ->pluck('seat_number');
+            ->select('seat_number as seat', 'passenger_name', 'phone')
+            ->get();
 
         return response()->json([
             'status' => true,
             'data' => [
                 'booking' => $booking,
-                'seats' => $seats
+                'seats' => $passengers->pluck('seat'),
+                'passengers' => $passengers
             ]
         ]);
     }
@@ -84,12 +102,10 @@ class BookingController extends Controller
     // ==============================
     public function uploadPayment(Request $request)
     {
-        // 🔥 FIX: validasi tanpa exists dulu, cari manual pakai booking_code
         $request->validate([
             'payment_proof' => 'required|image|mimes:jpg,jpeg,png|max:2048'
         ]);
 
-        // 🔥 Cari booking: coba booking_id dulu, fallback ke booking_code
         $booking = null;
 
         if ($request->booking_id && $request->booking_id != 0) {
@@ -109,11 +125,10 @@ class BookingController extends Controller
 
         $file = $request->file('payment_proof');
 
-        // Simpan ke storage
         $path = $file->store('payment_proofs/bookings', 'public');
 
         $updated = DB::table('bookings')
-            ->where('id', $booking->id) // 🔥 pakai $booking->id yang sudah dicari
+            ->where('id', $booking->id)
             ->update([
                 'payment_proof' => $path,
                 'payment_status' => 'pending',

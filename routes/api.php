@@ -5,6 +5,8 @@ use App\Http\Controllers\Api\Mobile\AuthController;
 use App\Http\Controllers\Api\Mobile\ProfileController;
 use App\Http\Controllers\Api\Mobile\SeatController;
 use App\Http\Controllers\Api\Mobile\BookingController;
+use App\Http\Controllers\Api\Mobile\TourController;
+use App\Http\Controllers\Api\Mobile\TourBookingController;
 
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);
@@ -25,6 +27,8 @@ Route::get('/schedules', [SeatController::class, 'getSchedules']);
 Route::get('/my-bookings/{user_id}', [BookingController::class,'myBookings']);
 Route::get('/booking-detail/{booking_id}', [BookingController::class,'bookingDetail']);
 Route::post('/upload-payment', [BookingController::class,'uploadPayment']);
+Route::get('/tour-packages', [TourController::class, 'index']);
+Route::post('/tour-bookings', [TourBookingController::class, 'store']);
 
 
 // TEST EMAIL

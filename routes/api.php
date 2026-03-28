@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\Mobile\SeatController;
 use App\Http\Controllers\Api\Mobile\BookingController;
 use App\Http\Controllers\Api\Mobile\TourController;
 use App\Http\Controllers\Api\Mobile\TourBookingController;
+use App\Http\Controllers\Api\Mobile\RentalController;
 
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);
@@ -27,8 +28,17 @@ Route::get('/schedules', [SeatController::class, 'getSchedules']);
 Route::get('/my-bookings/{user_id}', [BookingController::class,'myBookings']);
 Route::get('/booking-detail/{booking_id}', [BookingController::class,'bookingDetail']);
 Route::post('/upload-payment', [BookingController::class,'uploadPayment']);
+Route::post('/booking/cancel/{id}', [BookingController::class, 'cancel']);
 Route::get('/tour-packages', [TourController::class, 'index']);
 Route::post('/tour-bookings', [TourBookingController::class, 'store']);
+Route::get('/my-tour-bookings/{user_id}', [TourBookingController::class, 'myBookings']);
+Route::post('/cancel-tour-booking/{id}', [TourBookingController::class, 'cancel']);
+Route::get('/my-rentals/{user_id}', [RentalController::class, 'myRentals']);
+Route::post('/cancel-rental/{id}', [RentalController::class, 'cancel']);
+/// FINISH
+Route::post('/finish-booking/{id}', [BookingController::class, 'finish']);
+Route::post('/finish-tour/{id}', [TourBookingController::class, 'finish']);
+Route::post('/finish-rental/{id}', [RentalController::class, 'finish']);
 
 
 // TEST EMAIL

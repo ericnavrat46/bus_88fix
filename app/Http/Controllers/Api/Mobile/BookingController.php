@@ -9,30 +9,78 @@ use Illuminate\Support\Facades\DB;
 class BookingController extends Controller
 {
 
-    // ==============================
-    // GET PESANAN USER
-    // ==============================
+    /// 🔥 LIST BOOKING USER
     public function myBookings($user_id)
     {
-
         $bookings = DB::table('bookings')
+            ->join('users','bookings.user_id','=','users.id')
             ->join('schedules','bookings.schedule_id','=','schedules.id')
             ->join('routes','schedules.route_id','=','routes.id')
+            ->join('buses','schedules.bus_id','=','buses.id')
+
             ->select(
-                'bookings.id',
-                'bookings.booking_code',
-                'bookings.total_price',
-                'bookings.total_seats',
-                'bookings.payment_status',
-                'bookings.payment_proof',
+                'bookings.*',
+
+                'users.name',
+                'users.email',
+                'users.phone',
+
+                'routes.origin',
+                'routes.destination',
+
                 'schedules.departure_date',
                 'schedules.departure_time',
-                'routes.origin',
-                'routes.destination'
+                'schedules.arrival_time',
+
+                'buses.name as bus_name',
+                'buses.type as bus_type'
             )
+
             ->where('bookings.user_id',$user_id)
             ->orderBy('bookings.created_at','desc')
             ->get();
+
+        foreach ($bookings as $b) {
+
+            $status = 'pending_payment';
+
+            /// ❌ CANCEL
+            if ($b->payment_status == 'cancelled') {
+                $status = 'cancelled';
+            }
+
+            elseif ($b->payment_status == 'refunded') {
+                $status = 'cancelled';
+            }
+
+            /// ⏰ EXPIRED (optional)
+            elseif ($b->payment_status == 'expired') {
+                $status = 'expired';
+            }
+
+            /// 💰 SUDAH BAYAR (MIDTRANS / ADMIN)
+            elseif ($b->payment_status == 'paid') {
+
+                if (now()->gt($b->departure_date)) {
+                    $status = 'completed'; // masuk riwayat
+                } else {
+                    $status = 'paid'; // masih pesanan
+                }
+            }
+
+            /// 🟡 PENDING (BELUM BAYAR ATAU SUDAH UPLOAD)
+            elseif ($b->payment_status == 'pending') {
+
+                /// 🔥 BEDAIN KONDISI
+                if ($b->payment_proof) {
+                    $status = 'waiting_confirmation'; // sudah upload
+                } else {
+                    $status = 'pending_payment'; // belum bayar
+                }
+            }
+
+            $b->status_final = $status;
+        }
 
         return response()->json([
             'status' => true,
@@ -41,29 +89,62 @@ class BookingController extends Controller
     }
 
 
-    // ==============================
-    // DETAIL BOOKING
-    // ==============================
+    /// 🔥 DETAIL BOOKING
     public function bookingDetail($booking_id)
     {
-
         $booking = DB::table('bookings')
+            ->join('users','bookings.user_id','=','users.id')
             ->join('schedules','bookings.schedule_id','=','schedules.id')
             ->join('routes','schedules.route_id','=','routes.id')
             ->select(
-                'bookings.id',
-                'bookings.booking_code',
-                'bookings.total_price',
-                'bookings.total_seats',
-                'bookings.payment_status',
-                'bookings.payment_proof',
+                'bookings.*',
+
+                'users.name',
+                'users.email',
+                'users.phone',
+
                 'routes.origin',
                 'routes.destination',
+
                 'schedules.departure_date',
                 'schedules.departure_time'
             )
             ->where('bookings.id',$booking_id)
             ->first();
+
+        /// 🔥 STATUS FINAL DI DETAIL
+        if ($booking) {
+
+            $status = 'pending_payment';
+
+            if ($booking->payment_status == 'cancelled') {
+                $status = 'cancelled';
+            }
+
+            elseif ($booking->payment_status == 'expired') {
+                $status = 'expired';
+            }
+
+           elseif ($booking->payment_status == 'paid') {
+
+            if (now()->gt(\Carbon\Carbon::parse($booking->departure_date)->addDay())) {
+                $status = 'completed';
+            } else {
+                $status = 'paid';
+            }
+}
+
+            elseif ($booking->payment_status == 'pending') {
+
+                if ($booking->payment_proof) {
+                    $status = 'waiting_confirmation';
+                } else {
+                    $status = 'pending_payment';
+                }
+            }
+
+            $booking->status_final = $status;
+        }
 
         $seats = DB::table('booking_passengers')
             ->where('booking_id',$booking_id)
@@ -79,17 +160,13 @@ class BookingController extends Controller
     }
 
 
-    // ==============================
-    // UPLOAD BUKTI PEMBAYARAN (FIX)
-    // ==============================
+    /// 🔥 UPLOAD BUKTI PEMBAYARAN
     public function uploadPayment(Request $request)
     {
-        // 🔥 FIX: validasi tanpa exists dulu, cari manual pakai booking_code
         $request->validate([
             'payment_proof' => 'required|image|mimes:jpg,jpeg,png|max:2048'
         ]);
 
-        // 🔥 Cari booking: coba booking_id dulu, fallback ke booking_code
         $booking = null;
 
         if ($request->booking_id && $request->booking_id != 0) {
@@ -108,24 +185,15 @@ class BookingController extends Controller
         }
 
         $file = $request->file('payment_proof');
-
-        // Simpan ke storage
         $path = $file->store('payment_proofs/bookings', 'public');
 
-        $updated = DB::table('bookings')
-            ->where('id', $booking->id) // 🔥 pakai $booking->id yang sudah dicari
+        DB::table('bookings')
+            ->where('id', $booking->id)
             ->update([
                 'payment_proof' => $path,
-                'payment_status' => 'pending',
+                'payment_status' => 'pending', // 🔥 tetap pending
                 'updated_at' => now()
             ]);
-
-        if (!$updated) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Gagal update booking'
-            ]);
-        }
 
         return response()->json([
             'status' => true,
@@ -134,4 +202,52 @@ class BookingController extends Controller
         ]);
     }
 
+
+    /// ❌ CANCEL BOOKING
+    public function cancel($id)
+    {
+        $booking = DB::table('bookings')->where('id', $id)->first();
+
+        if (!$booking) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Booking tidak ditemukan'
+            ]);
+        }
+
+        /// ❌ tidak boleh cancel kalau sudah bayar
+        if ($booking->payment_status == 'paid') {
+            return response()->json([
+                'status' => false,
+                'message' => 'Sudah dibayar, hubungi admin'
+            ]);
+        }
+
+        DB::table('bookings')
+            ->where('id', $id)
+            ->update([
+                'payment_status' => 'cancelled',
+                'updated_at' => now()
+            ]);
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Booking berhasil dibatalkan'
+        ]);
+    }
+
+    public function finish($id)
+    {
+        DB::table('bookings')
+            ->where('id', $id)
+            ->update([
+                'departure_date' => now()->subDay(), // 🔥 paksa completed
+                'updated_at' => now()
+            ]);
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Pesanan selesai'
+        ]);
+    }
 }

@@ -33,6 +33,8 @@ Route::get('/tour-packages', [TourController::class, 'index']);
 Route::post('/tour-bookings', [TourBookingController::class, 'store']);
 Route::get('/my-tour-bookings/{user_id}', [TourBookingController::class, 'myBookings']);
 Route::post('/cancel-tour-booking/{id}', [TourBookingController::class, 'cancel']);
+Route::post('/upload-payment-tour', [TourBookingController::class, 'uploadPayment']);
+Route::post('/upload-payment-rental', [RentalController::class, 'uploadPayment']);
 Route::get('/my-rentals/{user_id}', [RentalController::class, 'myRentals']);
 Route::post('/cancel-rental/{id}', [RentalController::class, 'cancel']);
 /// FINISH

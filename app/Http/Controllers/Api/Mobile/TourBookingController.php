@@ -11,6 +11,41 @@ use Illuminate\Support\Facades\DB;
 class TourBookingController extends Controller
 {
 
+
+public function store(Request $request)
+{
+        $request->validate([
+            'user_id' => 'required|exists:users,id',
+            'tour_package_id' => 'required|exists:tour_packages,id',
+            'travel_date' => 'required|date',
+            'passenger_count' => 'required|integer|min:1',
+            'total_price' => 'required|numeric|min:0',
+        ]);
+
+        $booking = TourBooking::create([
+            'booking_code' => 'TRX-' . strtoupper(\Illuminate\Support\Str::random(8)),
+
+            'user_id' => $request->user_id,
+            'tour_package_id' => $request->tour_package_id,
+            'travel_date' => $request->travel_date,
+            'passenger_count' => $request->passenger_count,
+            'total_price' => $request->total_price,
+
+            'notes' => $request->notes,
+
+            'payment_status' => 'pending',
+            'payment_method' => null,
+            'payment_proof' => null,
+            'snap_token' => null,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Booking berhasil dibuat',
+            'data' => $booking
+        ]);
+    }
+
     public function myBookings($user_id)
     {
         $data = DB::table('tour_bookings')
@@ -113,6 +148,36 @@ class TourBookingController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Selesai'
+        ]);
+    }
+
+        public function uploadPayment(Request $request)
+    {
+        $request->validate([
+            'id' => 'required',
+            'payment_proof' => 'required|image|mimes:jpg,jpeg,png|max:2048'
+        ]);
+
+        $booking = TourBooking::find($request->id);
+
+        if (!$booking) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Data tidak ditemukan'
+            ], 404);
+        }
+
+        $file = $request->file('payment_proof');
+        $path = $file->store('payment_proofs/tours', 'public');
+
+        $booking->payment_proof = $path;
+        $booking->payment_status = 'pending';
+        $booking->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Bukti pembayaran berhasil diupload',
+            'path' => $path
         ]);
     }
 }

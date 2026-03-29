@@ -115,4 +115,34 @@ class RentalController extends Controller
             'message' => 'Selesai'
         ]);
     }
+
+        public function uploadPayment(Request $request)
+    {
+        $request->validate([
+            'id' => 'required',
+            'payment_proof' => 'required|image|mimes:jpg,jpeg,png|max:2048'
+        ]);
+
+        $rental = Rental::find($request->id);
+
+        if (!$rental) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Rental tidak ditemukan'
+            ], 404);
+        }
+
+        $file = $request->file('payment_proof');
+        $path = $file->store('payment_proofs/rentals', 'public');
+
+        $rental->payment_proof = $path;
+        $rental->payment_status = 'pending';
+        $rental->save();
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Bukti pembayaran berhasil diupload',
+            'path' => $path
+        ]);
+    }
 }

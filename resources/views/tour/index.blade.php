@@ -39,6 +39,16 @@
 
                         {{-- Hover Overlay --}}
                         <div class="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+
+                        {{-- Flash Sale Badge --}}
+                        @if($package->active_flash_sale)
+                        <div class="absolute top-4 right-4 z-10 animate-bounce">
+                            <span class="bg-amber-400 text-dark text-[10px] uppercase font-black px-4 py-2 rounded-full shadow-xl border-2 border-white flex items-center gap-1.5">
+                                <svg class="w-3 h-3 text-merah-700" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.381z" clip-rule="evenodd"/></svg>
+                                Flash Sale
+                            </span>
+                        </div>
+                        @endif
                     </div>
 
                     <div class="p-6">
@@ -74,12 +84,48 @@
                         </div>
 
                         <div class="flex items-center justify-between border-t border-gray-100 pt-6">
-                            <div class="text-xl font-black text-merah-700 group-hover:scale-110 transition-transform origin-left">
-                                Rp {{ number_format($package->price_per_person, 0, ',', '.') }}
+                            <div class="flex-1 mr-4">
+                                @if($package->active_flash_sale)
+                                    @php
+                                        $flash = $package->active_flash_sale;
+                                        $remaining = max(0, $flash->quota - $flash->used_quota);
+                                        $percent = $flash->quota > 0 ? ($flash->used_quota / $flash->quota) * 100 : 0;
+                                        $isLow = $remaining <= 5;
+                                    @endphp
+                                    <div class="flex items-center gap-2 mb-1">
+                                        <div class="line-through text-gray-400 text-[10px] font-bold decoration-merah-500/40">
+                                            Rp {{ number_format($package->price_per_person, 0, ',', '.') }}
+                                        </div>
+                                        <span class="bg-merah-100 text-merah-700 text-[9px] font-black px-1.5 py-0.5 rounded italic">SAVE {{ $flash->discount_type == 'percentage' ? $flash->discount_value.'%' : 'Rp '.number_format($flash->discount_value, 0, ',', '.') }}</span>
+                                    </div>
+                                    <div class="text-2xl font-black text-merah-700 leading-none mb-2">
+                                        Rp {{ number_format($package->final_price, 0, ',', '.') }}
+                                    </div>
+                                    
+                                    {{-- Quota Progress Bar --}}
+                                    <div class="w-full">
+                                        <div class="flex justify-between items-center mb-1">
+                                            <span class="text-[9px] font-bold {{ $isLow ? 'text-merah-600 animate-pulse' : 'text-gray-500' }} uppercase">
+                                                {{ $isLow ? '⚠️ Sisa '.$remaining.' Slot!' : 'Tersisa '.$remaining.' Slot' }}
+                                            </span>
+                                            <span class="text-[9px] font-black text-gray-400">{{ round($percent) }}%</span>
+                                        </div>
+                                        <div class="h-1.5 w-full bg-gray-100 rounded-full overflow-hidden border border-gray-50">
+                                            <div class="h-full bg-gradient-to-r from-merah-500 to-amber-500 rounded-full transition-all duration-1000 shadow-[0_0_8px_rgba(239,68,68,0.3)]" style="width: {{ $percent }}%"></div>
+                                        </div>
+                                    </div>
+                                @else
+                                    <div class="text-xl font-black text-merah-700 group-hover:scale-105 transition-transform origin-left">
+                                        Rp {{ number_format($package->price_per_person, 0, ',', '.') }}
+                                    </div>
+                                    <p class="text-[10px] text-gray-400 mt-1 font-medium">Harga per Orang</p>
+                                @endif
                             </div>
-                            <a href="{{ route('tour.show', $package->slug) }}" class="bg-merah-600 hover:bg-merah-700 text-white px-8 py-2.5 rounded-xl text-sm font-bold transition-all shadow-lg shadow-merah-100 group-hover:px-10">
-                                Booking
-                            </a>
+                            <div class="flex flex-col items-end">
+                                <a href="{{ route('tour.show', $package->slug) }}" class="bg-merah-600 hover:bg-merah-700 text-white px-6 py-2.5 rounded-xl text-sm font-bold transition-all shadow-lg shadow-merah-100 hover:shadow-merah-200 active:scale-95">
+                                    Detail
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>

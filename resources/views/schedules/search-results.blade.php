@@ -60,11 +60,44 @@
                     {{-- Price & Action --}}
                     <div class="text-right flex flex-col items-end gap-3">
                         <div>
-                            <p class="text-xs text-gray-warm-400 uppercase tracking-wider font-semibold">Harga /kursi</p>
-                            <p class="text-2xl font-black text-merah-600">Rp {{ number_format($schedule->price, 0, ',', '.') }}</p>
+                            <p class="text-[10px] text-gray-warm-400 uppercase tracking-widest font-bold mb-1">Harga /kursi</p>
+                            @if($schedule->active_flash_sale)
+                                @php
+                                    $flash = $schedule->active_flash_sale;
+                                    $remaining = max(0, $flash->quota - $flash->used_quota);
+                                    $percent = $flash->quota > 0 ? ($flash->used_quota / $flash->quota) * 100 : 0;
+                                    $isLow = $remaining <= 5;
+                                @endphp
+                                <div class="flex flex-col items-end">
+                                    <div class="flex items-center gap-2 mb-1">
+                                        <div class="line-through text-gray-400 text-[10px] font-bold decoration-merah-500/40">
+                                            Rp {{ number_format($schedule->price, 0, ',', '.') }}
+                                        </div>
+                                        <span class="bg-amber-100 text-amber-700 text-[9px] font-black px-1.5 py-0.5 rounded italic">FLASH PROMO</span>
+                                    </div>
+                                    <div class="text-2xl font-black text-merah-600 leading-none mb-2">
+                                        Rp {{ number_format($schedule->final_price, 0, ',', '.') }}
+                                    </div>
+                                    
+                                    {{-- Quota Progress Bar --}}
+                                    <div class="w-32">
+                                        <div class="flex justify-between items-center mb-1">
+                                            <span class="text-[8px] font-bold {{ $isLow ? 'text-merah-600 animate-pulse' : 'text-gray-500' }} uppercase">
+                                                {{ $isLow ? 'Hampir Habis!' : $remaining.' slot lagi' }}
+                                            </span>
+                                            <span class="text-[8px] font-black text-gray-400">{{ round($percent) }}%</span>
+                                        </div>
+                                        <div class="h-1 w-full bg-gray-100 rounded-full overflow-hidden">
+                                            <div class="h-full bg-gradient-to-r from-merah-500 to-amber-500 rounded-full transition-all duration-1000" style="width: {{ $percent }}%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            @else
+                                <p class="text-2xl font-black text-merah-600">Rp {{ number_format($schedule->price, 0, ',', '.') }}</p>
+                            @endif
                         </div>
                         @if($schedule->remaining_seats > 0)
-                            <a href="{{ route('booking.select-seat', $schedule) }}" class="btn-primary btn-sm">
+                            <a href="{{ route('booking.select-seat', $schedule) }}" class="btn-primary btn-sm flex items-center">
                                 Pilih Kursi
                                 <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
                             </a>

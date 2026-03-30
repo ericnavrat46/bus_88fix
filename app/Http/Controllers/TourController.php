@@ -94,12 +94,14 @@ class TourController extends Controller
             $user->name,
             $user->email,
             $user->phone ?? '',
-            [[
-                'id' => $booking->booking_code,
-                'price' => (int) $booking->total_price,
-                'quantity' => 1,
-                'name' => "Paket Wisata: {$booking->tourPackage->name}",
-            ]]
+            [
+                [
+                    'id' => $booking->booking_code,
+                    'price' => (int) $booking->total_price,
+                    'quantity' => 1,
+                    'name' => "Paket Wisata: {$booking->tourPackage->name}",
+                ]
+            ]
         );
 
         $snapToken = $this->midtrans->createSnapToken($params);

@@ -10,8 +10,14 @@ use Illuminate\Support\Facades\Storage;
 
 class PaymentProofController extends Controller
 {
+    // Booking masih diperbolehkan manual jika user ingin opsional, 
+    // tapi kita fokuskan Tiket Bus ke Midtrans sesuai permintaan.
     public function uploadBookingProof(Request $request, Booking $booking)
     {
+        if ($booking->isExpired()) {
+            return back()->with('error', 'Maaf, pesanan ini sudah kedaluwarsa dan tidak bisa dibayar lagi.');
+        }
+
         $request->validate([
             'payment_proof' => 'required|image|mimes:jpeg,png,jpg|max:2048',
         ]);
@@ -25,7 +31,7 @@ class PaymentProofController extends Controller
         $booking->update([
             'payment_proof' => $path,
             'payment_method' => 'manual',
-            'payment_status' => 'pending' // stays pending until admin approves
+            'payment_status' => 'pending'
         ]);
 
         return back()->with('success', 'Bukti pembayaran berhasil diunggah. Menunggu verifikasi admin.');

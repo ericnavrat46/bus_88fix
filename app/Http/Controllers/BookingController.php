@@ -145,6 +145,7 @@ class BookingController extends Controller
 
     /**
      * Show checkout page with Midtrans Snap
+     * Always regenerates snap token to prevent stale/environment-mismatch tokens.
      */
     public function checkout(Booking $booking)
     {
@@ -152,13 +153,63 @@ class BookingController extends Controller
             abort(403);
         }
 
+        // Check if the booking has expired
+        if ($booking->checkExpiration()) {
+            return redirect()->route('dashboard.booking-detail', $booking)
+                ->with('error', 'Maaf, batas waktu pembayaran untuk pesanan ini telah habis.');
+        }
+
+        if ($booking->payment_status === 'paid') {
+            return redirect()->route('dashboard')->with('info', 'Booking ini sudah lunas.');
+        }
+
         $booking->load(['schedule.bus', 'schedule.route', 'passengers']);
+        $user = auth()->user();
+
+        // Always regenerate snap token (prevents stale/sandbox token issues)
+        $itemDetails = [];
+        $finalPricePerSeat = $booking->schedule->final_price ?? ($booking->total_price / $booking->total_seats);
+
+        foreach ($booking->passengers as $passenger) {
+            $itemDetails[] = [
+                'id'       => 'SEAT-' . $passenger->seat_number,
+                'price'    => (int) $finalPricePerSeat,
+                'quantity' => 1,
+                'name'     => "Kursi {$passenger->seat_number} - {$booking->schedule->route->origin} ke {$booking->schedule->route->destination}",
+            ];
+        }
+
+        $params = $this->midtrans->buildTransactionParams(
+            $booking->booking_code,
+            (int) $booking->total_price,
+            $user->name,
+            $user->email,
+            $user->phone ?? '',
+            $itemDetails
+        );
+
+        $snapToken = $this->midtrans->createSnapToken($params);
+
+        if ($snapToken) {
+            $booking->update(['snap_token' => $snapToken]);
+
+            Payment::updateOrCreate(
+                ['midtrans_order_id' => $booking->booking_code],
+                [
+                    'payable_type' => Booking::class,
+                    'payable_id'   => $booking->id,
+                    'amount'       => $booking->total_price,
+                    'status'       => 'pending',
+                    'snap_token'   => $snapToken,
+                ]
+            );
+        }
 
         return view('booking.checkout', [
-            'booking' => $booking,
-            'snapToken' => $booking->snap_token,
+            'booking'   => $booking,
+            'snapToken' => $snapToken ?? $booking->snap_token,
             'clientKey' => config('midtrans.client_key'),
-            'snapUrl' => config('midtrans.snap_url'),
+            'snapUrl'   => config('midtrans.snap_url'),
         ]);
     }
 }

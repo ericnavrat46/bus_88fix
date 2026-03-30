@@ -83,8 +83,8 @@
                 <span class="text-2xl font-black text-merah-600">Rp {{ number_format($booking->total_price, 0, ',', '.') }}</span>
             </div>
 
-            {{-- Manual Payment Proof Section --}}
-            @if($booking->payment_status === 'pending')
+            {{-- Payment Section --}}
+            @if($booking->payment_status === 'pending' && !$booking->isExpired())
                 <div class="mt-8 pt-8 border-t border-gray-warm-100">
                     @if($booking->payment_proof)
                         <div class="p-6 bg-emerald-50 rounded-2xl border border-emerald-100 text-center">

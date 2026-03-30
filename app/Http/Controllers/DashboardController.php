@@ -37,6 +37,9 @@ class DashboardController extends Controller
             abort(403);
         }
 
+        // Auto update status if expired
+        $booking->checkExpiration();
+
         $booking->load(['schedule.bus', 'schedule.route', 'passengers', 'latestPayment']);
 
         return view('dashboard.booking-detail', compact('booking'));

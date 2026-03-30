@@ -83,47 +83,49 @@
                         </div>
                     </div>
 
-                    @if($snapToken)
-                        {{-- Midtrans Option --}}
-                        <div class="mb-8">
-                            <h3 class="font-bold text-dark mb-3">Metode 1: Pembayaran Instan</h3>
-                            <button id="pay-button" class="btn-primary w-full text-center text-lg py-4 animate-pulse-glow">
-                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
-                                Bayar via Midtrans
-                            </button>
-                            <p class="text-xs text-gray-warm-400 text-center mt-3">Virtual Account, E-Wallet, Kartu Kredit</p>
-                        </div>
-
-                        {{-- Manual Option --}}
-                        <div class="pt-6 border-t border-gray-warm-100">
-                            <h3 class="font-bold text-dark mb-3">Metode 2: Transfer Manual</h3>
-                            <div class="p-4 bg-gray-warm-50 rounded-xl mb-4 text-sm">
-                                <p class="text-gray-warm-600 mb-2">Silakan transfer ke rekening berikut:</p>
-                                <div class="flex items-center justify-between mb-1">
-                                    <span class="font-bold text-dark">BANK BRI</span>
-                                    <span class="text-merah-600 font-mono">1234-5678-9012-345</span>
-                                </div>
-                                <p class="text-xs text-gray-warm-500">a.n. PT Bus 88 Merah Putih</p>
+                    <div class="space-y-6">
+                        @if($snapToken)
+                            {{-- Midtrans Option --}}
+                            <div class="p-6 bg-white rounded-xl border border-emerald-100 shadow-sm text-center">
+                                <h3 class="font-bold text-dark mb-3">Opsi 1: Pembayaran Instan</h3>
+                                <button id="pay-button" class="btn-primary w-full text-center text-lg py-4 animate-pulse-glow">
+                                    <svg class="w-5 h-5 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                                    Bayar via Midtrans
+                                </button>
+                                <p class="text-[10px] text-emerald-600 mt-3 italic font-medium">Otomatis Terverifikasi • VA, E-Wallet, Kartu Kredit</p>
                             </div>
 
+                            <div class="flex items-center gap-4 py-2">
+                                <div class="h-px flex-1 bg-gray-warm-200"></div>
+                                <span class="text-[10px] font-bold text-gray-warm-400 uppercase tracking-[0.2em]">ATAU</span>
+                                <div class="h-px flex-1 bg-gray-warm-200"></div>
+                            </div>
+                        @else
+                            <div class="p-4 bg-amber-50 border border-amber-200 rounded-xl">
+                                <p class="text-xs text-amber-700 font-medium text-center italic">Pembayaran instan (Midtrans) sedang kendala. Silakan gunakan Transfer Manual di bawah.</p>
+                            </div>
+                        @endif
+
+                        {{-- Manual Option --}}
+                        <div class="p-6 bg-gray-warm-50 rounded-2xl border border-gray-warm-100">
+                            <h3 class="font-bold text-dark mb-4 text-center">Opsi 2: Transfer Manual</h3>
+                            <div class="p-4 bg-white rounded-xl border border-gray-warm-200 text-sm mb-4">
+                                <p class="text-gray-warm-500 mb-1 text-center font-medium">Bank BRI</p>
+                                <p class="text-xl font-black text-merah-600 text-center tracking-wider">1234-5678-9012-345</p>
+                                <p class="text-[10px] text-gray-warm-400 text-center uppercase mt-1">a.n. PT Bus 88 Merah Putih</p>
+                            </div>
+                            
                             <form action="{{ route('booking.upload-proof', $booking) }}" method="POST" enctype="multipart/form-data" class="space-y-4">
                                 @csrf
                                 <div>
-                                    <label class="label-field text-xs">Unggah Bukti Pembayaran</label>
-                                    <input type="file" name="payment_proof" class="input-field py-2 text-sm" required accept="image/*">
-                                    <p class="text-[10px] text-gray-warm-400 mt-1">*Format: JPG, PNG, JPEG. Maks 2MB</p>
+                                    <label class="label-field text-xs">Unggah Bukti Transfer</label>
+                                    <input type="file" name="payment_proof" class="input-field py-2.5 text-xs bg-white" required accept="image/*">
                                 </div>
-                                <button type="submit" class="btn-secondary w-full py-3 text-sm">
-                                    Unggah Bukti & Konfirmasi
-                                </button>
+                                <button type="submit" class="btn-secondary w-full py-3.5 font-bold uppercase tracking-widest text-[11px]">Unggah Bukti & Konfirmasi</button>
                             </form>
+                            <p class="text-[9px] text-gray-warm-400 text-center mt-3">*Verifikasi manual oleh admin (max 1x24 jam)</p>
                         </div>
-                    @else
-                        <div class="text-center p-6 bg-amber-50 rounded-2xl border border-amber-200">
-                            <p class="text-amber-700 font-medium">Snap token tidak tersedia. Silakan coba lagi.</p>
-                            <a href="{{ route('dashboard') }}" class="btn-secondary btn-sm mt-4">Ke Dashboard</a>
-                        </div>
-                    @endif
+                    </div>
                 </div>
             </div>
         </div>

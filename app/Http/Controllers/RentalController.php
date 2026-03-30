@@ -86,12 +86,14 @@ class RentalController extends Controller
             $user->name,
             $user->email,
             $user->phone ?? '',
-            [[
-                'id' => $rentalCode,
-                'price' => (int) $rental->total_price,
-                'quantity' => 1,
-                'name' => "Sewa Bus - {$rental->destination} ({$rental->duration_days} hari)",
-            ]]
+            [
+                [
+                    'id' => $rentalCode,
+                    'price' => (int) $rental->total_price,
+                    'quantity' => 1,
+                    'name' => "Sewa Bus - {$rental->destination} ({$rental->duration_days} hari)",
+                ]
+            ]
         );
 
         $snapToken = $this->midtrans->createSnapToken($params);

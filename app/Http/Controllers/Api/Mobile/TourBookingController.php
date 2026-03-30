@@ -69,8 +69,8 @@ public function store(Request $request)
             ->orderBy('tour_bookings.created_at','desc')
             ->get();
 
-
-        foreach ($data as $t) {
+        // 🔥 FIX: pakai map + cast array biar status_final ikut ter-serialize ke JSON
+        $result = $data->map(function ($t) {
 
             $status = 'pending_payment';
 
@@ -91,7 +91,7 @@ public function store(Request $request)
                 }
             }
 
-           elseif ($t->payment_status == 'pending') {
+            elseif ($t->payment_status == 'pending') {
                 if ($t->payment_proof) {
                     $status = 'waiting_confirmation';
                 } else {
@@ -99,12 +99,15 @@ public function store(Request $request)
                 }
             }
 
-            $t->status_final = $status;
-        }
+            // 🔥 cast ke array, tambah status_final, return
+            $arr = (array) $t;
+            $arr['status_final'] = $status;
+            return $arr;
+        });
 
         return response()->json([
             'success' => true,
-            'data' => $data
+            'data' => $result->values()
         ]);
     }
 

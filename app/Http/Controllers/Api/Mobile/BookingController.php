@@ -37,19 +37,51 @@ class BookingController extends Controller
             ->orderBy('bookings.created_at','desc')
             ->get();
 
-        // Tambahkan data passengers ke setiap booking
+        // 🔥 FIX: tambah status_final + passengers
         $bookings = $bookings->map(function ($booking) {
+
+            // Tambah passengers
             $booking->passengers = DB::table('booking_passengers')
                 ->where('booking_id', $booking->id)
                 ->select('seat_number as seat', 'passenger_name', 'phone')
                 ->get()
                 ->toArray();
-            return $booking;
+
+            // 🔥 Hitung status_final
+            $status = 'pending_payment';
+
+            if ($booking->payment_status == 'cancelled') {
+                $status = 'cancelled';
+            } elseif ($booking->payment_status == 'expired') {
+                $status = 'expired';
+            } elseif ($booking->payment_status == 'paid') {
+                if (now()->gt(\Carbon\Carbon::parse($booking->departure_date)->addDay())) {
+                    $status = 'completed';
+                } else {
+                    $status = 'paid';
+                }
+            } elseif ($booking->payment_status == 'pending') {
+                if ($booking->payment_proof) {
+                    $status = 'waiting_confirmation';
+                } else {
+                    // Cek expired_at
+                    if ($booking->expired_at && now()->gt(\Carbon\Carbon::parse($booking->expired_at))) {
+                        $status = 'expired';
+                    } else {
+                        $status = 'pending_payment';
+                    }
+                }
+            }
+
+            // 🔥 cast ke array biar status_final ikut ke JSON
+            $arr = (array) $booking;
+            $arr['status_final'] = $status;
+            return $arr;
         });
 
         return response()->json([
             'status' => true,
-            'data' => $bookings
+            'data' => $bookings->values()
         ]);
     }
 
@@ -149,4 +181,33 @@ class BookingController extends Controller
         ]);
     }
 
+    public function cancel($id)
+    {
+        DB::table('bookings')
+            ->where('id', $id)
+            ->update([
+                'payment_status' => 'cancelled',
+                'updated_at' => now()
+            ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Booking dibatalkan'
+        ]);
+    }
+
+    public function finish($id)
+    {
+        DB::table('bookings')
+            ->where('id', $id)
+            ->update([
+                'departure_date' => now()->subDay(),
+                'updated_at' => now()
+            ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Selesai'
+        ]);
+    }
 }

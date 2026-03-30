@@ -37,7 +37,6 @@ Route::post('/upload-payment-tour', [TourBookingController::class, 'uploadPaymen
 Route::post('/upload-payment-rental', [RentalController::class, 'uploadPayment']);
 Route::get('/my-rentals/{user_id}', [RentalController::class, 'myRentals']);
 Route::post('/cancel-rental/{id}', [RentalController::class, 'cancel']);
-/// FINISH
 Route::post('/finish-booking/{id}', [BookingController::class, 'finish']);
 Route::post('/finish-tour/{id}', [TourBookingController::class, 'finish']);
 Route::post('/finish-rental/{id}', [RentalController::class, 'finish']);

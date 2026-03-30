@@ -68,7 +68,8 @@ class BookingController extends Controller
         try {
             $booking = DB::transaction(function () use ($validated, $schedule, $user) {
                 $totalSeats = count($validated['passengers']);
-                $totalPrice = $schedule->price * $totalSeats;
+                $finalPricePerSeat = $schedule->final_price;
+                $totalPrice = $finalPricePerSeat * $totalSeats;
                 $bookingCode = Booking::generateBookingCode();
 
                 $booking = Booking::create([
@@ -81,6 +82,11 @@ class BookingController extends Controller
                     'midtrans_order_id' => $bookingCode,
                     'expired_at' => now()->addHours(2),
                 ]);
+
+                // Increment Flash Sale Quota if active
+                if ($flash = $schedule->active_flash_sale) {
+                    $flash->increment('used_quota');
+                }
 
                 foreach ($validated['passengers'] as $passenger) {
                     BookingPassenger::create([
@@ -97,7 +103,7 @@ class BookingController extends Controller
                 foreach ($validated['passengers'] as $passenger) {
                     $itemDetails[] = [
                         'id' => 'SEAT-' . $passenger['seat_number'],
-                        'price' => (int) $schedule->price,
+                        'price' => (int) $finalPricePerSeat,
                         'quantity' => 1,
                         'name' => "Kursi {$passenger['seat_number']} - {$schedule->route->origin} ke {$schedule->route->destination}",
                     ];

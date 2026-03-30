@@ -50,7 +50,8 @@ class TourController extends Controller
             'notes' => 'nullable|string',
         ]);
 
-        $totalPrice = $package->price_per_person * $validated['passenger_count'];
+        $finalPricePerPerson = $package->final_price;
+        $totalPrice = $finalPricePerPerson * $validated['passenger_count'];
         $user = auth()->user();
 
         $booking = DB::transaction(function () use ($package, $validated, $totalPrice, $user) {
@@ -64,6 +65,11 @@ class TourController extends Controller
                 'payment_status' => 'pending',
                 'notes' => $validated['notes'],
             ]);
+
+            // Increment Flash Sale Quota if active
+            if ($flash = $package->active_flash_sale) {
+                $flash->increment('used_quota');
+            }
 
             return $booking;
         });

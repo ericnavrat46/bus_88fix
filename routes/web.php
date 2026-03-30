@@ -18,6 +18,7 @@ use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\PaymentProofController;
 use App\Http\Controllers\Auth\SocialAuthController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
+use App\Http\Controllers\Admin\FlashSaleController;
 use Illuminate\Support\Facades\Route;
 
 // Public Routes
@@ -101,6 +102,7 @@ Route::middleware(['auth', \App\Http\Middleware\AdminMiddleware::class])
         Route::resource('routes', RouteController::class);
         Route::resource('schedules', ScheduleController::class);
         Route::resource('tour-packages', TourPackageController::class);
+        Route::resource('flash-sales', FlashSaleController::class);
 
         // Transactions
         Route::get('/transactions/bookings', [TransactionController::class, 'bookings'])->name('transactions.bookings');

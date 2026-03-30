@@ -8,6 +8,8 @@ use App\Http\Controllers\Api\Mobile\BookingController;
 use App\Http\Controllers\Api\Mobile\TourController;
 use App\Http\Controllers\Api\Mobile\TourBookingController;
 use App\Http\Controllers\Api\Mobile\RentalController;
+use App\Http\Controllers\Api\Mobile\BusController;
+
 
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);
@@ -40,6 +42,9 @@ Route::post('/cancel-rental/{id}', [RentalController::class, 'cancel']);
 Route::post('/finish-booking/{id}', [BookingController::class, 'finish']);
 Route::post('/finish-tour/{id}', [TourBookingController::class, 'finish']);
 Route::post('/finish-rental/{id}', [RentalController::class, 'finish']);
+Route::get('/buses', [BusController::class, 'index']);
+Route::get('/buses/{id}', [BusController::class, 'show']);
+Route::post('/rentals/store', [RentalController::class, 'store']);
 
 
 // TEST EMAIL

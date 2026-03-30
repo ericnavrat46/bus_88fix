@@ -9,6 +9,8 @@ use App\Http\Controllers\Api\Mobile\TourController;
 use App\Http\Controllers\Api\Mobile\TourBookingController;
 use App\Http\Controllers\Api\Mobile\RentalController;
 use App\Http\Controllers\Api\Mobile\BusController;
+use App\Http\Controllers\Api\Mobile\PromoController;
+
 
 
 Route::post('/login', [AuthController::class, 'login']);
@@ -45,6 +47,7 @@ Route::post('/finish-rental/{id}', [RentalController::class, 'finish']);
 Route::get('/buses', [BusController::class, 'index']);
 Route::get('/buses/{id}', [BusController::class, 'show']);
 Route::post('/rentals/store', [RentalController::class, 'store']);
+Route::get('/promo/active', [PromoController::class, 'getActivePromo']);
 
 
 // TEST EMAIL

@@ -8,6 +8,7 @@ use App\Models\Rental;
 use App\Services\MidtransService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB; 
 
 class PaymentController extends Controller
 {
@@ -19,6 +20,36 @@ class PaymentController extends Controller
     }
 
     /**
+     * CREATE MIDTRANS TRANSACTION (UNTUK MOBILE)
+     */
+    public function create(Request $request)
+    {
+        $request->validate([
+            'booking_id' => 'required|exists:bookings,id',
+        ]);
+
+        $booking = Booking::findOrFail($request->booking_id);
+
+        try {
+            $payment = $this->midtrans->createTransaction($booking);
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Snap token berhasil dibuat',
+                'snap_token' => $payment->snap_token,
+                'order_id' => $payment->midtrans_order_id,
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Midtrans Create Error: ' . $e->getMessage());
+
+            return response()->json([
+                'status' => false,
+                'message' => 'Gagal membuat transaksi',
+            ], 500);
+        }
+    }
+
+    /**
      * Midtrans Notification Handler (Webhook)
      */
     public function notification(Request $request)
@@ -27,7 +58,6 @@ class PaymentController extends Controller
 
         Log::info('Midtrans Notification Received', $payload);
 
-        // Verify signature
         if (!$this->midtrans->verifySignature($payload)) {
             Log::warning('Midtrans Invalid Signature', $payload);
             return response()->json(['message' => 'Invalid signature'], 403);
@@ -39,17 +69,14 @@ class PaymentController extends Controller
         $transactionId = $payload['transaction_id'] ?? null;
         $fraudStatus = $payload['fraud_status'] ?? null;
 
-        // Find the payment record
         $payment = Payment::where('midtrans_order_id', $orderId)->first();
         if (!$payment) {
             Log::warning('Payment not found for order: ' . $orderId);
             return response()->json(['message' => 'Payment not found'], 404);
         }
 
-        // Determine payment status
         $status = $this->mapTransactionStatus($transactionStatus, $fraudStatus);
 
-        // Update payment
         $payment->update([
             'status' => $status,
             'midtrans_transaction_id' => $transactionId,
@@ -57,10 +84,74 @@ class PaymentController extends Controller
             'raw_response' => $payload,
         ]);
 
-        // Update related booking or rental
         $this->updatePayableStatus($payment, $status);
 
         return response()->json(['message' => 'OK']);
+    }
+
+    /**
+     * CHECK STATUS DARI MIDTRANS LANGSUNG (UNTUK MOBILE TANPA WEBHOOK)
+     * 🔥 FIX: pakai DB::table() langsung biar pasti update
+     */
+    public function checkStatus($bookingId)
+    {
+        $payment = Payment::where('payable_id', $bookingId)
+            ->where('payable_type', Booking::class)
+            ->latest()
+            ->first();
+
+        if (!$payment) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Payment tidak ditemukan',
+            ], 404);
+        }
+
+        $statusData = $this->midtrans->getTransactionStatus($payment->midtrans_order_id);
+
+        if (!$statusData) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Gagal mengambil status dari Midtrans',
+            ], 500);
+        }
+
+        $transactionStatus = $statusData['transaction_status'] ?? 'pending';
+        $fraudStatus = $statusData['fraud_status'] ?? null;
+
+        $status = $this->mapTransactionStatus($transactionStatus, $fraudStatus);
+
+        // Update tabel payments
+        $payment->update(['status' => $status]);
+
+        // 🔥 LANGSUNG UPDATE TABEL BOOKINGS PAKAI DB::table (bypass Eloquent)
+        $bookingStatus = match ($status) {
+            'settlement', 'capture' => 'paid',
+            'pending' => 'pending',
+            'expire' => 'expired',
+            'cancel', 'deny' => 'cancelled',
+            default => 'pending',
+        };
+
+        DB::table('bookings')
+            ->where('id', $bookingId)
+            ->update([
+                'payment_status' => $bookingStatus,
+                'paid_at' => in_array($status, ['settlement', 'capture']) ? now() : null,
+                'updated_at' => now(),
+            ]);
+
+        Log::info('checkStatus result', [
+            'booking_id' => $bookingId,
+            'midtrans_status' => $status,
+            'booking_status' => $bookingStatus,
+        ]);
+
+        return response()->json([
+            'status' => true,
+            'payment_status' => $status,
+            'booking_id' => $bookingId,
+        ]);
     }
 
     /**

@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\Mobile\TourBookingController;
 use App\Http\Controllers\Api\Mobile\RentalController;
 use App\Http\Controllers\Api\Mobile\BusController;
 use App\Http\Controllers\Api\Mobile\PromoController;
+use App\Http\Controllers\PaymentController;
 
 
 
@@ -48,6 +49,14 @@ Route::get('/buses', [BusController::class, 'index']);
 Route::get('/buses/{id}', [BusController::class, 'show']);
 Route::post('/rentals/store', [RentalController::class, 'store']);
 Route::get('/promo/active', [PromoController::class, 'getActivePromo']);
+Route::post('/payments/midtrans', [PaymentController::class, 'create']);
+Route::post('/payments/midtrans/notification', [PaymentController::class, 'notification']);
+Route::get('/payments/check/{bookingId}', [PaymentController::class, 'checkStatus']);
+Route::get('/payments/sync/{bookingId}', [PaymentController::class, 'syncStatus']);
+Route::get('/promo/active', [PromoController::class, 'getActivePromo']);
+Route::post('/promo/detail',  [PromoController::class, 'getPromoDetail']);
+Route::post('/promo/apply',   [PromoController::class, 'applyPromo']);
+Route::post('/promo/confirm', [PromoController::class, 'confirmPromo']);
 
 
 // TEST EMAIL

@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use App\Mail\SendOTPMail;
 
 class ProfileController extends Controller
 {
@@ -182,10 +183,7 @@ class ProfileController extends Controller
         $user->expired_otp = now()->addMinutes(5);
         $user->save();
 
-        Mail::raw("Kode OTP kamu: $otp", function ($message) use ($user) {
-            $message->to($user->email)
-                    ->subject('Kode OTP');
-        });
+        Mail::to($user->email)->send(new SendOTPMail($otp));
 
         return response()->json([
             "status" => true,

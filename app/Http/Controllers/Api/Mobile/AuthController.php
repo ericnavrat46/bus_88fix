@@ -7,10 +7,10 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use App\Mail\SendOTPMail;
 
 class AuthController extends Controller
 {
-
     // LOGIN
     public function login(Request $request)
     {
@@ -19,101 +19,95 @@ class AuthController extends Controller
             "password" => "required"
         ]);
 
-        $user = User::where('email',$request->email)->first();
+        $user = User::where('email', $request->email)->first();
 
-        if(!$user){
+        if (!$user) {
             return response()->json([
-                "status"=>false,
-                "message"=>"Email tidak ditemukan"
+                "status" => false,
+                "message" => "Email tidak ditemukan"
             ]);
         }
 
-        if(!Hash::check($request->password,$user->password)){
+        if (!Hash::check($request->password, $user->password)) {
             return response()->json([
-                "status"=>false,
-                "message"=>"Password salah"
+                "status" => false,
+                "message" => "Password salah"
             ]);
         }
 
         return response()->json([
-            "status"=>true,
-            "message"=>"Login berhasil",
-            "data"=>$user
+            "status" => true,
+            "message" => "Login berhasil",
+            "data" => $user
         ]);
     }
-
 
     // REGISTER
     public function register(Request $request)
     {
         $request->validate([
-            "name"=>"required",
-            "email"=>"required|email|unique:users",
-            "phone"=>"required",
-            "password"=>"required|min:6"
+            "name" => "required",
+            "email" => "required|email|unique:users",
+            "phone" => "required",
+            "password" => "required|min:6"
         ]);
 
         $user = User::create([
-            "name"=>$request->name,
-            "email"=>$request->email,
-            "phone"=>$request->phone,
-            "password"=>Hash::make($request->password),
-            "role"=>"customer"
+            "name" => $request->name,
+            "email" => $request->email,
+            "phone" => $request->phone,
+            "password" => Hash::make($request->password),
+            "role" => "customer"
         ]);
 
         return response()->json([
-            "status"=>true,
-            "message"=>"Register berhasil",
-            "data"=>$user
+            "status" => true,
+            "message" => "Register berhasil",
+            "data" => $user
         ]);
     }
-
 
     // GOOGLE LOGIN
     public function googleLogin(Request $request)
     {
         $request->validate([
-            "google_id"=>"required",
-            "email"=>"required|email",
-            "name"=>"required"
+            "google_id" => "required",
+            "email" => "required|email",
+            "name" => "required"
         ]);
 
-        $user = User::where('google_id',$request->google_id)->first();
+        $user = User::where('google_id', $request->google_id)->first();
 
-        if(!$user){
+        if (!$user) {
+            $user = User::where('email', $request->email)->first();
 
-            $user = User::where('email',$request->email)->first();
-
-            if($user){
+            if ($user) {
                 $user->update([
-                    "google_id"=>$request->google_id,
-                    "avatar"=>$request->photo ?? null
+                    "google_id" => $request->google_id,
+                    "avatar" => $request->photo ?? null
                 ]);
-            }else{
+            } else {
                 $user = User::create([
-                    "name"=>$request->name,
-                    "email"=>$request->email,
-                    "google_id"=>$request->google_id,
-                    "avatar"=>$request->photo ?? null,
-                    "password"=>Hash::make("google_login"),
-                    "role"=>"customer"
+                    "name" => $request->name,
+                    "email" => $request->email,
+                    "google_id" => $request->google_id,
+                    "avatar" => $request->photo ?? null,
+                    "password" => Hash::make("google_login"),
+                    "role" => "customer"
                 ]);
             }
         }
 
-        $requirePhone = $user->phone ? false : true;
-
         return response()->json([
-            "status"=>true,
-            "message"=>"Login Google berhasil",
-            "data"=>$user,
-            "require_phone"=>$requirePhone
+            "status" => true,
+            "message" => "Login Google berhasil",
+            "data" => $user,
+            "require_phone" => $user->phone ? false : true
         ]);
     }
 
-
     // =========================================
-    // 🔥 FORGOT PASSWORD (KIRIM OTP)
+    // 🔥 FORGOT PASSWORD (OTP)
     // =========================================
     public function forgotPassword(Request $request)
     {
@@ -130,7 +124,7 @@ class AuthController extends Controller
             ]);
         }
 
-        // 🔥 CEGAH SPAM OTP
+        // Cegah spam OTP
         if ($user->expired_otp && now()->lessThan($user->expired_otp)) {
             return response()->json([
                 "status" => false,
@@ -140,14 +134,13 @@ class AuthController extends Controller
 
         $otp = rand(100000, 999999);
 
-        $user->otp = $otp;
-        $user->expired_otp = now()->addMinutes(5);
-        $user->save();
+        $user->update([
+            "otp" => $otp,
+            "expired_otp" => now()->addMinutes(5)
+        ]);
 
-        Mail::raw("Kode OTP reset password kamu adalah: $otp (berlaku 5 menit)", function ($message) use ($user) {
-            $message->to($user->email)
-                    ->subject("OTP Reset Password");
-        });
+        // Kirim email (FIX UTAMA)
+        Mail::to($user->email)->send(new SendOTPMail($otp));
 
         return response()->json([
             "status" => true,
@@ -155,10 +148,7 @@ class AuthController extends Controller
         ]);
     }
 
-
-    // =========================================
-    // 🔥 VERIFY OTP
-    // =========================================
+    // VERIFY OTP
     public function verifyOtpReset(Request $request)
     {
         $request->validate([
@@ -190,10 +180,7 @@ class AuthController extends Controller
         ]);
     }
 
-
-    // =========================================
-    // 🔥 RESET PASSWORD (WAJIB PAKAI OTP)
-    // =========================================
+    // RESET PASSWORD
     public function resetPassword(Request $request)
     {
         $request->validate([
@@ -220,18 +207,15 @@ class AuthController extends Controller
             ]);
         }
 
-        $user->password = Hash::make($request->password);
-
-        // 🔥 HAPUS OTP SETELAH DIPAKAI
-        $user->otp = null;
-        $user->expired_otp = null;
-
-        $user->save();
+        $user->update([
+            "password" => Hash::make($request->password),
+            "otp" => null,
+            "expired_otp" => null
+        ]);
 
         return response()->json([
             "status" => true,
             "message" => "Password berhasil diubah"
         ]);
     }
-
 }

@@ -43,26 +43,33 @@ class AuthController extends Controller
     }
 
     public function register(Request $request)
-    {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users',
-            'phone' => 'required|string|max:20',
-            'password' => 'required|string|min:8|confirmed',
-        ]);
+{
+    $validated = $request->validate([
+        'name'     => 'required|string|max:255',
+        'email'    => 'required|email|unique:users',
+        'phone'    => 'required|string|max:20',
+        'password' => 'required|string|min:8|confirmed',
+    ]);
 
-        $user = User::create([
-            'name' => $validated['name'],
-            'email' => $validated['email'],
-            'phone' => $validated['phone'],
-            'password' => Hash::make($validated['password']),
-            'role' => 'customer',
-        ]);
+    $googleId    = session('google_id');
+    $googleAvatar = session('google_avatar');
 
-        Auth::login($user);
+    $user = User::create([
+        'name'      => $validated['name'],
+        'email'     => $validated['email'],
+        'phone'     => $validated['phone'],
+        'password'  => Hash::make($validated['password']),
+        'role'      => 'customer',
+        'google_id' => $googleId ?? null,
+        'avatar'    => $googleAvatar ?? null,
+    ]);
 
-        return redirect('/dashboard');
-    }
+    // Bersihkan session Google
+    session()->forget(['google_email', 'google_name', 'google_id', 'google_avatar']);
+
+    Auth::login($user);
+    return redirect('/dashboard');
+}
 
     public function logout(Request $request)
     {

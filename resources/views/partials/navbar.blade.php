@@ -31,9 +31,16 @@
                 @else
                     <div class="flex items-center gap-3" x-data="{ dropdown: false }">
                         <button @click="dropdown = !dropdown" class="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-gray-warm-100 transition-colors">
-                            <div class="w-8 h-8 bg-merah-100 rounded-full flex items-center justify-center">
-                                <span class="text-merah-600 font-bold text-sm">{{ substr(auth()->user()->name, 0, 1) }}</span>
-                            </div>
+                            <div class="w-8 h-8 rounded-full overflow-hidden border-2 border-merah-500">
+    <img 
+        src="{{ auth()->user()->avatar 
+            ? asset('avatar/' . auth()->user()->avatar) 
+            : 'https://ui-avatars.com/api/?name=' . urlencode(auth()->user()->name) . '&background=cc0000&color=fff' 
+        }}"
+        alt="avatar"
+        class="w-full h-full object-cover"
+    >
+</div>
                             <span class="text-sm font-medium text-dark">{{ auth()->user()->name }}</span>
                             <svg class="w-4 h-4 text-gray-warm-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                         </button>

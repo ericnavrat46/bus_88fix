@@ -11,90 +11,52 @@ use Illuminate\Support\Str;
 
 class SocialAuthController extends Controller
 {
-    /**
-     * Redirect ke Google
-     */
+    // Redirect ke Google
     public function redirectToGoogle()
     {
         return Socialite::driver('google')->redirect();
     }
 
-    /**
-     * Callback dari Google
-     */
+    // Callback Google
     public function handleGoogleCallback()
 {
     try {
-        $googleUser = Socialite::driver('google')->user();
+        $googleUser = Socialite::driver('google')->stateless()->user();
 
-        // 🔥 Cari atau buat user (ANTI GAGAL)
-        $user = User::updateOrCreate(
-            [
-                'email' => $googleUser->getEmail(),
-            ],
-            [
-                'name'      => $googleUser->getName() ?? 'User Google',
-                'google_id' => $googleUser->getId(),
-                'avatar'    => $googleUser->getAvatar(),
-                'role'      => 'customer',
-                'password'  => bcrypt('12345678'),
-            ]
-        );
-
-        // 🔐 Login
-        Auth::login($user, true);
-
-        return redirect('/dashboard');
-
-    } catch (\Exception $e) {
-        dd('ERROR FINAL', $e->getMessage());
-    }
-
-
-
-        // 🔥 Validasi email (penting)
         if (!$googleUser->getEmail()) {
             return redirect()->route('login')
-                ->with('error', 'Email dari Google tidak tersedia.');
+                ->with('error', 'Email Google tidak tersedia');
         }
 
-        try {
-            // 🔍 Cari user
-            $user = User::where('google_id', $googleUser->getId())
-                ->orWhere('email', $googleUser->getEmail())
-                ->first();
+        $existingUser = User::where('email', $googleUser->getEmail())->first();
 
-            if ($user) {
-                // 🔄 Update jika belum ada google_id
-                if (!$user->google_id) {
-                    $user->update([
-                        'google_id' => $googleUser->getId(),
-                        'avatar'    => $googleUser->getAvatar(),
-                    ]);
-                }
-            } else {
-                // 🆕 Buat user baru
-                $user = User::create([
-                    'name'      => $googleUser->getName() ?? 'User Google',
-                    'email'     => $googleUser->getEmail(),
-                    'google_id' => $googleUser->getId(),
-                    'avatar'    => $googleUser->getAvatar(),
-                    'role'      => 'customer',
-                    'password'  => bcrypt(Str::random(16)), // 🔥 FIX WAJIB
-                ]);
-            }
-
-            // 🔐 Login user
-            Auth::login($user, true);
-
-            // 🚀 Redirect
+        // Jika user lama & sudah lengkap, langsung login
+        if ($existingUser && $existingUser->phone) {
+            // Update google_id & avatar jika belum ada
+            $existingUser->update([
+                'google_id' => $googleUser->getId(),
+                'avatar'    => $existingUser->avatar ?? $googleUser->getAvatar(),
+            ]);
+            Auth::login($existingUser, true);
             return redirect('/dashboard');
-
-        } catch (\Exception $e) {
-            Log::error('DB/Login Error: ' . $e->getMessage());
-
-            return redirect()->route('login')
-                ->with('error', 'Terjadi kesalahan saat login.');
         }
+
+        // ✅ User baru atau belum lengkap — simpan data Google ke session
+        session([
+            'google_email'  => $googleUser->getEmail(),
+            'google_name'   => $googleUser->getName(),
+            'google_id'     => $googleUser->getId(),
+            'google_avatar' => $googleUser->getAvatar(),
+        ]);
+
+        return redirect()->route('register')->with('from_google', true);
+
+    } catch (\Exception $e) {
+        Log::error('Google Error:', [
+            'message' => $e->getMessage(),
+            'trace'   => $e->getTraceAsString()
+        ]);
+        return redirect()->route('login')->with('error', 'Login Google gagal');
     }
+}
 }

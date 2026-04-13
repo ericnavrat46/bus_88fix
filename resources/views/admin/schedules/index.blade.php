@@ -18,7 +18,19 @@
             <td class="table-cell font-semibold text-merah-600">Rp {{ number_format($schedule->price, 0, ',', '.') }}</td>
             <td class="table-cell">{{ $schedule->available_seats }}</td>
             <td class="table-cell"><span class="{{ $schedule->status === 'active' ? 'badge-success' : 'badge-gray' }}">{{ ucfirst($schedule->status) }}</span></td>
-            <td class="table-cell"><div class="flex items-center gap-2"><a href="{{ route('admin.schedules.edit', $schedule) }}" class="text-sm text-merah-600 hover:underline font-medium">Edit</a><form method="POST" action="{{ route('admin.schedules.destroy', $schedule) }}" onsubmit="return confirm('Yakin?')">@csrf @method('DELETE')<button type="submit" class="text-sm text-red-600 hover:underline font-medium">Hapus</button></form></div></td>
+            <td class="table-cell">
+                <div class="flex items-center gap-2">
+                    <a href="{{ route('admin.schedules.edit', $schedule) }}" class="text-sm text-merah-600 hover:underline font-medium">Edit</a>
+                    <form method="POST" action="{{ route('admin.schedules.destroy', $schedule) }}" id="delete-form-{{ $schedule->id }}">
+                        @csrf @method('DELETE')
+                        <button type="button" 
+                                onclick="confirmDelete('Hapus jadwal ini?').then((result) => { if(result.isConfirmed) document.getElementById('delete-form-{{ $schedule->id }}').submit(); })"
+                                class="text-sm text-red-600 hover:underline font-medium">
+                            Hapus
+                        </button>
+                    </form>
+                </div>
+            </td>
         </tr>
         @endforeach
         </tbody>

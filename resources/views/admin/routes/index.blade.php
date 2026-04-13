@@ -17,7 +17,19 @@
             <td class="table-cell">{{ $route->formatted_duration }}</td>
             <td class="table-cell font-semibold text-merah-600">Rp {{ number_format($route->base_price, 0, ',', '.') }}</td>
             <td class="table-cell"><span class="{{ $route->status === 'active' ? 'badge-success' : 'badge-gray' }}">{{ ucfirst($route->status) }}</span></td>
-            <td class="table-cell"><div class="flex items-center gap-2"><a href="{{ route('admin.routes.edit', $route) }}" class="text-sm text-merah-600 hover:underline font-medium">Edit</a><form method="POST" action="{{ route('admin.routes.destroy', $route) }}" onsubmit="return confirm('Yakin?')">@csrf @method('DELETE')<button type="submit" class="text-sm text-red-600 hover:underline font-medium">Hapus</button></form></div></td>
+            <td class="table-cell">
+                <div class="flex items-center gap-2">
+                    <a href="{{ route('admin.routes.edit', $route) }}" class="text-sm text-merah-600 hover:underline font-medium">Edit</a>
+                    <form method="POST" action="{{ route('admin.routes.destroy', $route) }}" id="delete-form-{{ $route->id }}">
+                        @csrf @method('DELETE')
+                        <button type="button" 
+                                onclick="confirmDelete('Hapus rute ini?').then((result) => { if(result.isConfirmed) document.getElementById('delete-form-{{ $route->id }}').submit(); })"
+                                class="text-sm text-red-600 hover:underline font-medium">
+                            Hapus
+                        </button>
+                    </form>
+                </div>
+            </td>
         </tr>
         @endforeach
         </tbody>

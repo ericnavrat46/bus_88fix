@@ -9,6 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body class="min-h-screen bg-gray-warm-50" x-data="{ sidebarOpen: true }">
     <div class="flex">
@@ -129,16 +130,52 @@
                 </div>
             </header>
 
-            {{-- Flash Messages --}}
+            {{-- Flash Messages with SweetAlert2 --}}
             @if(session('success'))
-            <div class="mx-6 mt-4 animate-slide-up" x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 4000)">
-                <div class="bg-emerald-50 border border-emerald-200 text-emerald-700 px-6 py-4 rounded-xl flex items-center gap-3">
-                    <svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-                    <span class="font-medium">{{ session('success') }}</span>
-                    <button @click="show = false" class="ml-auto text-emerald-400 hover:text-emerald-600"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
-                </div>
-            </div>
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Berhasil!',
+                        text: "{{ session('success') }}",
+                        timer: 3000,
+                        timerProgressBar: true,
+                        showConfirmButton: false,
+                        borderRadius: '1rem'
+                    });
+                });
+            </script>
             @endif
+
+            @if(session('error'))
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: "{{ session('error') }}",
+                        borderRadius: '1rem'
+                    });
+                });
+            </script>
+            @endif
+
+            {{-- Confirm Delete Global Script --}}
+            <script>
+                function confirmDelete(title = 'Hapus data ini?', text = 'Data yang dihapus tidak dapat dikembalikan!') {
+                    return Swal.fire({
+                        title: title,
+                        text: text,
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#cc0000',
+                        cancelButtonColor: '#6b7280',
+                        confirmButtonText: 'Ya, Hapus!',
+                        cancelButtonText: 'Batal',
+                        borderRadius: '1rem'
+                    });
+                }
+            </script>
 
             {{-- Page Content --}}
             <div class="p-6">

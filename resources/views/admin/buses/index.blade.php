@@ -22,8 +22,13 @@
             <td class="table-cell">
                 <div class="flex items-center gap-2">
                     <a href="{{ route('admin.buses.edit', $bus) }}" class="text-sm text-merah-600 hover:underline font-medium">Edit</a>
-                    <form method="POST" action="{{ route('admin.buses.destroy', $bus) }}" onsubmit="return confirm('Yakin hapus?')">@csrf @method('DELETE')
-                        <button type="submit" class="text-sm text-red-600 hover:underline font-medium">Hapus</button>
+                    <form method="POST" action="{{ route('admin.buses.destroy', $bus) }}" id="delete-form-{{ $bus->id }}">
+                        @csrf @method('DELETE')
+                        <button type="button" 
+                                onclick="confirmDelete('Hapus bus ini?').then((result) => { if(result.isConfirmed) document.getElementById('delete-form-{{ $bus->id }}').submit(); })"
+                                class="text-sm text-red-600 hover:underline font-medium">
+                            Hapus
+                        </button>
                     </form>
                 </div>
             </td>

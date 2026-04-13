@@ -53,21 +53,33 @@
                 <div class="pt-4 mt-4 border-t border-white/10">
                     <p class="px-4 text-xs font-semibold text-merah-300 uppercase tracking-wider mb-2">Transaksi</p>
                 </div>
-                <a href="{{ route('admin.transactions.bookings') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 {{ request()->routeIs('admin.transactions.bookings') ? 'bg-white/15 text-white' : 'text-merah-100 hover:bg-white/10 hover:text-white' }}">
+                <a href="{{ route('admin.transactions.bookings') }}" class="relative flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 {{ request()->routeIs('admin.transactions.bookings') ? 'bg-white/15 text-white' : 'text-merah-100 hover:bg-white/10 hover:text-white' }}">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"/></svg>
                     Booking Tiket
+                    @if($newBookingCount > 0)
+                        <span class="ml-auto inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 text-[10px] font-bold text-white bg-amber-500 rounded-full shadow-lg shadow-amber-500/30 animate-pulse">{{ $newBookingCount > 99 ? '99+' : $newBookingCount }}</span>
+                    @endif
                 </a>
-                <a href="{{ route('admin.transactions.rentals') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 {{ request()->routeIs('admin.transactions.rentals') ? 'bg-white/15 text-white' : 'text-merah-100 hover:bg-white/10 hover:text-white' }}">
+                <a href="{{ route('admin.transactions.rentals') }}" class="relative flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 {{ request()->routeIs('admin.transactions.rentals') ? 'bg-white/15 text-white' : 'text-merah-100 hover:bg-white/10 hover:text-white' }}">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
                     Sewa / Charter
+                    @if($newRentalCount > 0)
+                        <span class="ml-auto inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 text-[10px] font-bold text-white bg-amber-500 rounded-full shadow-lg shadow-amber-500/30 animate-pulse">{{ $newRentalCount > 99 ? '99+' : $newRentalCount }}</span>
+                    @endif
                 </a>
-                <a href="{{ route('admin.transactions.tours') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 {{ request()->routeIs('admin.transactions.tours') ? 'bg-white/15 text-white' : 'text-merah-100 hover:bg-white/10 hover:text-white' }}">
+                <a href="{{ route('admin.transactions.tours') }}" class="relative flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 {{ request()->routeIs('admin.transactions.tours') ? 'bg-white/15 text-white' : 'text-merah-100 hover:bg-white/10 hover:text-white' }}">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 002 2h1.5a2.5 2.5 0 012.5 2.5v.5m-3 6.065V19a2 2 0 01-2-2v-1a2 2 0 00-2-2 2 2 0 01-2-2v-2.945M18 9.874V5a2 2 0 00-2-2h-1.5a2.5 2.5 0 00-2.5 2.5V5a2 2 0 012 2h1.5a2.5 2.5 0 012.5 2.5z"/></svg>
                     Booking Tour
+                    @if($newTourCount > 0)
+                        <span class="ml-auto inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 text-[10px] font-bold text-white bg-amber-500 rounded-full shadow-lg shadow-amber-500/30 animate-pulse">{{ $newTourCount > 99 ? '99+' : $newTourCount }}</span>
+                    @endif
                 </a>
-                <a href="{{ route('admin.transactions.payments') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 {{ request()->routeIs('admin.transactions.payments') ? 'bg-white/15 text-white' : 'text-merah-100 hover:bg-white/10 hover:text-white' }}">
+                <a href="{{ route('admin.transactions.payments') }}" class="relative flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 {{ request()->routeIs('admin.transactions.payments') ? 'bg-white/15 text-white' : 'text-merah-100 hover:bg-white/10 hover:text-white' }}">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
                     Pembayaran
+                    @if($newPaymentCount > 0)
+                        <span class="ml-auto inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 text-[10px] font-bold text-white bg-amber-500 rounded-full shadow-lg shadow-amber-500/30 animate-pulse">{{ $newPaymentCount > 99 ? '99+' : $newPaymentCount }}</span>
+                    @endif
                 </a>
 
                 <div class="pt-4 mt-4 border-t border-white/10">

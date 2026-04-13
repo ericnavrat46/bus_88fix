@@ -29,10 +29,14 @@ class BookingController extends Controller
                 'bookings.expired_at',
                 'schedules.departure_date',
                 'schedules.departure_time',
+                'schedules.arrival_time',
                 'routes.origin',
                 'routes.destination',
-                'buses.name as bus_name'
+                'buses.name as bus_name',
+                'users.email',               // ✅ email user
+                'users.phone'
             )
+            ->join('users', 'bookings.user_id', '=', 'users.id')
             ->where('bookings.user_id',$user_id)
             ->orderBy('bookings.created_at','desc')
             ->get();
@@ -108,8 +112,12 @@ class BookingController extends Controller
                 'routes.destination',
                 'schedules.departure_date',
                 'schedules.departure_time',
-                'buses.name as bus_name'
+                'schedules.arrival_time',
+                'buses.name as bus_name',
+                'users.email',               // ✅ email user
+                'users.phone'                
             )
+            ->join('users', 'bookings.user_id', '=', 'users.id')
             ->where('bookings.id',$booking_id)
             ->first();
 

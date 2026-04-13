@@ -21,13 +21,12 @@ class FlashSaleController extends Controller
     {
         $tourPackages = TourPackage::all();
         $schedules = Schedule::with(['bus', 'route'])->get();
-        // Skip rental targets for now as it's usually dynamic per request
         return view('admin.flash_sales.create', compact('tourPackages', 'schedules'));
     }
 
     public function store(Request $request)
     {
-        $request->validate([
+        $data = $request->validate([
             'title' => 'required|string|max:255',
             'target_type' => 'required|string',
             'target_id' => 'required|integer',
@@ -38,10 +37,36 @@ class FlashSaleController extends Controller
             'quota' => 'required|integer|min:1',
         ]);
 
-        FlashSale::create($request->all());
+        FlashSale::create($data);
 
         return redirect()->route('admin.flash-sales.index')
             ->with('success', 'Flash Sale created successfully.');
+    }
+
+    public function edit(FlashSale $flashSale)
+    {
+        $tourPackages = TourPackage::all();
+        $schedules = Schedule::with(['bus', 'route'])->get();
+        return view('admin.flash_sales.edit', compact('flashSale', 'tourPackages', 'schedules'));
+    }
+
+    public function update(Request $request, FlashSale $flashSale)
+    {
+        $data = $request->validate([
+            'title' => 'required|string|max:255',
+            'target_type' => 'required|string',
+            'target_id' => 'required|integer',
+            'discount_type' => 'required|in:fixed,percentage',
+            'discount_value' => 'required|numeric|min:0',
+            'start_time' => 'required|date',
+            'end_time' => 'required|date|after:start_time',
+            'quota' => 'required|integer|min:1',
+        ]);
+
+        $flashSale->update($data);
+
+        return redirect()->route('admin.flash-sales.index')
+            ->with('success', 'Flash Sale updated successfully.');
     }
 
     public function destroy(FlashSale $flashSale)
@@ -51,3 +76,4 @@ class FlashSaleController extends Controller
             ->with('success', 'Flash Sale deleted successfully.');
     }
 }
+

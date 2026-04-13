@@ -27,6 +27,7 @@ use App\Http\Controllers\ProfileWebController;
 // ─────────────────────────────────────────────
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/search', [HomeController::class, 'searchSchedules'])->name('schedules.search');
+Route::get('/promo/{flashSale}', [HomeController::class, 'promoDetail'])->name('promo.detail');
 
 // Tour Public Routes
 Route::get('/tour', [TourController::class, 'index'])->name('tour.index');

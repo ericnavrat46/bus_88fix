@@ -85,6 +85,10 @@
         background: rgba(255,255,255,0.18);
         border-color: rgba(255,255,255,0.5);
     }
+
+    /* ── Scrollbar hide ── */
+    .scrollbar-hide::-webkit-scrollbar { display: none; }
+    .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
 </style>
 @endpush
 
@@ -245,6 +249,10 @@
     </div>
 </section>
 
+{{-- Promo section removed by user request --}}
+
+
+
 {{-- Popular Routes --}}
 <section class="py-20 bg-cream">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -290,4 +298,6 @@
         </a>
     </div>
 </section>
+@push('scripts')
+@endpush
 @endsection

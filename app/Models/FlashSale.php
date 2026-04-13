@@ -12,6 +12,9 @@ class FlashSale extends Model
 
     protected $fillable = [
         'title',
+        'banner_image',
+        'description',
+        'terms_conditions',
         'target_type',
         'target_id',
         'discount_type',
@@ -29,6 +32,18 @@ class FlashSale extends Model
         'is_active' => 'boolean',
         'discount_value' => 'decimal:2',
     ];
+
+    /**
+     * Get the full URL for the banner image.
+     */
+    public function getBannerUrlAttribute(): ?string
+    {
+        if (!$this->banner_image) {
+            return null;
+        }
+
+        return asset('storage/' . $this->banner_image);
+    }
 
     /**
      * Get the parent target model (TourPackage, Schedule, or Rental).

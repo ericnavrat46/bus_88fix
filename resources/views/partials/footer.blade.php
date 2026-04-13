@@ -47,7 +47,7 @@
         </div>
 
         <div class="py-6 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-4">
-            <p class="text-sm text-gray-warm-500">&copy; {{ date('Y') }} Bus 88. Semua hak dilindungi.</p>
+            <p class="text-sm text-gray-warm-500">&copy; {{ date('Y') }} IND'S 88 TRANS. Semua hak dilindungi.</p>
             <div class="flex items-center gap-2">
                 <span class="text-xs text-gray-warm-500">Pembayaran aman via</span>
                 <div class="px-3 py-1 bg-white/10 rounded-lg">

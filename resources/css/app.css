@@ -39,6 +39,8 @@
 
 /* Custom base styles */
 @layer base {
+    [x-cloak] { display: none !important; }
+
     body {
         @apply bg-cream text-dark antialiased;
         font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';

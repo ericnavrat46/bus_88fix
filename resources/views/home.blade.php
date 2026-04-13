@@ -138,17 +138,37 @@
 
             {{-- Right: Search Card --}}
             <div id="search" class="animate-slide-up" style="animation-delay: 0.2s;">
-                <div class="glass-card p-8 bg-white/95 backdrop-blur-xl search-card">
-                    <div class="flex items-center gap-3 mb-6">
-                        <div class="w-10 h-10 bg-merah-100 rounded-xl flex items-center justify-center">
-                            <svg class="w-5 h-5 text-merah-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-                        </div>
-                        <div>
-                            <h3 class="text-lg font-bold text-dark">Cari Tiket Bus</h3>
-                            <p class="text-sm text-gray-warm-500">Temukan jadwal & harga terbaik</p>
+                <div class="glass-card p-8 bg-white/95 backdrop-blur-xl search-card" x-data="{ tripType: 'one_way' }">
+                    <div class="flex items-center justify-between mb-6">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 bg-merah-100 rounded-xl flex items-center justify-center">
+                                <svg class="w-5 h-5 text-merah-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-bold text-dark">Cari Tiket Bus</h3>
+                                <p class="text-sm text-gray-warm-500">Temukan jadwal & harga terbaik</p>
+                            </div>
                         </div>
                     </div>
+
+                    {{-- Trip Type Toggle --}}
+                    <div class="flex items-center bg-gray-warm-50 rounded-xl p-1 mb-6">
+                        <button type="button" @click="tripType = 'one_way'"
+                                :class="tripType === 'one_way' ? 'bg-white text-merah-600 shadow-sm' : 'text-gray-warm-500 hover:text-gray-warm-700'"
+                                class="flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg text-sm font-semibold transition-all duration-300">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                            Sekali Jalan
+                        </button>
+                        <button type="button" @click="tripType = 'round_trip'"
+                                :class="tripType === 'round_trip' ? 'bg-white text-merah-600 shadow-sm' : 'text-gray-warm-500 hover:text-gray-warm-700'"
+                                class="flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg text-sm font-semibold transition-all duration-300">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
+                            Pulang Pergi
+                        </button>
+                    </div>
+
                     <form action="{{ route('schedules.search') }}" method="GET" class="space-y-4">
+                        <input type="hidden" name="trip_type" :value="tripType">
                         <div>
                             <label class="label-field">Kota Asal</label>
                             <select name="origin" class="select-field" required>
@@ -167,9 +187,16 @@
                                 @endforeach
                             </select>
                         </div>
-                        <div>
-                            <label class="label-field">Tanggal Berangkat</label>
-                            <input type="date" name="date" class="input-field" min="{{ date('Y-m-d') }}" value="{{ date('Y-m-d') }}" required>
+                        <div class="grid gap-4" :class="tripType === 'round_trip' ? 'grid-cols-2' : 'grid-cols-1'">
+                            <div>
+                                <label class="label-field">Tanggal Berangkat</label>
+                                <input type="date" name="date" id="departure_date" class="input-field" min="{{ date('Y-m-d') }}" value="{{ date('Y-m-d') }}" required
+                                       x-on:change="if(tripType === 'round_trip') { $refs.returnDate.min = $event.target.value; if($refs.returnDate.value < $event.target.value) $refs.returnDate.value = $event.target.value; }">
+                            </div>
+                            <div x-show="tripType === 'round_trip'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 scale-95 -translate-y-2" x-transition:enter-end="opacity-100 scale-100 translate-y-0" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95 -translate-y-2" x-cloak>
+                                <label class="label-field">Tanggal Pulang</label>
+                                <input type="date" name="return_date" x-ref="returnDate" class="input-field" min="{{ date('Y-m-d') }}" value="{{ date('Y-m-d', strtotime('+1 day')) }}" :required="tripType === 'round_trip'">
+                            </div>
                         </div>
                         <button type="submit" class="btn-primary w-full text-center">
                             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>

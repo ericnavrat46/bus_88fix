@@ -25,7 +25,11 @@
             <p class="text-gray-warm-500 mb-8">Silakan coba lagi atau hubungi customer service.</p>
         @endif
         <div class="flex flex-wrap gap-3 justify-center">
-            <a href="{{ route('dashboard') }}" class="btn-primary">Ke Dashboard</a>
+            @if(isset($redirectUrl))
+                <a href="{{ $redirectUrl }}" class="btn-primary">Lihat Detail Pesanan</a>
+            @else
+                <a href="{{ route('dashboard') }}" class="btn-primary">Ke Dashboard</a>
+            @endif
             <a href="{{ route('home') }}" class="btn-secondary">Kembali ke Beranda</a>
         </div>
     </div>

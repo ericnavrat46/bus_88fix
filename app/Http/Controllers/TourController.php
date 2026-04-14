@@ -88,37 +88,41 @@ class TourController extends Controller
         }
 
         $user = auth()->user();
-        $params = $this->midtrans->buildTransactionParams(
-            $booking->booking_code,
-            (int) $booking->total_price,
-            $user->name,
-            $user->email,
-            $user->phone ?? '',
-            [
+        $snapToken = $booking->snap_token;
+
+        if (!$snapToken) {
+            $params = $this->midtrans->buildTransactionParams(
+                $booking->booking_code,
+                (int) $booking->total_price,
+                $user->name,
+                $user->email,
+                $user->phone ?? '',
                 [
-                    'id' => $booking->booking_code,
-                    'price' => (int) $booking->total_price,
-                    'quantity' => 1,
-                    'name' => "Paket Wisata: {$booking->tourPackage->name}",
-                ]
-            ]
-        );
-
-        $snapToken = $this->midtrans->createSnapToken($params);
-
-        if ($snapToken) {
-            $booking->update(['snap_token' => $snapToken]);
-
-            Payment::updateOrCreate(
-                ['midtrans_order_id' => $booking->booking_code],
-                [
-                    'payable_type' => TourBooking::class,
-                    'payable_id' => $booking->id,
-                    'amount' => $booking->total_price,
-                    'status' => 'pending',
-                    'snap_token' => $snapToken,
+                    [
+                        'id' => $booking->booking_code,
+                        'price' => (int) $booking->total_price,
+                        'quantity' => 1,
+                        'name' => "Paket Wisata: {$booking->tourPackage->name}",
+                    ]
                 ]
             );
+
+            $snapToken = $this->midtrans->createSnapToken($params);
+
+            if ($snapToken) {
+                $booking->update(['snap_token' => $snapToken]);
+
+                Payment::updateOrCreate(
+                    ['midtrans_order_id' => $booking->booking_code],
+                    [
+                        'payable_type' => TourBooking::class,
+                        'payable_id' => $booking->id,
+                        'amount' => $booking->total_price,
+                        'status' => 'pending',
+                        'snap_token' => $snapToken,
+                    ]
+                );
+            }
         }
 
         return view('tour.checkout', [

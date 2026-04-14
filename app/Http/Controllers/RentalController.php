@@ -80,41 +80,45 @@ class RentalController extends Controller
         $user = auth()->user();
         $rentalCode = $rental->rental_code;
 
-        $params = $this->midtrans->buildTransactionParams(
-            $rentalCode,
-            (int) $rental->total_price,
-            $user->name,
-            $user->email,
-            $user->phone ?? '',
-            [
+        $snapToken = $rental->snap_token;
+
+        if (!$snapToken) {
+            $params = $this->midtrans->buildTransactionParams(
+                $rentalCode,
+                (int) $rental->total_price,
+                $user->name,
+                $user->email,
+                $user->phone ?? '',
                 [
-                    'id' => $rentalCode,
-                    'price' => (int) $rental->total_price,
-                    'quantity' => 1,
-                    'name' => "Sewa Bus - {$rental->destination} ({$rental->duration_days} hari)",
-                ]
-            ]
-        );
-
-        $snapToken = $this->midtrans->createSnapToken($params);
-
-        if ($snapToken) {
-            $rental->update([
-                'snap_token' => $snapToken,
-                'midtrans_order_id' => $rentalCode,
-                'payment_status' => 'pending',
-            ]);
-
-            Payment::updateOrCreate(
-                ['midtrans_order_id' => $rentalCode],
-                [
-                    'payable_type' => Rental::class,
-                    'payable_id' => $rental->id,
-                    'amount' => $rental->total_price,
-                    'status' => 'pending',
-                    'snap_token' => $snapToken,
+                    [
+                        'id' => $rentalCode,
+                        'price' => (int) $rental->total_price,
+                        'quantity' => 1,
+                        'name' => "Sewa Bus - {$rental->destination} ({$rental->duration_days} hari)",
+                    ]
                 ]
             );
+
+            $snapToken = $this->midtrans->createSnapToken($params);
+
+            if ($snapToken) {
+                $rental->update([
+                    'snap_token' => $snapToken,
+                    'midtrans_order_id' => $rentalCode,
+                    'payment_status' => 'pending',
+                ]);
+
+                Payment::updateOrCreate(
+                    ['midtrans_order_id' => $rentalCode],
+                    [
+                        'payable_type' => Rental::class,
+                        'payable_id' => $rental->id,
+                        'amount' => $rental->total_price,
+                        'status' => 'pending',
+                        'snap_token' => $snapToken,
+                    ]
+                );
+            }
         }
 
         return view('rental.checkout', [

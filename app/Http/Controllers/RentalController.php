@@ -105,14 +105,16 @@ class RentalController extends Controller
                 'payment_status' => 'pending',
             ]);
 
-            Payment::create([
-                'payable_type' => Rental::class,
-                'payable_id' => $rental->id,
-                'midtrans_order_id' => $rentalCode,
-                'amount' => $rental->total_price,
-                'status' => 'pending',
-                'snap_token' => $snapToken,
-            ]);
+            Payment::updateOrCreate(
+                ['midtrans_order_id' => $rentalCode],
+                [
+                    'payable_type' => Rental::class,
+                    'payable_id' => $rental->id,
+                    'amount' => $rental->total_price,
+                    'status' => 'pending',
+                    'snap_token' => $snapToken,
+                ]
+            );
         }
 
         return view('rental.checkout', [

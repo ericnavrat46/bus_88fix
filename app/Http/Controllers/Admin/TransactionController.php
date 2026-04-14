@@ -111,6 +111,7 @@ class TransactionController extends Controller
     {
         $booking->update([
             'payment_status' => 'paid',
+            'paid_at' => now(),
         ]);
 
         return back()->with('success', "Pembayaran manual untuk {$booking->booking_code} Berhasil Disetujui!");

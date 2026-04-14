@@ -21,6 +21,7 @@ class TourBooking extends Model
         'payment_proof',
         'snap_token',
         'notes',
+        'paid_at',
     ];
 
     protected function casts(): array
@@ -28,6 +29,7 @@ class TourBooking extends Model
         return [
             'travel_date' => 'date',
             'total_price' => 'decimal:2',
+            'paid_at' => 'datetime',
         ];
     }
 

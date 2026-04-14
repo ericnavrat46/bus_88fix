@@ -93,21 +93,9 @@ class PaymentController extends Controller
      * CHECK STATUS DARI MIDTRANS LANGSUNG (UNTUK MOBILE TANPA WEBHOOK)
      * 🔥 FIX: pakai DB::table() langsung biar pasti update
      */
-    public function checkStatus($bookingId)
+    public function checkStatus(Request $request, $orderId)
     {
-        $payment = Payment::where('payable_id', $bookingId)
-            ->where('payable_type', Booking::class)
-            ->latest()
-            ->first();
-
-        if (!$payment) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Payment tidak ditemukan',
-            ], 404);
-        }
-
-        $statusData = $this->midtrans->getTransactionStatus($payment->midtrans_order_id);
+        $statusData = $this->midtrans->getTransactionStatus($orderId);
 
         if (!$statusData) {
             return response()->json([
@@ -116,41 +104,30 @@ class PaymentController extends Controller
             ], 500);
         }
 
+        $payment = Payment::where('midtrans_order_id', $orderId)->first();
+        if (!$payment) {
+            return response()->json(['status' => false, 'message' => 'Payment tidak ditemukan'], 404);
+        }
+
         $transactionStatus = $statusData['transaction_status'] ?? 'pending';
         $fraudStatus = $statusData['fraud_status'] ?? null;
-
         $status = $this->mapTransactionStatus($transactionStatus, $fraudStatus);
 
-        // Update tabel payments
-        $payment->update(['status' => $status]);
-
-        // 🔥 LANGSUNG UPDATE TABEL BOOKINGS PAKAI DB::table (bypass Eloquent)
-        $bookingStatus = match ($status) {
-            'settlement', 'capture' => 'paid',
-            'pending' => 'pending',
-            'expire' => 'expired',
-            'cancel', 'deny' => 'cancelled',
-            default => 'pending',
-        };
-
-        DB::table('bookings')
-            ->where('id', $bookingId)
-            ->update([
-                'payment_status' => $bookingStatus,
-                'paid_at' => in_array($status, ['settlement', 'capture']) ? now() : null,
-                'updated_at' => now(),
-            ]);
-
-        Log::info('checkStatus result', [
-            'booking_id' => $bookingId,
-            'midtrans_status' => $status,
-            'booking_status' => $bookingStatus,
+        // Update payment table
+        $payment->update([
+            'status' => $status,
+            'midtrans_transaction_id' => $statusData['transaction_id'] ?? $payment->midtrans_transaction_id,
+            'payment_type' => $statusData['payment_type'] ?? $payment->payment_type,
+            'raw_response' => $statusData,
         ]);
+
+        // Update related payable
+        $this->updatePayableStatus($payment, $status);
 
         return response()->json([
             'status' => true,
             'payment_status' => $status,
-            'booking_id' => $bookingId,
+            'order_id' => $orderId,
         ]);
     }
 
@@ -211,6 +188,21 @@ class PaymentController extends Controller
                 'paid_at' => in_array($status, ['settlement', 'capture']) ? now() : $payable->paid_at,
             ]);
         }
+
+        if ($payable instanceof \App\Models\TourBooking) {
+            $tourStatus = match ($status) {
+                'settlement', 'capture' => 'paid',
+                'pending' => 'pending',
+                'expire' => 'expired',
+                'cancel', 'deny' => 'cancelled',
+                default => $payable->payment_status,
+            };
+
+            $payable->update([
+                'payment_status' => $tourStatus,
+                'paid_at' => in_array($status, ['settlement', 'capture']) ? now() : $payable->paid_at,
+            ]);
+        }
     }
 
     /**
@@ -220,6 +212,38 @@ class PaymentController extends Controller
     {
         $orderId = $request->get('order_id');
         $status = $request->get('transaction_status', 'pending');
+
+        $payment = Payment::where('midtrans_order_id', $orderId)->first();
+        
+        if ($payment) {
+            // Re-sync with Midtrans to be sure
+            $statusData = $this->midtrans->getTransactionStatus($orderId);
+            if ($statusData) {
+                $status = $this->mapTransactionStatus($statusData['transaction_status'], $statusData['fraud_status'] ?? null);
+                $payment->update(['status' => $status]);
+                $this->updatePayableStatus($payment, $status);
+            }
+
+            $redirectRoute = 'dashboard';
+            if ($payment->payable_type === Rental::class) {
+                $redirectRoute = 'dashboard.rental';
+                $id = $payment->payable_id;
+            } elseif ($payment->payable_type === Booking::class) {
+                $redirectRoute = 'dashboard.booking';
+                $id = $payment->payable_id;
+            } elseif ($payment->payable_type === \App\Models\TourBooking::class) {
+                $redirectRoute = 'dashboard.tour';
+                $id = $payment->payable_id;
+            }
+
+            if (isset($id)) {
+                return view('payment.finish', [
+                    'orderId' => $orderId,
+                    'status' => $status,
+                    'redirectUrl' => route($redirectRoute, $id)
+                ]);
+            }
+        }
 
         return view('payment.finish', compact('orderId', 'status'));
     }

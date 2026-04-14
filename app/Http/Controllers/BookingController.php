@@ -123,14 +123,16 @@ class BookingController extends Controller
                 if ($snapToken) {
                     $booking->update(['snap_token' => $snapToken]);
 
-                    Payment::create([
-                        'payable_type' => Booking::class,
-                        'payable_id' => $booking->id,
-                        'midtrans_order_id' => $bookingCode,
-                        'amount' => $totalPrice,
-                        'status' => 'pending',
-                        'snap_token' => $snapToken,
-                    ]);
+                    Payment::updateOrCreate(
+                        ['midtrans_order_id' => $bookingCode],
+                        [
+                            'payable_type' => Booking::class,
+                            'payable_id' => $booking->id,
+                            'amount' => $totalPrice,
+                            'status' => 'pending',
+                            'snap_token' => $snapToken,
+                        ]
+                    );
                 }
 
                 return $booking;

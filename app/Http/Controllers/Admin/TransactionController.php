@@ -94,6 +94,15 @@ class TransactionController extends Controller
             'admin_notes' => $validated['admin_notes'] ?? null,
         ]);
 
+        // Send Notification
+        \App\Models\Notification::send(
+            $rental->user_id,
+            'Sewa Bus Disetujui!',
+            "Permintaan sewa bus {$rental->rental_code} ({$rental->destination}) telah disetujui. Silakan selesaikan pembayaran.",
+            'rental',
+            ['rental_id' => $rental->id, 'rental_code' => $rental->rental_code]
+        );
+
         return back()->with('success', 'Rental berhasil disetujui!');
     }
 
@@ -103,6 +112,15 @@ class TransactionController extends Controller
             'approval_status' => 'rejected',
             'admin_notes' => $request->input('admin_notes'),
         ]);
+
+        // Send Notification
+        \App\Models\Notification::send(
+            $rental->user_id,
+            'Sewa Bus Ditolak',
+            "Maaf, permintaan sewa bus {$rental->rental_code} Anda ditolak. Alasan: " . ($request->input('admin_notes') ?? 'Tidak disebutkan.'),
+            'rental',
+            ['rental_id' => $rental->id, 'rental_code' => $rental->rental_code]
+        );
 
         return back()->with('success', 'Rental ditolak.');
     }
@@ -128,6 +146,14 @@ class TransactionController extends Controller
             'paid_at' => now(),
         ]);
 
+        \App\Models\Notification::send(
+            $booking->user_id,
+            'Pembayaran Berhasil!',
+            "Pembayaran manual untuk tiket bus {$booking->booking_code} telah dikonfirmasi oleh admin.",
+            'booking',
+            ['booking_id' => $booking->id, 'booking_code' => $booking->booking_code]
+        );
+
         return back()->with('success', "Pembayaran manual untuk {$booking->booking_code} Berhasil Disetujui!");
     }
 
@@ -138,6 +164,14 @@ class TransactionController extends Controller
             'paid_at' => now(),
         ]);
 
+        \App\Models\Notification::send(
+            $rental->user_id,
+            'Pembayaran Berhasil!',
+            "Pembayaran manual untuk sewa bus {$rental->rental_code} telah dikonfirmasi oleh admin.",
+            'rental',
+            ['rental_id' => $rental->id, 'rental_code' => $rental->rental_code]
+        );
+
         return back()->with('success', "Pembayaran manual untuk {$rental->rental_code} Berhasil Disetujui!");
     }
 
@@ -147,6 +181,14 @@ class TransactionController extends Controller
             'payment_status' => 'paid',
             'paid_at' => now(),
         ]);
+
+        \App\Models\Notification::send(
+            $booking->user_id,
+            'Pembayaran Berhasil!',
+            "Pembayaran manual untuk paket wisata {$booking->booking_code} telah dikonfirmasi oleh admin.",
+            'tour',
+            ['booking_id' => $booking->id, 'booking_code' => $booking->booking_code]
+        );
 
         return back()->with('success', "Pembayaran manual untuk {$booking->booking_code} Berhasil Disetujui!");
     }

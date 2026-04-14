@@ -16,6 +16,8 @@ class TransactionController extends Controller
         $bookings = Booking::with(['user', 'schedule.route', 'schedule.bus'])
             ->latest()
             ->paginate(15);
+        
+        $this->syncListPending($bookings);
 
         return view('admin.transactions.bookings', compact('bookings'));
     }
@@ -26,6 +28,8 @@ class TransactionController extends Controller
             ->latest()
             ->paginate(15);
 
+        $this->syncListPending($rentals);
+
         return view('admin.transactions.rentals', compact('rentals'));
     }
 
@@ -35,7 +39,37 @@ class TransactionController extends Controller
             ->latest()
             ->paginate(15);
 
+        $this->syncListPending($bookings);
+
         return view('admin.transactions.tours', compact('bookings'));
+    }
+
+    protected function syncListPending($items)
+    {
+        $midtrans = app(\App\Services\MidtransService::class);
+        foreach ($items as $item) {
+            if ($item->payment_status === 'pending' || $item->payment_status === 'unpaid') {
+                $orderId = $item->booking_code ?? $item->rental_code ?? null;
+                if ($orderId) {
+                    $statusData = $midtrans->getTransactionStatus($orderId);
+                    if ($statusData) {
+                        $rawStatus = $statusData['transaction_status'] ?? 'pending';
+                        if (in_array($rawStatus, ['settlement', 'capture', 'success'])) {
+                            $item->update([
+                                'payment_status' => 'paid',
+                                'paid_at' => now()
+                            ]);
+                            
+                            // Also update the payment record if exists
+                            Payment::where('midtrans_order_id', $orderId)->update(['status' => 'settlement']);
+                        } elseif (in_array($rawStatus, ['expire', 'cancel', 'deny'])) {
+                            $item->update(['payment_status' => ($rawStatus === 'expire' ? 'expired' : 'cancelled')]);
+                            Payment::where('midtrans_order_id', $orderId)->update(['status' => $rawStatus]);
+                        }
+                    }
+                }
+            }
+        }
     }
 
     public function tourShow(TourBooking $booking)

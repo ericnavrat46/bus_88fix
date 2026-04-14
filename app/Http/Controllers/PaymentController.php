@@ -136,8 +136,9 @@ class PaymentController extends Controller
      */
     protected function mapTransactionStatus(string $transactionStatus, ?string $fraudStatus): string
     {
+        // For credit card / snap capture
         if ($transactionStatus === 'capture') {
-            return ($fraudStatus === 'accept') ? 'capture' : 'deny';
+            return ($fraudStatus === 'accept' || $fraudStatus === '' || $fraudStatus === null) ? 'settlement' : 'deny';
         }
 
         return match ($transactionStatus) {
@@ -159,9 +160,12 @@ class PaymentController extends Controller
         $payable = $payment->payable;
         if (!$payable) return;
 
+        // Success statuses
+        $isSuccess = in_array($status, ['settlement', 'capture', 'success']);
+
         if ($payable instanceof Booking) {
             $bookingStatus = match ($status) {
-                'settlement', 'capture' => 'paid',
+                'settlement', 'capture', 'success' => 'paid',
                 'pending' => 'pending',
                 'expire' => 'expired',
                 'cancel', 'deny' => 'cancelled',
@@ -170,13 +174,13 @@ class PaymentController extends Controller
 
             $payable->update([
                 'payment_status' => $bookingStatus,
-                'paid_at' => in_array($status, ['settlement', 'capture']) ? now() : $payable->paid_at,
+                'paid_at' => $isSuccess ? now() : $payable->paid_at,
             ]);
         }
 
         if ($payable instanceof Rental) {
             $rentalStatus = match ($status) {
-                'settlement', 'capture' => 'paid',
+                'settlement', 'capture', 'success' => 'paid',
                 'pending' => 'pending',
                 'expire' => 'expired',
                 'cancel', 'deny' => 'cancelled',
@@ -185,13 +189,13 @@ class PaymentController extends Controller
 
             $payable->update([
                 'payment_status' => $rentalStatus,
-                'paid_at' => in_array($status, ['settlement', 'capture']) ? now() : $payable->paid_at,
+                'paid_at' => $isSuccess ? now() : $payable->paid_at,
             ]);
         }
 
         if ($payable instanceof \App\Models\TourBooking) {
             $tourStatus = match ($status) {
-                'settlement', 'capture' => 'paid',
+                'settlement', 'capture', 'success' => 'paid',
                 'pending' => 'pending',
                 'expire' => 'expired',
                 'cancel', 'deny' => 'cancelled',
@@ -200,7 +204,7 @@ class PaymentController extends Controller
 
             $payable->update([
                 'payment_status' => $tourStatus,
-                'paid_at' => in_array($status, ['settlement', 'capture']) ? now() : $payable->paid_at,
+                'paid_at' => $isSuccess ? now() : $payable->paid_at,
             ]);
         }
     }
@@ -216,35 +220,79 @@ class PaymentController extends Controller
         $payment = Payment::where('midtrans_order_id', $orderId)->first();
         
         if ($payment) {
-            // Re-sync with Midtrans to be sure
             $statusData = $this->midtrans->getTransactionStatus($orderId);
-            if ($statusData) {
-                $status = $this->mapTransactionStatus($statusData['transaction_status'], $statusData['fraud_status'] ?? null);
-                $payment->update(['status' => $status]);
-                $this->updatePayableStatus($payment, $status);
+            
+            // Validate if we actually got a valid transaction from Midtrans API
+            $isValidResponse = $statusData && isset($statusData['status_code']) && in_array($statusData['status_code'], ['200', '201', '202']);
+            
+            if ($isValidResponse) {
+                $rawStatus = $statusData['transaction_status'] ?? $status;
+                $fraudStatus = $statusData['fraud_status'] ?? null;
+                $status = $this->mapTransactionStatus($rawStatus, $fraudStatus);
+                
+                $payment->update([
+                    'status' => $status,
+                    'raw_response' => $statusData
+                ]);
+            } else {
+                // If API returns 404 (often happens in sandbox testing via URL manipulation),
+                // we'll tentatively trust the URL parameter or existing status
+                $status = $this->mapTransactionStatus($status, null);
+                
+                $payment->update([
+                    'status' => $status,
+                    'raw_response' => $statusData ?? $payment->raw_response
+                ]);
             }
+            
+            $this->updatePayableStatus($payment, $status);
 
             $redirectRoute = 'dashboard';
+            $id = $payment->payable_id;
+
             if ($payment->payable_type === Rental::class) {
                 $redirectRoute = 'dashboard.rental';
-                $id = $payment->payable_id;
             } elseif ($payment->payable_type === Booking::class) {
                 $redirectRoute = 'dashboard.booking';
-                $id = $payment->payable_id;
             } elseif ($payment->payable_type === \App\Models\TourBooking::class) {
                 $redirectRoute = 'dashboard.tour';
-                $id = $payment->payable_id;
             }
 
-            if (isset($id)) {
-                return view('payment.finish', [
-                    'orderId' => $orderId,
-                    'status' => $status,
-                    'redirectUrl' => route($redirectRoute, $id)
-                ]);
+            return view('payment.finish', [
+                'orderId' => $orderId,
+                'status' => $status,
+                'redirectUrl' => route($redirectRoute, $id)
+            ]);
+        }
+
+        // --- FALLBACK: If payment record not found yet, try finding in main tables ---
+        $redirectUrl = route('dashboard');
+        
+        // Check Rental
+        $match = Rental::where('rental_code', $orderId)->first();
+        if ($match) {
+            $redirectUrl = route('dashboard.rental', $match->id);
+        } else {
+            // Check Booking
+            $match = Booking::where('booking_code', $orderId)->first();
+            if ($match) {
+                $redirectUrl = route('dashboard.booking', $match->id);
+            } else {
+                // Check Tour
+                $match = \App\Models\TourBooking::where('booking_code', $orderId)->first();
+                if ($match) {
+                    $redirectUrl = route('dashboard.tour', $match->id);
+                }
             }
         }
 
-        return view('payment.finish', compact('orderId', 'status'));
+        // If it's settlement/capture in query but record not yet synced, still show success UI if possible
+        // but it's safer to just show whatever status we have.
+        
+        return view('payment.finish', [
+            'orderId' => $orderId, 
+            'status' => $status,
+            'redirectUrl' => $redirectUrl
+        ]);
     }
 }

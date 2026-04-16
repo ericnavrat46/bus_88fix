@@ -1,9 +1,37 @@
 @extends('layouts.admin')
 @section('page-title', 'Kelola Jadwal')
 @section('content')
-<div class="flex items-center justify-between mb-6">
-    <p class="text-gray-warm-500">Daftar jadwal keberangkatan</p>
-    <a href="{{ route('admin.schedules.create') }}" class="btn-primary btn-sm">+ Tambah Jadwal</a>
+<div class="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
+    <div>
+        <h1 class="text-xl font-bold text-dark">Kelola Jadwal</h1>
+        <p class="text-gray-warm-500 text-sm">Daftar jadwal keberangkatan bus</p>
+    </div>
+    
+    <div class="flex flex-col md:flex-row gap-3">
+        <form action="{{ route('admin.schedules.index') }}" method="GET" class="flex gap-2">
+            <input type="text" name="search" value="{{ request('search') }}" 
+                   placeholder="Cari rute atau bus..." 
+                   class="px-4 py-2 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-merah-500 outline-none w-full md:w-64">
+            
+            <input type="date" name="date" value="{{ request('date') }}" 
+                   class="px-4 py-2 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-merah-500 outline-none">
+            
+            <button type="submit" class="bg-gray-100 p-2 rounded-xl hover:bg-gray-200 transition-colors">
+                <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+            </button>
+            
+            @if(request()->anyFilled(['search', 'date']))
+                <a href="{{ route('admin.schedules.index') }}" class="bg-red-50 p-2 rounded-xl text-red-500 hover:bg-red-100 transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </a>
+            @endif
+        </form>
+
+        <a href="{{ route('admin.schedules.create') }}" class="btn-primary flex items-center justify-center gap-2 text-sm px-4 py-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+            Tambah Jadwal
+        </a>
+    </div>
 </div>
 <div class="table-container overflow-x-auto">
     <table class="w-full">

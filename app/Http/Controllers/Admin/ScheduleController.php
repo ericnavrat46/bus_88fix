@@ -10,11 +10,32 @@ use Illuminate\Http\Request;
 
 class ScheduleController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $schedules = Schedule::with(['bus', 'route'])
-            ->latest()
-            ->paginate(15);
+        $query = Schedule::with(['bus', 'route']);
+
+        // Search by Route (Origin/Destination) or Bus Name
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->whereHas('route', function($qr) use ($search) {
+                    $qr->where('origin', 'like', "%$search%")
+                       ->orWhere('destination', 'like', "%$search%");
+                })->orWhereHas('bus', function($qb) use ($search) {
+                    $qb->where('name', 'like', "%$search%");
+                });
+            });
+        }
+
+        // Filter by Date
+        if ($request->filled('date')) {
+            $query->whereDate('departure_date', $request->date);
+        }
+
+        $schedules = $query->latest('departure_date')
+            ->latest('departure_time')
+            ->paginate(15)
+            ->withQueryString();
 
         return view('admin.schedules.index', compact('schedules'));
     }

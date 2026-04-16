@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\Mobile\RentalController;
 use App\Http\Controllers\Api\Mobile\BusController;
 use App\Http\Controllers\Api\Mobile\PromoController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\Api\Mobile\NotificationController;
 
 
 
@@ -72,3 +73,12 @@ Route::get('/test-email', function () {
 // 🔐 OTP
 Route::post('/send-otp', [ProfileController::class, 'sendOtp']);
 Route::post('/verify-otp', [ProfileController::class, 'verifyOtp']);
+
+
+// 🔔 NOTIFIKASI
+// urutan penting: /unread-count dan /read-all harus sebelum /{id}
+Route::get('/notifications/{user_id}',              [NotificationController::class, 'index']);
+Route::get('/notifications/{user_id}/unread-count', [NotificationController::class, 'unreadCount']);
+Route::post('/notifications/{user_id}/read-all',    [NotificationController::class, 'markAllAsRead']);
+Route::post('/notifications/{id}/read',             [NotificationController::class, 'markAsRead']);
+Route::delete('/notifications/{id}',                [NotificationController::class, 'destroy']);

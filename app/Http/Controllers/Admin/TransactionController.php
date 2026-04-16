@@ -11,34 +11,73 @@ use Illuminate\Http\Request;
 
 class TransactionController extends Controller
 {
-    public function bookings()
+    public function bookings(Request $request)
     {
-        $bookings = Booking::with(['user', 'schedule.route', 'schedule.bus'])
-            ->latest()
-            ->paginate(15);
-        
+        $query = Booking::with(['user', 'schedule.route', 'schedule.bus']);
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('booking_code', 'like', "%$search%")
+                  ->orWhereHas('user', function($qu) use ($search) {
+                      $qu->where('name', 'like', "%$search%");
+                  });
+            });
+        }
+
+        if ($request->filled('status')) {
+            $query->where('payment_status', $request->status);
+        }
+
+        $bookings = $query->latest()->paginate(15)->withQueryString();
         $this->syncListPending($bookings);
 
         return view('admin.transactions.bookings', compact('bookings'));
     }
 
-    public function rentals()
+    public function rentals(Request $request)
     {
-        $rentals = Rental::with(['user', 'bus'])
-            ->latest()
-            ->paginate(15);
+        $query = Rental::with(['user', 'bus']);
 
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('rental_code', 'like', "%$search%")
+                  ->orWhereHas('user', function($qu) use ($search) {
+                      $qu->where('name', 'like', "%$search%");
+                  });
+            });
+        }
+
+        if ($request->filled('status')) {
+            $query->where('payment_status', $request->status);
+        }
+
+        $rentals = $query->latest()->paginate(15)->withQueryString();
         $this->syncListPending($rentals);
 
         return view('admin.transactions.rentals', compact('rentals'));
     }
 
-    public function tours()
+    public function tours(Request $request)
     {
-        $bookings = TourBooking::with(['user', 'tourPackage'])
-            ->latest()
-            ->paginate(15);
+        $query = TourBooking::with(['user', 'tourPackage']);
 
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('booking_code', 'like', "%$search%")
+                  ->orWhereHas('user', function($qu) use ($search) {
+                      $qu->where('name', 'like', "%$search%");
+                  });
+            });
+        }
+
+        if ($request->filled('status')) {
+            $query->where('payment_status', $request->status);
+        }
+
+        $bookings = $query->latest()->paginate(15)->withQueryString();
         $this->syncListPending($bookings);
 
         return view('admin.transactions.tours', compact('bookings'));

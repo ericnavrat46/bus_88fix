@@ -1,7 +1,36 @@
 @extends('layouts.admin')
 @section('page-title', 'Sewa / Charter')
 @section('content')
-<p class="text-gray-warm-500 mb-6">Monitor dan kelola pengajuan sewa bus</p>
+<div class="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
+    <div>
+        <h1 class="text-xl font-bold text-dark">Sewa / Charter Bus</h1>
+        <p class="text-gray-warm-500 text-sm">Monitor dan kelola pengajuan sewa bus</p>
+    </div>
+    
+    <form action="{{ route('admin.transactions.rentals') }}" method="GET" class="flex flex-wrap gap-2">
+        <input type="text" name="search" value="{{ request('search') }}" 
+               placeholder="Kode atau Nama..." 
+               class="px-4 py-2 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-merah-500 outline-none w-48">
+        
+        <select name="status" class="px-3 py-2 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-merah-500 outline-none">
+            <option value="">Semua Status</option>
+            @foreach(['pending', 'paid', 'expired', 'cancelled'] as $s)
+                <option value="{{ $s }}" {{ request('status') == $s ? 'selected' : '' }}>{{ ucfirst($s) }}</option>
+            @endforeach
+        </select>
+        
+        <button type="submit" class="bg-gray-100 p-2 rounded-xl hover:bg-gray-200 transition-colors">
+            <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+        </button>
+        
+        @if(request()->anyFilled(['search', 'status']))
+            <a href="{{ route('admin.transactions.rentals') }}" class="bg-red-50 p-2 rounded-xl text-red-500">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </a>
+        @endif
+    </form>
+</div>
+
 <div class="space-y-4">
     @foreach($rentals as $rental)
     <div class="card p-6" x-data="{ showAction: false }">

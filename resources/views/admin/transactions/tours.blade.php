@@ -1,7 +1,36 @@
 @extends('layouts.admin')
 @section('title', 'Transaksi Paket Wisata - Admin')
-@section('page-title', 'Transaksi Paket Wisata')
 @section('content')
+<div class="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
+    <div>
+        <h1 class="text-xl font-bold text-dark">Transaksi Paket Wisata</h1>
+        <p class="text-gray-warm-500 text-sm">Kelola pesanan tour dan paket wisata</p>
+    </div>
+    
+    <form action="{{ route('admin.transactions.tours') }}" method="GET" class="flex flex-wrap gap-2">
+        <input type="text" name="search" value="{{ request('search') }}" 
+               placeholder="Kode atau Nama..." 
+               class="px-4 py-2 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-merah-500 outline-none w-48">
+        
+        <select name="status" class="px-3 py-2 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-merah-500 outline-none">
+            <option value="">Semua Status</option>
+            @foreach(['pending', 'paid', 'expired', 'cancelled'] as $s)
+                <option value="{{ $s }}" {{ request('status') == $s ? 'selected' : '' }}>{{ ucfirst($s) }}</option>
+            @endforeach
+        </select>
+        
+        <button type="submit" class="bg-gray-100 p-2 rounded-xl hover:bg-gray-200 transition-colors">
+            <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+        </button>
+        
+        @if(request()->anyFilled(['search', 'status']))
+            <a href="{{ route('admin.transactions.tours') }}" class="bg-red-50 p-2 rounded-xl text-red-500">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </a>
+        @endif
+    </form>
+</div>
+
 <div class="space-y-6">
 
         <div class="card overflow-hidden">

@@ -86,9 +86,21 @@
                     </div>
                     @endif
                     @if($booking->notes)
-                    <div class="flex justify-between items-start py-3 border-b border-gray-warm-50">
-                        <span class="text-gray-warm-500 text-sm">Catatan</span>
-                        <span class="font-semibold text-dark text-right max-w-xs text-sm italic">{{ $booking->notes }}</span>
+                    <div class="py-4 border-b border-gray-warm-50">
+                        <div class="flex justify-between items-start mb-2">
+                             <span class="text-gray-warm-500 text-sm">Lokasi Penjemputan / Catatan</span>
+                             <div class="flex items-center gap-1">
+                                <a href="https://www.google.com/maps/search/?api=1&query={{ urlencode($booking->notes) }}" target="_blank" class="p-1.5 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors" title="Buka di Google Maps">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                                </a>
+                                <button onclick="copyToClipboard('{{ $booking->notes }}')" class="p-1.5 bg-gray-warm-50 text-gray-warm-500 rounded-lg hover:bg-gray-warm-100 transition-colors" title="Salin Lokasi">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
+                                </button>
+                            </div>
+                        </div>
+                        <p class="font-medium text-dark text-sm bg-gray-warm-50 p-3 rounded-lg border border-dashed border-gray-warm-200">
+                            {{ $booking->notes }}
+                        </p>
                     </div>
                     @endif
                     <div class="flex justify-between items-center py-4 bg-merah-50 rounded-xl px-4 mt-2">
@@ -182,4 +194,19 @@
         </div>
     </div>
 </div>
+<script>
+    function copyToClipboard(text) {
+        navigator.clipboard.writeText(text).then(() => {
+            Swal.fire({
+                icon: 'success',
+                title: 'Disalin!',
+                text: 'Lokasi berhasil disalin ke clipboard.',
+                timer: 1500,
+                showConfirmButton: false,
+                toast: true,
+                position: 'top-end'
+            });
+        });
+    }
+</script>
 @endsection

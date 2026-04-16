@@ -1,5 +1,26 @@
 @extends('layouts.app')
 @section('title', 'Booking ' . $package->name . ' - Bus 88')
+@push('styles')
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+<style>
+    #map {
+        height: 250px;
+        width: 100%;
+        border-radius: 0.75rem;
+        margin-top: 0.75rem;
+        border: 1px solid #e2e8f0;
+        z-index: 1;
+    }
+    .map-hint {
+        font-size: 0.75rem;
+        color: #64748b;
+        margin-top: 0.25rem;
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+</style>
+@endpush
 @section('content')
 <div class="bg-gradient-to-b from-merah-50 to-cream min-h-screen py-12">
     <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -24,9 +45,19 @@
                             <input type="number" name="passenger_count" class="input-field" required min="1" placeholder="Masukkan jumlah orang" x-model="pax" x-init="pax = 1">
                         </div>
 
-                        <div>
-                            <label class="label-field">Alamat Penjemputan / Catatan Tambahan</label>
-                            <textarea name="notes" class="input-field" rows="4" placeholder="Misal: Jemput di Hotel Aston Seminyak, atau permintaan khusus lainnya..."></textarea>
+                        <div class="space-y-4">
+                            <label class="label-field">Lokasi Penjemputan / Titik Kumpul *</label>
+                            <div class="flex gap-2">
+                                <input type="text" id="pickup_location" name="notes" class="input-field" placeholder="Ketik alamat atau pilih di peta" required>
+                                <button type="button" id="btn-locate" class="p-2 bg-merah-50 text-merah-600 rounded-lg hover:bg-merah-100 transition-colors" title="Gunakan Lokasi Saya">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                                </button>
+                            </div>
+                            <div id="map"></div>
+                            <div class="map-hint">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                Pilih lokasi penjemputan Anda di peta
+                            </div>
                         </div>
 
                         <div class="pt-6">
@@ -73,6 +104,7 @@
     </div>
 </div>
 
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 <script>
     // Simple total update
     const paxInput = document.getElementsByName('passenger_count')[0];
@@ -82,6 +114,46 @@
     paxInput.addEventListener('input', function() {
         const total = basePrice * (parseInt(this.value) || 0);
         displayTotal.innerText = 'Rp ' + total.toLocaleString('id-ID');
+    });
+
+    // Map Logic
+    document.addEventListener('DOMContentLoaded', function() {
+        const defaultLat = -8.6500; // Bali default for tours
+        const defaultLng = 115.2167;
+        
+        const map = L.map('map').setView([defaultLat, defaultLng], 12);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+        let marker = L.marker([defaultLat, defaultLng], {draggable: true}).addTo(map);
+        const inputField = document.getElementById('pickup_location');
+
+        function updateAddress(lat, lng) {
+            fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`)
+                .then(r => r.json())
+                .then(data => { if (data.display_name) inputField.value = data.display_name; });
+        }
+
+        map.locate({setView: true, maxZoom: 16, enableHighAccuracy: true});
+        map.on('locationfound', function(e) {
+            marker.setLatLng(e.latlng);
+            updateAddress(e.latlng.lat, e.latlng.lng);
+        });
+
+        map.on('click', function(e) {
+            marker.setLatLng(e.latlng);
+            updateAddress(e.latlng.lat, e.latlng.lng);
+        });
+
+        marker.on('dragend', function(e) {
+            const { lat, lng } = marker.getLatLng();
+            updateAddress(lat, lng);
+        });
+
+        document.getElementById('btn-locate').addEventListener('click', function() {
+            map.locate({setView: true, maxZoom: 17, enableHighAccuracy: true});
+        });
+
+        setTimeout(() => { map.invalidateSize(); }, 500);
     });
 </script>
 @endsection

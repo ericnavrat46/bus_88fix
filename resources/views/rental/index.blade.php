@@ -36,7 +36,27 @@
     .btn-submit:active {
         transform: translateY(0);
     }
+    #map {
+        height: 300px;
+        width: 100%;
+        border-radius: 0.75rem;
+        margin-top: 0.75rem;
+        border: 1px solid #e2e8f0;
+        z-index: 1;
+    }
+    .map-container {
+        position: relative;
+    }
+    .map-hint {
+        font-size: 0.75rem;
+        color: #64748b;
+        margin-top: 0.25rem;
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
 </style>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
 @endpush
 @section('content')
 <div class="bg-gradient-to-b from-merah-50 to-cream min-h-screen">
@@ -71,9 +91,19 @@
                             </div>
                         </div>
                         <div class="grid md:grid-cols-2 gap-4">
-                            <div>
+                            <div class="map-container lg:col-span-1">
                                 <label class="label-field">Lokasi Penjemputan *</label>
-                                <input type="text" name="pickup_location" class="input-field" placeholder="Contoh: Hotel Grand, Jakarta" value="{{ old('pickup_location') }}" required>
+                                <div class="flex gap-2">
+                                    <input type="text" id="pickup_location" name="pickup_location" class="input-field" placeholder="Ketik alamat atau pilih di peta" value="{{ old('pickup_location') }}" required>
+                                    <button type="button" id="btn-locate" class="p-2 bg-merah-50 text-merah-600 rounded-lg hover:bg-merah-100 transition-colors" title="Gunakan Lokasi Saya Saat Ini">
+                                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                                    </button>
+                                </div>
+                                <div id="map"></div>
+                                <div class="map-hint">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                    Geser penanda atau klik pada peta untuk menentukan titik jemput
+                                </div>
                             </div>
                             <div>
                                 <label class="label-field">Tujuan *</label>
@@ -153,3 +183,112 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Default coordinates (Malang) - will be overridden by auto-detect
+        const defaultLat = -7.9839;
+        const defaultLng = 112.6214;
+        
+        const map = L.map('map').setView([defaultLat, defaultLng], 13);
+        
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        let marker = L.marker([defaultLat, defaultLng], {
+            draggable: true
+        }).addTo(map);
+
+        const inputField = document.getElementById('pickup_location');
+
+        function updateAddress(lat, lng) {
+            fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.display_name) {
+                        inputField.value = data.display_name;
+                    }
+                })
+                .catch(err => console.error('Geocoding error:', err));
+        }
+
+        // --- NEW: AUTO DETECT LOCATION ON PAGE LOAD ---
+        map.locate({setView: true, maxZoom: 17, enableHighAccuracy: true});
+
+        map.on('locationfound', function(e) {
+            marker.setLatLng(e.latlng);
+            updateAddress(e.latlng.lat, e.latlng.lng);
+        });
+
+        map.on('locationerror', function(e) {
+            console.warn("Location access denied or failed. Staying at default.");
+        });
+        // ----------------------------------------------
+
+        // On Map click
+        map.on('click', function(e) {
+            const { lat, lng } = e.latlng;
+            marker.setLatLng([lat, lng]);
+            updateAddress(lat, lng);
+        });
+
+        // On Marker drag end
+        marker.on('dragend', function(e) {
+            const { lat, lng } = marker.getLatLng();
+            updateAddress(lat, lng);
+        });
+
+        // Use My Location button
+        document.getElementById('btn-locate').addEventListener('click', function() {
+            if (navigator.geolocation) {
+                const btn = this;
+                const originalContent = btn.innerHTML;
+                btn.innerHTML = '<svg class="w-6 h-6 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>';
+                
+                // High Accuracy Settings
+                const geoOptions = {
+                    enableHighAccuracy: true,
+                    timeout: 10000,
+                    maximumAge: 0
+                };
+
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    const lat = position.coords.latitude;
+                    const lng = position.coords.longitude;
+                    
+                    // Fly to location with smooth animation
+                    map.flyTo([lat, lng], 18, {
+                        animate: true,
+                        duration: 1.5
+                    });
+                    
+                    marker.setLatLng([lat, lng]);
+                    updateAddress(lat, lng);
+                    
+                    btn.innerHTML = originalContent;
+                    
+                    // Force map to redraw to avoid gray tiles
+                    setTimeout(() => { map.invalidateSize(); }, 500);
+                }, function(err) {
+                    let msg = 'Gagal mendapatkan lokasi.';
+                    if(err.code === 1) msg = 'Mohon izinkan akses lokasi pada browser Anda.';
+                    else if(err.code === 3) msg = 'Waktu pencarian lokasi habis. Coba lagi.';
+                    
+                    alert(msg);
+                    btn.innerHTML = originalContent;
+                }, geoOptions);
+            } else {
+                alert('Browser Anda tidak mendukung geolokasi.');
+            }
+        });
+        
+        // Fix for rendering in hidden containers/after transitions
+        setTimeout(() => {
+            map.invalidateSize();
+        }, 500);
+    });
+</script>
+@endpush

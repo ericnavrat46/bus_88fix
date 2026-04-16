@@ -89,6 +89,23 @@
     /* ── Scrollbar hide ── */
     .scrollbar-hide::-webkit-scrollbar { display: none; }
     .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+
+    /* ── Review card styles ── */
+    .review-card {
+        transition: all 0.3s ease;
+        border: 1px solid #f1f5f9;
+    }
+    .review-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 24px -8px rgba(0,0,0,0.1);
+        border-color: #e2e8f0;
+    }
+    .review-img {
+        transition: transform 0.5s ease;
+    }
+    .review-card:hover .review-img {
+        transform: scale(1.05);
+    }
 </style>
 @endpush
 
@@ -285,6 +302,61 @@
         </div>
     </div>
 </section>
+
+{{-- Reviews Section --}}
+@if($reviews->isNotEmpty())
+<section class="py-24 bg-white overflow-hidden">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
+            <div class="max-w-2xl">
+                <h2 class="text-3xl lg:text-5xl font-black text-dark mb-4">Kata <span class="text-gradient-merah">Pelanggan</span> Kami</h2>
+                <p class="text-gray-warm-500 text-lg">Cerita asli dari mereka yang telah melakukan perjalanan bersama Bus 88</p>
+            </div>
+            <div class="flex items-center gap-2">
+                <div class="flex -space-x-3">
+                    @foreach($reviews->take(4) as $rev)
+                    <img src="https://ui-avatars.com/api/?name={{ urlencode($rev->user->name) }}&background=cc0000&color=fff" class="w-10 h-10 rounded-full border-4 border-white object-cover shadow-sm" alt="">
+                    @endforeach
+                </div>
+                <p class="text-sm font-bold text-dark ml-2">4.9/5 Rating</p>
+            </div>
+        </div>
+
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            @foreach($reviews as $review)
+            <div class="bg-white rounded-3xl p-8 review-card relative flex flex-col h-full shadow-sm hover:shadow-xl transition-all duration-300 border-gray-100">
+                <div class="flex items-center gap-1 mb-4">
+                    @for($i=1; $i<=5; $i++)
+                        <svg class="w-4 h-4 {{ $i <= $review->rating ? 'text-amber-400' : 'text-gray-200' }}" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                    @endfor
+                </div>
+
+                <p class="text-gray-700 leading-relaxed mb-6 italic flex-grow">"{{ Str::limit($review->comment, 150) }}"</p>
+
+                @if($review->image)
+                <div class="mb-6 rounded-2xl overflow-hidden h-40 bg-gray-100">
+                    <img src="{{ asset('storage/' . $review->image) }}" class="w-full h-full object-cover review-img" alt="Foto ulasan">
+                </div>
+                @endif
+
+                <div class="flex items-center gap-4 pt-6 border-t border-gray-100">
+                    <div class="w-12 h-12 bg-merah-50 rounded-full flex items-center justify-center font-bold text-merah-600 shadow-inner flex-shrink-0 relative">
+                        {{ strtoupper(substr($review->user->name, 0, 1)) }}
+                        <div class="absolute -bottom-1 -right-1 w-5 h-5 bg-green-500 border-2 border-white rounded-full flex items-center justify-center">
+                            <svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                        </div>
+                    </div>
+                    <div>
+                        <p class="font-bold text-dark text-sm leading-tight">{{ $review->user->name }}</p>
+                        <p class="text-xs text-gray-warm-400 mt-1">Pelanggan Terverifikasi</p>
+                    </div>
+                </div>
+            </div>
+            @endforeach
+        </div>
+    </div>
+</section>
+@endif
 
 {{-- CTA Section --}}
 <section class="py-20 gradient-merah-dark relative overflow-hidden">

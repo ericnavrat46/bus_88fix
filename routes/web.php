@@ -21,6 +21,7 @@ use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Admin\FlashSaleController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProfileWebController;
+use App\Http\Controllers\ReviewController;
 
 // ─────────────────────────────────────────────
 // Public Routes
@@ -108,6 +109,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/tour/{package:slug}/book',  [TourController::class, 'bookingForm'])->name('tour.booking');
     Route::post('/tour/{package:slug}/book', [TourController::class, 'storeBooking'])->name('tour.store-booking');
     Route::get('/tour/checkout/{booking}',   [TourController::class, 'checkout'])->name('tour.checkout');
+
+    // Reviews
+    Route::post('/review/store', [ReviewController::class, 'store'])->name('review.store');
 });
 
 // ─────────────────────────────────────────────

@@ -53,6 +53,11 @@ class TourBooking extends Model
         return $this->morphMany(Payment::class, 'payable');
     }
 
+    public function reviews()
+    {
+        return $this->morphMany(Review::class, 'reviewable');
+    }
+
     public function isPaid(): bool
     {
         return $this->payment_status === 'paid';

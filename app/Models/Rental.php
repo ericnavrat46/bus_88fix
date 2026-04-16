@@ -63,6 +63,11 @@ class Rental extends Model
         return $this->morphMany(Payment::class, 'payable');
     }
 
+    public function reviews()
+    {
+        return $this->morphMany(Review::class, 'reviewable');
+    }
+
     public function latestPayment()
     {
         return $this->morphOne(Payment::class, 'payable')->latestOfMany();

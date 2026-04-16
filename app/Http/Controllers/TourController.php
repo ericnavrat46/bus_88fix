@@ -31,7 +31,11 @@ class TourController extends Controller
         if ($package->status !== 'active') {
             abort(404);
         }
-        return view('tour.show', compact('package'));
+
+        $package->load(['reviews.user']);
+        $reviews = $package->reviews()->where('is_visible', true)->latest()->get();
+
+        return view('tour.show', compact('package', 'reviews'));
     }
 
     public function bookingForm(TourPackage $package)

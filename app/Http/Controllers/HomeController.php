@@ -11,11 +11,12 @@ class HomeController extends Controller
 {
     public function index()
     {
-        $routes = Route::where('status', 'active')->get();
+        $routes = \App\Models\Route::where('status', 'active')->get();
         $origins = $routes->pluck('origin')->unique()->sort()->values();
         $destinations = $routes->pluck('destination')->unique()->sort()->values();
+        $reviews = \App\Models\Review::with('user', 'reviewable')->where('is_visible', true)->latest()->take(6)->get();
 
-        return view('home', compact('routes', 'origins', 'destinations'));
+        return view('home', compact('routes', 'origins', 'destinations', 'reviews'));
     }
 
     public function searchSchedules(Request $request)

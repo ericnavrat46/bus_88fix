@@ -58,6 +58,9 @@ Route::get('/promo/active', [PromoController::class, 'getActivePromo']);
 Route::post('/promo/detail',  [PromoController::class, 'getPromoDetail']);
 Route::post('/promo/apply',   [PromoController::class, 'applyPromo']);
 Route::post('/promo/confirm', [PromoController::class, 'confirmPromo']);
+Route::post('/save-fcm-token', [AuthController::class, 'saveFcmToken']);
+Route::post('/test-notif', [AuthController::class, 'testNotif']);
+Route::post('/tour-bookings/confirm-payment', [TourBookingController::class, 'confirmPayment']);
 
 
 // TEST EMAIL

@@ -17,6 +17,8 @@ class Rental extends Model
         'end_date',
         'duration_days',
         'pickup_location',
+        'latitude',
+        'longitude',
         'destination',
         'purpose',
         'passenger_count',

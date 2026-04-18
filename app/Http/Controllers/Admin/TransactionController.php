@@ -100,10 +100,18 @@ class TransactionController extends Controller
                             ]);
                             
                             // Also update the payment record if exists
-                            Payment::where('midtrans_order_id', $orderId)->update(['status' => 'settlement']);
+                            Payment::where('midtrans_order_id', $orderId)->update([
+                                'status' => 'settlement',
+                                'payment_type' => $statusData['payment_type'] ?? null,
+                                'midtrans_transaction_id' => $statusData['transaction_id'] ?? null,
+                            ]);
                         } elseif (in_array($rawStatus, ['expire', 'cancel', 'deny'])) {
                             $item->update(['payment_status' => ($rawStatus === 'expire' ? 'expired' : 'cancelled')]);
-                            Payment::where('midtrans_order_id', $orderId)->update(['status' => $rawStatus]);
+                            Payment::where('midtrans_order_id', $orderId)->update([
+                                'status' => $rawStatus,
+                                'payment_type' => $statusData['payment_type'] ?? null,
+                                'midtrans_transaction_id' => $statusData['transaction_id'] ?? null,
+                            ]);
                         }
                     }
                 }

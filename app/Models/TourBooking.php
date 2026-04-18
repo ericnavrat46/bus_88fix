@@ -20,6 +20,8 @@ class TourBooking extends Model
         'payment_method',
         'payment_proof',
         'snap_token',
+        'latitude',
+        'longitude',
         'notes',
         'paid_at',
     ];

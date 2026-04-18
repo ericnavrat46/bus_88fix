@@ -51,6 +51,8 @@ class TourController extends Controller
         $validated = $request->validate([
             'travel_date' => 'required|date|after:today',
             'passenger_count' => 'required|integer|min:1',
+            'latitude' => 'nullable|numeric',
+            'longitude' => 'nullable|numeric',
             'notes' => 'nullable|string',
         ]);
 
@@ -67,6 +69,8 @@ class TourController extends Controller
                 'passenger_count' => $validated['passenger_count'],
                 'total_price' => $totalPrice,
                 'payment_status' => 'pending',
+                'latitude' => $validated['latitude'] ?? null,
+                'longitude' => $validated['longitude'] ?? null,
                 'notes' => $validated['notes'],
             ]);
 

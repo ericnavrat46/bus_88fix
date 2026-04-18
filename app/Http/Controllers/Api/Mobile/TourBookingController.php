@@ -94,7 +94,7 @@ class TourBookingController extends Controller
         ]);
     }
 
-    public function cancel($id)
+    public function cancel(Request $request, $id)
     {
         $booking = TourBooking::find($id);
 
@@ -113,6 +113,8 @@ class TourBookingController extends Controller
         }
 
         $booking->payment_status = 'cancelled';
+        $booking->cancel_reason  = $request->reason;  // ✅
+        $booking->cancelled_at   = now();              // ✅
         $booking->save();
 
         return response()->json([

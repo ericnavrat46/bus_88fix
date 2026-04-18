@@ -61,7 +61,7 @@ Route::post('/promo/confirm', [PromoController::class, 'confirmPromo']);
 Route::post('/save-fcm-token', [AuthController::class, 'saveFcmToken']);
 Route::post('/test-notif', [AuthController::class, 'testNotif']);
 Route::post('/tour-bookings/confirm-payment', [TourBookingController::class, 'confirmPayment']);
-
+Route::post('/confirm-rental-payment', [RentalController::class, 'confirmPayment']);
 
 // TEST EMAIL
 Route::get('/test-email', function () {

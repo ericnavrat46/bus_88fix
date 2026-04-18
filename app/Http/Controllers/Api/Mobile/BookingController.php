@@ -191,28 +191,40 @@ class BookingController extends Controller
             'path' => $path
         ]);
     }
-
-    // ==============================
     // CANCEL BOOKING
-    // ==============================
-    public function cancel($id)
-    {
-        DB::table('bookings')
-            ->where('id', $id)
-            ->update([
-                'payment_status' => 'cancelled',
-                'updated_at' => now()
-            ]);
+    public function cancel(Request $request, $id)
+{
+    $booking = DB::table('bookings')->where('id', $id)->first();
 
+    if (!$booking) {
         return response()->json([
-            'success' => true,
-            'message' => 'Booking dibatalkan'
+            'success' => false,
+            'message' => 'Data tidak ditemukan'
         ]);
     }
 
-    // ==============================
+    if ($booking->payment_status == 'paid') {
+        return response()->json([
+            'success' => false,
+            'message' => 'Sudah dibayar, hubungi admin'
+        ]);
+    }
+
+    DB::table('bookings')
+        ->where('id', $id)
+        ->update([
+            'payment_status' => 'cancelled',
+            'cancel_reason'  => $request->reason,  // ✅
+            'cancelled_at'   => now(),              // ✅
+            'updated_at'     => now(),
+        ]);
+
+    return response()->json([
+        'success' => true,
+        'message' => 'Booking dibatalkan'
+    ]);
+}
     // FINISH BOOKING
-    // ==============================
     public function finish($id)
     {
         DB::table('bookings')
@@ -227,10 +239,7 @@ class BookingController extends Controller
             'message' => 'Selesai'
         ]);
     }
-
-    // ==============================
-    // 🔥 CONFIRM PAYMENT (BARU)
-    // ==============================
+    //CONFIRM PAYMENT (BARU)
     public function confirmPayment(Request $request)
     {
         $request->validate([
@@ -254,7 +263,7 @@ class BookingController extends Controller
                 'updated_at' => now()
             ]);
 
-        // 🔥 NOTIF KE USER — kasih tahu hasil konfirmasi
+        // NOTIF KE USER — kasih tahu hasil konfirmasi
         $title = $request->status == 'paid'
             ? 'Pembayaran Dikonfirmasi ✅'
             : 'Pembayaran Ditolak ❌';

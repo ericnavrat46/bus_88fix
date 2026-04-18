@@ -14,11 +14,10 @@ class BookingController extends Controller
     // ==============================
     public function myBookings($user_id)
     {
-
         $bookings = DB::table('bookings')
-            ->join('schedules','bookings.schedule_id','=','schedules.id')
-            ->join('routes','schedules.route_id','=','routes.id')
-            ->join('buses','schedules.bus_id','=','buses.id')
+            ->join('schedules', 'bookings.schedule_id', '=', 'schedules.id')
+            ->join('routes', 'schedules.route_id', '=', 'routes.id')
+            ->join('buses', 'schedules.bus_id', '=', 'buses.id')
             ->select(
                 'bookings.id',
                 'bookings.booking_code',
@@ -33,25 +32,22 @@ class BookingController extends Controller
                 'routes.origin',
                 'routes.destination',
                 'buses.name as bus_name',
-                'users.email',               // ✅ email user
+                'users.email',
                 'users.phone'
             )
             ->join('users', 'bookings.user_id', '=', 'users.id')
-            ->where('bookings.user_id',$user_id)
-            ->orderBy('bookings.created_at','desc')
+            ->where('bookings.user_id', $user_id)
+            ->orderBy('bookings.created_at', 'desc')
             ->get();
 
-        // 🔥 FIX: tambah status_final + passengers
         $bookings = $bookings->map(function ($booking) {
 
-            // Tambah passengers
             $booking->passengers = DB::table('booking_passengers')
                 ->where('booking_id', $booking->id)
                 ->select('seat_number as seat', 'passenger_name', 'phone')
                 ->get()
                 ->toArray();
 
-            // 🔥 Hitung status_final
             $status = 'pending_payment';
 
             if ($booking->payment_status == 'cancelled') {
@@ -68,7 +64,6 @@ class BookingController extends Controller
                 if ($booking->payment_proof) {
                     $status = 'waiting_confirmation';
                 } else {
-                    // Cek expired_at
                     if ($booking->expired_at && now()->gt(\Carbon\Carbon::parse($booking->expired_at))) {
                         $status = 'expired';
                     } else {
@@ -77,7 +72,6 @@ class BookingController extends Controller
                 }
             }
 
-            // 🔥 cast ke array biar status_final ikut ke JSON
             $arr = (array) $booking;
             $arr['status_final'] = $status;
             return $arr;
@@ -95,11 +89,10 @@ class BookingController extends Controller
     // ==============================
     public function bookingDetail($booking_id)
     {
-
         $booking = DB::table('bookings')
-            ->join('schedules','bookings.schedule_id','=','schedules.id')
-            ->join('routes','schedules.route_id','=','routes.id')
-            ->join('buses','schedules.bus_id','=','buses.id')
+            ->join('schedules', 'bookings.schedule_id', '=', 'schedules.id')
+            ->join('routes', 'schedules.route_id', '=', 'routes.id')
+            ->join('buses', 'schedules.bus_id', '=', 'buses.id')
             ->select(
                 'bookings.id',
                 'bookings.booking_code',
@@ -114,15 +107,15 @@ class BookingController extends Controller
                 'schedules.departure_time',
                 'schedules.arrival_time',
                 'buses.name as bus_name',
-                'users.email',               // ✅ email user
-                'users.phone'                
+                'users.email',
+                'users.phone'
             )
             ->join('users', 'bookings.user_id', '=', 'users.id')
-            ->where('bookings.id',$booking_id)
+            ->where('bookings.id', $booking_id)
             ->first();
 
         $passengers = DB::table('booking_passengers')
-            ->where('booking_id',$booking_id)
+            ->where('booking_id', $booking_id)
             ->select('seat_number as seat', 'passenger_name', 'phone')
             ->get();
 
@@ -138,7 +131,7 @@ class BookingController extends Controller
 
 
     // ==============================
-    // UPLOAD BUKTI PEMBAYARAN (FIX)
+    // UPLOAD BUKTI PEMBAYARAN
     // ==============================
     public function uploadPayment(Request $request)
     {
@@ -164,7 +157,6 @@ class BookingController extends Controller
         }
 
         $file = $request->file('payment_proof');
-
         $path = $file->store('payment_proofs/bookings', 'public');
 
         $updated = DB::table('bookings')
@@ -182,28 +174,57 @@ class BookingController extends Controller
             ]);
         }
 
+        // 🔥 NOTIF KE ADMIN — ada bukti bayar masuk
+        $admin = \App\Models\User::where('role', 'admin')->first();
+        if ($admin) {
+            \App\Helpers\NotificationHelper::send(
+                $admin->id,
+                'Bukti Pembayaran Masuk 💳',
+                'Ada bukti bayar baru dari booking ' . $booking->booking_code,
+                'payment_proof'
+            );
+        }
+
         return response()->json([
             'status' => true,
             'message' => 'Bukti pembayaran berhasil diupload',
             'path' => $path
         ]);
     }
+    // CANCEL BOOKING
+    public function cancel(Request $request, $id)
+{
+    $booking = DB::table('bookings')->where('id', $id)->first();
 
-    public function cancel($id)
-    {
-        DB::table('bookings')
-            ->where('id', $id)
-            ->update([
-                'payment_status' => 'cancelled',
-                'updated_at' => now()
-            ]);
-
+    if (!$booking) {
         return response()->json([
-            'success' => true,
-            'message' => 'Booking dibatalkan'
+            'success' => false,
+            'message' => 'Data tidak ditemukan'
         ]);
     }
 
+    if ($booking->payment_status == 'paid') {
+        return response()->json([
+            'success' => false,
+            'message' => 'Sudah dibayar, hubungi admin'
+        ]);
+    }
+
+    DB::table('bookings')
+        ->where('id', $id)
+        ->update([
+            'payment_status' => 'cancelled',
+            'cancel_reason'  => $request->reason,  // ✅
+            'cancelled_at'   => now(),              // ✅
+            'updated_at'     => now(),
+        ]);
+
+    return response()->json([
+        'success' => true,
+        'message' => 'Booking dibatalkan'
+    ]);
+}
+    // FINISH BOOKING
     public function finish($id)
     {
         DB::table('bookings')
@@ -216,6 +237,51 @@ class BookingController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Selesai'
+        ]);
+    }
+    //CONFIRM PAYMENT (BARU)
+    public function confirmPayment(Request $request)
+    {
+        $request->validate([
+            'id' => 'required',
+            'status' => 'required|in:paid,cancelled'
+        ]);
+
+        $booking = DB::table('bookings')->where('id', $request->id)->first();
+
+        if (!$booking) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Data tidak ditemukan'
+            ]);
+        }
+
+        DB::table('bookings')
+            ->where('id', $request->id)
+            ->update([
+                'payment_status' => $request->status,
+                'updated_at' => now()
+            ]);
+
+        // NOTIF KE USER — kasih tahu hasil konfirmasi
+        $title = $request->status == 'paid'
+            ? 'Pembayaran Dikonfirmasi ✅'
+            : 'Pembayaran Ditolak ❌';
+
+        $body = $request->status == 'paid'
+            ? 'Pembayaran booking ' . $booking->booking_code . ' telah dikonfirmasi. Selamat menikmati perjalanan!'
+            : 'Maaf, pembayaran booking ' . $booking->booking_code . ' ditolak. Silakan hubungi admin.';
+
+        \App\Helpers\NotificationHelper::send(
+            $booking->user_id,
+            $title,
+            $body,
+            'payment_status'
+        );
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Status pembayaran berhasil diupdate'
         ]);
     }
 }

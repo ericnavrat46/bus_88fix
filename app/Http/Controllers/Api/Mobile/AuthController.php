@@ -124,7 +124,6 @@ class AuthController extends Controller
             ]);
         }
 
-        // Cegah spam OTP
         if ($user->expired_otp && now()->lessThan($user->expired_otp)) {
             return response()->json([
                 "status" => false,
@@ -139,7 +138,6 @@ class AuthController extends Controller
             "expired_otp" => now()->addMinutes(5)
         ]);
 
-        // Kirim email (FIX UTAMA)
         Mail::to($user->email)->send(new SendOTPMail($otp));
 
         return response()->json([
@@ -218,4 +216,47 @@ class AuthController extends Controller
             "message" => "Password berhasil diubah"
         ]);
     }
+
+    // =========================================
+    // 🔔 SAVE FCM TOKEN
+    // =========================================
+    public function saveFcmToken(Request $request)
+    {
+        $request->validate([
+            "user_id" => "required|exists:users,id",
+            "fcm_token" => "required|string"
+        ]);
+
+        $user = User::find($request->user_id);
+
+        $user->update([
+            "fcm_token" => $request->fcm_token
+        ]);
+
+        return response()->json([
+            "status" => true,
+            "message" => "FCM token berhasil disimpan"
+        ]);
+    }
+    // =========================================
+        // 🔥 TEST NOTIF
+        // =========================================
+        public function testNotif(Request $request)
+        {
+            $request->validate([
+                "user_id" => "required"
+            ]);
+
+            \App\Helpers\NotificationHelper::send(
+                $request->user_id,
+                'Test Notifikasi 🔥',
+                'Ini notif dari Laravel',
+                'test'
+            );
+
+            return response()->json([
+                "status" => true,
+                "message" => "Notif dikirim"
+            ]);
+        }
 }

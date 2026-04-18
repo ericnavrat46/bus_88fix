@@ -98,8 +98,7 @@ class TransactionController extends Controller
                                 'payment_status' => 'paid',
                                 'paid_at' => now()
                             ]);
-                            
-                            // Also update the payment record if exists
+
                             Payment::where('midtrans_order_id', $orderId)->update(['status' => 'settlement']);
                         } elseif (in_array($rawStatus, ['expire', 'cancel', 'deny'])) {
                             $item->update(['payment_status' => ($rawStatus === 'expire' ? 'expired' : 'cancelled')]);
@@ -133,13 +132,20 @@ class TransactionController extends Controller
             'admin_notes' => $validated['admin_notes'] ?? null,
         ]);
 
-        // Send Notification
         \App\Models\Notification::send(
             $rental->user_id,
             'Sewa Bus Disetujui!',
             "Permintaan sewa bus {$rental->rental_code} ({$rental->destination}) telah disetujui. Silakan selesaikan pembayaran.",
             'rental',
             ['rental_id' => $rental->id, 'rental_code' => $rental->rental_code]
+        );
+
+        // Kirim ke HP via FCM
+        \App\Helpers\NotificationHelper::send(
+            $rental->user_id,
+            'Sewa Bus Disetujui!',
+            "Permintaan sewa bus {$rental->rental_code} ({$rental->destination}) telah disetujui. Silakan selesaikan pembayaran.",
+            'rental'
         );
 
         return back()->with('success', 'Rental berhasil disetujui!');
@@ -152,13 +158,20 @@ class TransactionController extends Controller
             'admin_notes' => $request->input('admin_notes'),
         ]);
 
-        // Send Notification
         \App\Models\Notification::send(
             $rental->user_id,
             'Sewa Bus Ditolak',
             "Maaf, permintaan sewa bus {$rental->rental_code} Anda ditolak. Alasan: " . ($request->input('admin_notes') ?? 'Tidak disebutkan.'),
             'rental',
             ['rental_id' => $rental->id, 'rental_code' => $rental->rental_code]
+        );
+
+        // Kirim ke HP via FCM
+        \App\Helpers\NotificationHelper::send(
+            $rental->user_id,
+            'Sewa Bus Ditolak',
+            "Maaf, permintaan sewa bus {$rental->rental_code} Anda ditolak. Alasan: " . ($request->input('admin_notes') ?? 'Tidak disebutkan.'),
+            'rental'
         );
 
         return back()->with('success', 'Rental ditolak.');
@@ -193,6 +206,14 @@ class TransactionController extends Controller
             ['booking_id' => $booking->id, 'booking_code' => $booking->booking_code]
         );
 
+        // Kirim ke HP via FCM
+        \App\Helpers\NotificationHelper::send(
+            $booking->user_id,
+            'Pembayaran Berhasil!',
+            "Pembayaran manual untuk tiket bus {$booking->booking_code} telah dikonfirmasi oleh admin.",
+            'booking'
+        );
+
         return back()->with('success', "Pembayaran manual untuk {$booking->booking_code} Berhasil Disetujui!");
     }
 
@@ -202,13 +223,21 @@ class TransactionController extends Controller
             'payment_status' => 'paid',
             'paid_at' => now(),
         ]);
-
+        
         \App\Models\Notification::send(
             $rental->user_id,
             'Pembayaran Berhasil!',
             "Pembayaran manual untuk sewa bus {$rental->rental_code} telah dikonfirmasi oleh admin.",
             'rental',
             ['rental_id' => $rental->id, 'rental_code' => $rental->rental_code]
+        );
+
+        // Kirim ke HP via FCM
+        \App\Helpers\NotificationHelper::send(
+            $rental->user_id,
+            'Pembayaran Berhasil!',
+            "Pembayaran manual untuk sewa bus {$rental->rental_code} telah dikonfirmasi oleh admin.",
+            'rental'
         );
 
         return back()->with('success', "Pembayaran manual untuk {$rental->rental_code} Berhasil Disetujui!");
@@ -221,12 +250,21 @@ class TransactionController extends Controller
             'paid_at' => now(),
         ]);
 
+        // Simpan ke database (popup admin)
         \App\Models\Notification::send(
             $booking->user_id,
             'Pembayaran Berhasil!',
             "Pembayaran manual untuk paket wisata {$booking->booking_code} telah dikonfirmasi oleh admin.",
             'tour',
             ['booking_id' => $booking->id, 'booking_code' => $booking->booking_code]
+        );
+
+        // Kirim ke HP via FCM
+        \App\Helpers\NotificationHelper::send(
+            $booking->user_id,
+            'Pembayaran Berhasil!',
+            "Pembayaran manual untuk paket wisata {$booking->booking_code} telah dikonfirmasi oleh admin.",
+            'tour'
         );
 
         return back()->with('success', "Pembayaran manual untuk {$booking->booking_code} Berhasil Disetujui!");

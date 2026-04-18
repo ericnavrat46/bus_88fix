@@ -22,18 +22,10 @@ class NotificationHelper
         $user = User::find($userId);
         if (!$user) return;
 
-        // Simpan ke database
-        Notification::create([
-            'user_id' => $user->id,
-            'title'   => $title,
-            'message' => $message,
-            'type'    => $type,
-            'is_read' => 0
-        ]);
+        // ⬇️ HAPUS Notification::create di sini, sudah ditangani Notification::send()
 
         if (!$user->fcm_token) return;
 
-        // Ambil project_id dari service account
         $serviceAccount = json_decode(
             file_get_contents(storage_path('app/firebase-service-account.json')), true
         );
@@ -49,12 +41,10 @@ class NotificationHelper
         ])->post($url, [
             'message' => [
                 'token' => $user->fcm_token,
-
                 'notification' => [
                     'title' => $title,
                     'body'  => $message,
                 ],
-
                 'android' => [
                     'priority' => 'high',
                     'notification' => [
@@ -62,7 +52,6 @@ class NotificationHelper
                         'sound'      => 'default',
                     ],
                 ],
-
                 'data' => [
                     'title' => $title,
                     'body'  => $message,

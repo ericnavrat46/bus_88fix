@@ -219,7 +219,7 @@
                 </a>
 
                 @if($rental->payment_status === 'pending' || $rental->payment_status === 'unpaid')
-                <form action="{{ route('dashboard.rental.cancel', $rental) }}" method="POST" class="flex-1" onsubmit="return confirm('Apakah Anda yakin ingin membatalkan pesanan sewa bus ini?');">
+                <form action="{{ route('dashboard.rental.cancel', $rental) }}" method="POST" class="flex-1" onsubmit="confirmCancel(event, this, 'Batalkan Sewa Bus?', 'Apakah Anda yakin ingin membatalkan pesanan sewa bus ini?');">
                     @csrf
                     <button type="submit" class="w-full py-3 bg-red-50 text-red-600 hover:bg-red-100 rounded-xl font-bold transition-colors">
                         BATALKAN PESANAN

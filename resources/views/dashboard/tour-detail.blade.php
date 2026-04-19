@@ -210,7 +210,7 @@
                 </a>
 
                 @if($booking->payment_status === 'pending' || $booking->payment_status === 'unpaid')
-                <form action="{{ route('dashboard.tour.cancel', $booking) }}" method="POST" class="flex-1" onsubmit="return confirm('Apakah Anda yakin ingin membatalkan pesanan tour ini?');">
+                <form action="{{ route('dashboard.tour.cancel', $booking) }}" method="POST" class="flex-1" onsubmit="confirmCancel(event, this, 'Batalkan Pesanan Tour?', 'Apakah Anda yakin ingin membatalkan pesanan tour ini?');">
                     @csrf
                     <button type="submit" class="w-full py-3 bg-red-50 text-red-600 hover:bg-red-100 rounded-xl font-bold transition-colors">
                         BATALKAN PESANAN

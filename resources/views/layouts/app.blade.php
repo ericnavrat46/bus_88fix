@@ -68,6 +68,27 @@
     {{-- Footer --}}
     @include('partials.footer')
 
+    <script>
+        function confirmCancel(event, formElement, title = 'Apakah Anda yakin?', text = 'Pesanan ini akan dibatalkan!') {
+            event.preventDefault();
+            Swal.fire({
+                title: title,
+                text: text,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: 'Ya, Batalkan!',
+                cancelButtonText: 'Tidak',
+                borderRadius: '1rem'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    formElement.submit();
+                }
+            });
+        }
+    </script>
+
     @stack('scripts')
 </body>
 </html>

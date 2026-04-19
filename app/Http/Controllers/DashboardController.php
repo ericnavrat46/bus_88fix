@@ -113,4 +113,62 @@ class DashboardController extends Controller
 
         return view('dashboard.tour-detail', compact('booking'));
     }
+
+    public function cancelBooking(Booking $booking)
+    {
+        if ($booking->user_id !== auth()->id()) abort(403);
+        if ($booking->payment_status === 'pending' || $booking->payment_status === 'unpaid') {
+            $booking->update(['payment_status' => 'cancelled']);
+            
+            // Optional: Notify Admin
+            \App\Models\Notification::send(
+                1, // Assuming admin user ID is 1, adjust if needed
+                'Pesanan Dibatalkan',
+                "User {$booking->user->name} membatalkan pesanan tiket {$booking->booking_code}.",
+                'booking',
+                ['booking_id' => $booking->id]
+            );
+
+            return back()->with('success', 'Pesanan tiket berhasil dibatalkan.');
+        }
+        return back()->with('error', 'Pesanan tidak dapat dibatalkan.');
+    }
+
+    public function cancelRental(Rental $rental)
+    {
+        if ($rental->user_id !== auth()->id()) abort(403);
+        if ($rental->payment_status === 'pending' || $rental->payment_status === 'unpaid') {
+            $rental->update(['payment_status' => 'cancelled']);
+            
+            \App\Models\Notification::send(
+                1,
+                'Sewa Bus Dibatalkan',
+                "User {$rental->user->name} membatalkan sewa bus {$rental->rental_code}.",
+                'rental',
+                ['rental_id' => $rental->id]
+            );
+
+            return back()->with('success', 'Pesanan sewa bus berhasil dibatalkan.');
+        }
+        return back()->with('error', 'Pesanan tidak dapat dibatalkan.');
+    }
+
+    public function cancelTour(TourBooking $booking)
+    {
+        if ($booking->user_id !== auth()->id()) abort(403);
+        if ($booking->payment_status === 'pending' || $booking->payment_status === 'unpaid') {
+            $booking->update(['payment_status' => 'cancelled']);
+            
+            \App\Models\Notification::send(
+                1,
+                'Tour Dibatalkan',
+                "User {$booking->user->name} membatalkan pesanan tour {$booking->booking_code}.",
+                'tour',
+                ['booking_id' => $booking->id]
+            );
+
+            return back()->with('success', 'Pesanan tour berhasil dibatalkan.');
+        }
+        return back()->with('error', 'Pesanan tidak dapat dibatalkan.');
+    }
 }

@@ -59,6 +59,11 @@ class TourPackage extends Model
         return $this->flashSale()->active()->first();
     }
 
+    public function reviews()
+    {
+        return $this->morphMany(Review::class, 'reviewable');
+    }
+
     public function getFinalPriceAttribute()
     {
         $flash = $this->active_flash_sale;

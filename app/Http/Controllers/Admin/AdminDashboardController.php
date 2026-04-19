@@ -44,4 +44,13 @@ class AdminDashboardController extends Controller
 
         return view('admin.dashboard', compact('stats', 'recentBookings', 'recentRentals'));
     }
+
+    public function markNotificationsRead()
+    {
+        \App\Models\Notification::where('user_id', auth()->id())
+            ->where('is_read', false)
+            ->update(['is_read' => true]);
+
+        return back()->with('success', 'Semua notifikasi telah ditandai sudah dibaca.');
+    }
 }

@@ -77,8 +77,13 @@ Route::middleware('auth')->group(function () {
     // Dashboard
     Route::get('/dashboard',                        [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/dashboard/booking/{booking}',      [DashboardController::class, 'bookingDetail'])->name('dashboard.booking');
+    Route::post('/dashboard/booking/{booking}/cancel', [DashboardController::class, 'cancelBooking'])->name('dashboard.booking.cancel');
+    
     Route::get('/dashboard/rental/{rental}',        [DashboardController::class, 'rentalDetail'])->name('dashboard.rental');
+    Route::post('/dashboard/rental/{rental}/cancel',   [DashboardController::class, 'cancelRental'])->name('dashboard.rental.cancel');
+    
     Route::get('/dashboard/tour/{booking}',         [DashboardController::class, 'tourDetail'])->name('dashboard.tour');
+    Route::post('/dashboard/tour/{booking}/cancel',    [DashboardController::class, 'cancelTour'])->name('dashboard.tour.cancel');
 
     // ✅ Profile Update
     Route::post('/update-profile', [ProfileWebController::class, 'updateProfile'])->name('profile.update');
@@ -122,6 +127,7 @@ Route::middleware(['auth', \App\Http\Middleware\AdminMiddleware::class])
     ->name('admin.')
     ->group(function () {
         Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
+        Route::post('/notifications/read', [AdminDashboardController::class, 'markNotificationsRead'])->name('notifications.read');
 
         // CRUD Resources
         Route::resource('buses',          BusController::class);

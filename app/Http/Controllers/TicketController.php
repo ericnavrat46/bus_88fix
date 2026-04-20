@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\Auth;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
+use Endroid\QrCode\QrCode;
+use Endroid\QrCode\Writer\PngWriter;
 
 class TicketController extends Controller
 {
@@ -99,8 +101,8 @@ class TicketController extends Controller
 
     public function verify(Request $request)
     {
-        $type  = $request->query('type');
-        $code  = $request->query('code');
+        $type = $request->query('type');
+        $code = $request->query('code');
         $token = $request->query('token');
 
         if (!$this->verifyToken($code, $token)) {
@@ -138,8 +140,8 @@ class TicketController extends Controller
 
         parse_str($parsed['query'], $params);
 
-        $type  = $params['type'] ?? null;
-        $code  = $params['code'] ?? null;
+        $type = $params['type'] ?? null;
+        $code = $params['code'] ?? null;
         $token = $params['token'] ?? null;
 
         if (!$type || !$code || !$token || !$this->verifyToken($code, $token)) {
@@ -161,8 +163,10 @@ class TicketController extends Controller
             ->where('booking_code', $code)
             ->first();
 
-        if (!$b) return ['valid' => false, 'message' => 'Kode booking tidak ditemukan.'];
-        if ($b->payment_status !== 'paid') return ['valid' => false, 'message' => 'Belum lunas.'];
+        if (!$b)
+            return ['valid' => false, 'message' => 'Kode booking tidak ditemukan.'];
+        if ($b->payment_status !== 'paid')
+            return ['valid' => false, 'message' => 'Belum lunas.'];
 
         $dep = Carbon::parse($b->schedule->departure_date . ' ' . $b->schedule->departure_time);
 
@@ -191,7 +195,8 @@ class TicketController extends Controller
     {
         $r = Rental::with(['user', 'bus'])->where('rental_code', $code)->first();
 
-        if (!$r) return ['valid' => false, 'message' => 'Kode tidak ditemukan.'];
+        if (!$r)
+            return ['valid' => false, 'message' => 'Kode tidak ditemukan.'];
 
         return [
             'valid' => true,
@@ -209,7 +214,8 @@ class TicketController extends Controller
     {
         $b = TourBooking::with(['user', 'tourPackage'])->where('booking_code', $code)->first();
 
-        if (!$b) return ['valid' => false, 'message' => 'Kode tidak ditemukan.'];
+        if (!$b)
+            return ['valid' => false, 'message' => 'Kode tidak ditemukan.'];
 
         return [
             'valid' => true,
@@ -253,39 +259,33 @@ class TicketController extends Controller
     }
 
     private function generateQR($data)
-{
-    // Encode data untuk URL
-    $encodedData = urlencode($data);
-    
-    // Coba gunakan Google Charts API (lebih stabil)
-    $url = "https://chart.googleapis.com/chart?chs=250x250&cht=qr&chl={$encodedData}&choe=UTF-8";
-    
-    $qrImage = @file_get_contents($url);
-    
-    if ($qrImage !== false) {
-        return base64_encode($qrImage);
+    {
+        try {
+            $qrCode = new QrCode(
+                data: $data,
+                size: 250,
+                margin: 10
+            );
+
+            $writer = new PngWriter();
+            $result = $writer->write($qrCode);
+
+            return base64_encode($result->getString());
+        } catch (\Exception $e) {
+            Log::error('QR Code local generation failed: ' . $e->getMessage());
+
+            // Fallback ke Google jika local gagal (hanya untuk jaga-jaga)
+            $encodedData = urlencode($data);
+            $url = "https://chart.googleapis.com/chart?chs=250x250&cht=qr&chl={$encodedData}&choe=UTF-8";
+            $qrImage = @file_get_contents($url);
+
+            if ($qrImage !== false) {
+                return base64_encode($qrImage);
+            }
+
+            return '';
+        }
     }
-    
-    // Fallback 1: QuickChart.io (alternatif)
-    $fallbackUrl = "https://quickchart.io/qr?text={$encodedData}&size=250";
-    $qrImage = @file_get_contents($fallbackUrl);
-    
-    if ($qrImage !== false) {
-        return base64_encode($qrImage);
-    }
-    
-    // Fallback 2: QR Server API
-    $secondFallback = "https://api.qrserver.com/v1/create-qr-code/?size=250x250&data={$encodedData}";
-    $qrImage = @file_get_contents($secondFallback);
-    
-    if ($qrImage !== false) {
-        return base64_encode($qrImage);
-    }
-    
-    // Jika semua gagal, return empty string dan catat error
-    Log::error('QR Code generation failed for data: ' . $data);
-    return '';
-}
 
     private function generateToken($code)
     {

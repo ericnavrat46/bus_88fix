@@ -174,6 +174,19 @@
         box-shadow: 0 8px 20px rgba(0,0,0,0.12);
     }
 
+    /* Download button */
+    .btn-download-custom {
+        background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+        color: var(--white);
+        box-shadow: 0 6px 20px rgba(16,185,129,0.3);
+    }
+
+    .btn-download-custom:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 28px rgba(16,185,129,0.4);
+        color: var(--white);
+    }
+
     /* ============================================================
        SECTION HEADER
     ============================================================ */
@@ -873,6 +886,18 @@
                                         </a>
                                     @endif
 
+                                    {{-- ✅ DOWNLOAD E-TICKET: Tiket Bus --}}
+                                    @if($booking->payment_status === 'paid')
+                                        <a href="{{ route('ticket.bus.download', $booking->id) }}" class="btn-action btn-download-custom">
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+                                                <polyline points="7 10 12 15 17 10"/>
+                                                <line x1="12" y1="15" x2="12" y2="3"/>
+                                            </svg>
+                                            Download E-Ticket
+                                        </a>
+                                    @endif
+
                                     <a href="{{ route('dashboard.booking', $booking) }}" class="detail-link">
                                         Lihat Detail
                                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -988,6 +1013,18 @@
                                         </a>
                                     @endif
 
+                                    {{-- ✅ DOWNLOAD E-TICKET: Sewa Bus --}}
+                                    @if($rental->approval_status === 'approved' && $rental->payment_status === 'paid')
+                                        <a href="{{ route('ticket.rental.download', $rental->id) }}" class="btn-action btn-download-custom">
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+                                                <polyline points="7 10 12 15 17 10"/>
+                                                <line x1="12" y1="15" x2="12" y2="3"/>
+                                            </svg>
+                                            Download E-Ticket
+                                        </a>
+                                    @endif
+
                                     <a href="{{ route('dashboard.rental', $rental) }}" class="detail-link">
                                         Lihat Detail
                                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -1085,6 +1122,18 @@
                                     @if($tBooking->payment_status === 'pending')
                                         <a href="{{ route('tour.checkout', $tBooking) }}" class="btn-action btn-primary-custom">
                                             Bayar Sekarang
+                                        </a>
+                                    @endif
+
+                                    {{-- ✅ DOWNLOAD E-TICKET: Paket Wisata --}}
+                                    @if($tBooking->payment_status === 'paid')
+                                        <a href="{{ route('ticket.tour.download', $tBooking->id) }}" class="btn-action btn-download-custom">
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+                                                <polyline points="7 10 12 15 17 10"/>
+                                                <line x1="12" y1="15" x2="12" y2="3"/>
+                                            </svg>
+                                            Download E-Ticket
                                         </a>
                                     @endif
 

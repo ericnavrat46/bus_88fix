@@ -59,4 +59,32 @@ class User extends Authenticatable
     {
         return $this->hasMany(Rental::class);
     }
+
+    public function tourBookings()
+    {
+        return $this->hasMany(TourBooking::class);
+    }
+
+    public function notifications()
+    {
+        return $this->hasMany(Notification::class);
+    }
+
+    public function checkPendingPayments()
+    {
+        // Check pending bookings
+        foreach ($this->bookings()->whereIn('payment_status', ['pending', 'unpaid'])->get() as $booking) {
+            $booking->checkExpiration();
+        }
+
+        // Check pending rentals
+        foreach ($this->rentals()->whereIn('payment_status', ['pending', 'unpaid'])->get() as $rental) {
+            $rental->checkExpiration();
+        }
+
+        // Check pending tour bookings
+        foreach ($this->tourBookings()->whereIn('payment_status', ['pending', 'unpaid'])->get() as $tBooking) {
+            $tBooking->checkExpiration();
+        }
+    }
 }

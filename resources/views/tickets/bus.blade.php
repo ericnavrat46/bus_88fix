@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
-    <title>E-Tiket Ind's 88 Trans - {{ $booking->booking_code }}</title>
+    <title>E-Tiket Bus 88 - {{ $booking->booking_code }}</title>
     <style>
         * {
             margin: 0;
@@ -11,368 +12,730 @@
         }
 
         body {
-            font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
-            background: #e2e8f0;
-            padding: 20px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+            color: #1a1a1a;
+            background: #fff;
         }
 
-        /* Ukuran tiket disesuaikan agar muat 1 halaman A4 */
-        .ticket {
-            max-width: 700px;
+        .page {
             width: 100%;
-            background: white;
-            border-radius: 16px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-            overflow: hidden;
-            font-size: 13px;
-            color: #1e293b;
+            max-width: 760px;
+            margin: 0 auto;
+            background: #fff;
         }
 
-        /* Header kantor pusat */
-        .header-office {
-            background: #0f172a;
-            padding: 20px 24px;
-            color: white;
+        /* ── HEADER ── */
+        .header-strip {
+            background: #CC0000;
+            height: 8px;
+            width: 100%;
         }
-        .office-name {
-            font-size: 22px;
-            font-weight: 800;
-            letter-spacing: 1px;
+
+        .header-body {
+            padding: 14px 24px 12px;
+            border-bottom: 2px solid #CC0000;
         }
-        .office-address {
+
+        .header-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .logo-cell {
+            width: 200px;
+            vertical-align: middle;
+        }
+
+        .logo-box {
+            display: inline-block;
+        }
+
+        .logo-name {
+            font-size: 26px;
+            font-weight: 900;
+            color: #1a3a6b;
+            letter-spacing: -1px;
+        }
+
+        .logo-name span {
+            color: #CC0000;
+        }
+
+        .logo-sub {
+            font-size: 9px;
+            color: #555;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            margin-top: 2px;
+        }
+
+        .address-cell {
+            text-align: right;
+            vertical-align: top;
+        }
+
+        .address-title {
+            font-size: 11px;
+            font-weight: 700;
+            color: #CC0000;
+            margin-bottom: 3px;
+        }
+
+        .address-text {
+            font-size: 9.5px;
+            color: #555;
+            line-height: 1.5;
+        }
+
+        /* ── INFO BAR ── */
+        .info-bar {
+            background: #f5f5f5;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .info-bar-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .info-alert {
+            background: #fffbeb;
+            border-right: 1px solid #ddd;
+            padding: 8px 14px;
+            width: 200px;
+            vertical-align: middle;
+        }
+
+        .info-alert-label {
+            font-size: 8px;
+            font-weight: 700;
+            color: #92400e;
+            text-transform: uppercase;
+            margin-bottom: 2px;
+        }
+
+        .info-alert-text {
+            font-size: 9px;
+            font-weight: 700;
+            color: #92400e;
+        }
+
+        .info-contacts {
+            padding: 8px 14px;
+            vertical-align: middle;
+        }
+
+        .info-contacts-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .contact-col {
+            padding-right: 20px;
+            vertical-align: top;
+        }
+
+        .contact-label {
+            font-size: 8.5px;
+            color: #777;
+            margin-bottom: 2px;
+        }
+
+        .contact-value {
             font-size: 10px;
-            opacity: 0.8;
-            margin-top: 6px;
+            font-weight: 700;
+            color: #1a1a1a;
+        }
+
+        .contact-value a {
+            color: #CC0000;
+            text-decoration: none;
+        }
+
+        /* ── ROUTE SECTION ── */
+        .route-section {
+            padding: 18px 24px 12px;
+            border-bottom: 1px solid #e8e8e8;
+        }
+
+        .route-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .route-origin {
+            width: 38%;
+            vertical-align: top;
+        }
+
+        .route-arrow {
+            width: 8%;
+            text-align: center;
+            vertical-align: middle;
+            padding-top: 4px;
+        }
+
+        .route-destination {
+            width: 38%;
+            vertical-align: top;
+        }
+
+        .route-booking {
+            width: 16%;
+            vertical-align: top;
+            text-align: right;
+        }
+
+        .route-city {
+            font-size: 17px;
+            font-weight: 900;
+            color: #CC0000;
+            margin-bottom: 3px;
+        }
+
+        .route-station {
+            font-size: 10px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 3px;
+        }
+
+        .route-datetime {
+            font-size: 10px;
+            color: #555;
+            line-height: 1.5;
+        }
+
+        .route-arrow-img {
+            font-size: 16px;
+            color: #1a3a6b;
+            font-weight: 900;
+        }
+
+        .booking-code-box {
+            border: 1px solid #1a3a6b;
+            border-radius: 4px;
+            padding: 6px 8px;
+            text-align: center;
+            display: inline-block;
+        }
+
+        .booking-code-label {
+            font-size: 8px;
+            color: #777;
+            margin-bottom: 2px;
+        }
+
+        .booking-code-value {
+            font-size: 9px;
+            font-weight: 700;
+            color: #CC0000;
+            word-break: break-all;
+        }
+
+        /* ── TOTAL HARGA ── */
+        .total-bar {
+            background: #f9f9f9;
+            border: 1px solid #e8e8e8;
+            margin: 0 24px 0;
+            padding: 10px 16px;
+            border-radius: 0;
+        }
+
+        .total-harga {
+            font-size: 13px;
+            font-weight: 700;
+            color: #1a1a1a;
+        }
+
+        .total-time {
+            font-size: 9px;
+            color: #777;
+            margin-top: 2px;
+        }
+
+        /* ── SECTIONS ── */
+        .section-wrapper {
+            border: 1px solid #e8e8e8;
+            margin: 10px 24px 0;
+        }
+
+        .section-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .section-left {
+            width: 170px;
+            background: #fafafa;
+            border-right: 1px solid #e8e8e8;
+            padding: 16px;
+            vertical-align: top;
+        }
+
+        .section-icon {
+            font-size: 20px;
+            margin-bottom: 6px;
+        }
+
+        .section-label {
+            font-size: 11px;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .section-right {
+            padding: 16px;
+            vertical-align: top;
+        }
+
+        /* Journey detail rows */
+        .journey-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .journey-bus {
+            font-size: 13px;
+            font-weight: 800;
+            color: #1a1a1a;
+            padding-bottom: 12px;
+        }
+
+        .journey-point-row td {
+            padding: 0;
+            vertical-align: top;
+        }
+
+        .journey-dot-cell {
+            width: 20px;
+            text-align: center;
+            padding-top: 2px;
+        }
+
+        .journey-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #1a3a6b;
+            display: inline-block;
+        }
+
+        .journey-line-cell {
+            width: 20px;
+            text-align: center;
+        }
+
+        .journey-line {
+            width: 1px;
+            height: 30px;
+            background: #ccc;
+            margin: 0 auto;
+        }
+
+        .journey-content {
+            padding-left: 8px;
+            padding-bottom: 10px;
+        }
+
+        .journey-dir-label {
+            font-size: 9px;
+            color: #777;
+            margin-bottom: 2px;
+        }
+
+        .journey-place {
+            font-size: 12px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 1px;
+        }
+
+        .journey-address {
+            font-size: 9px;
+            color: #777;
             line-height: 1.4;
         }
 
-        /* Peringatan QR */
-        .alert-qr {
-            background: #fef9c3;
-            padding: 10px 24px;
-            font-size: 11px;
-            font-weight: 700;
-            color: #854d0e;
-            border-bottom: 1px solid #fde047;
+        /* Passenger section */
+        .pass-table {
+            width: 100%;
+            border-collapse: collapse;
         }
 
-        /* Contact bar */
-        .contact-bar {
-            background: #f1f5f9;
-            padding: 8px 24px;
-            font-size: 10px;
-            color: #0f172a;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-            border-bottom: 1px solid #e2e8f0;
+        .pass-info-cell {
+            vertical-align: top;
+            width: 60%;
         }
 
-        /* Rute utama */
-        .route-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 24px 24px 16px;
-            background: white;
-        }
-        .route-item {
-            flex: 1;
-        }
-        .route-item.right {
+        .pass-qr-cell {
+            vertical-align: top;
             text-align: right;
+            width: 40%;
         }
-        .route-location {
-            font-size: 18px;
-            font-weight: 800;
+
+        .pass-row {
             margin-bottom: 6px;
         }
-        .route-datetime {
+
+        .pass-label {
+            font-size: 9px;
+            color: #888;
+            margin-bottom: 1px;
+        }
+
+        .pass-value {
             font-size: 11px;
-            color: #475569;
+            font-weight: 700;
+            color: #1a1a1a;
         }
 
-        /* Kode booking & harga */
-        .code-price {
-            display: flex;
-            justify-content: space-between;
-            background: #f8fafc;
-            padding: 14px 24px;
-            margin: 0 0 8px 0;
-            border-top: 1px solid #e2e8f0;
-            border-bottom: 1px solid #e2e8f0;
-        }
-        .code, .price {
-            font-weight: 800;
-            font-size: 14px;
-        }
-        .price {
-            color: #b91c1c;
+        .pass-code {
+            font-size: 9px;
+            color: #888;
+            word-break: break-all;
         }
 
-        /* Section */
-        .section {
-            padding: 16px 24px;
-        }
-        .section-title {
-            font-weight: 800;
-            font-size: 14px;
-            color: #0f172a;
-            border-left: 4px solid #b91c1c;
-            padding-left: 10px;
-            margin-bottom: 14px;
+        .qr-img {
+            width: 100px;
+            height: 100px;
         }
 
-        /* Detail perjalanan */
-        .journey-detail {
-            background: #f8fafc;
-            border-radius: 12px;
-            padding: 14px 16px;
+        .qr-price {
+            font-size: 12px;
+            font-weight: 700;
+            color: #CC0000;
+            text-align: right;
             margin-top: 4px;
         }
-        .detail-row {
-            display: flex;
-            margin-bottom: 12px;
-        }
-        .detail-label {
-            width: 110px;
-            font-weight: 600;
-            color: #475569;
-            font-size: 11px;
-        }
-        .detail-value {
-            flex: 1;
-            font-weight: 500;
-            font-size: 12px;
-        }
-        .detail-value strong {
-            font-weight: 800;
+
+        .qr-timestamp {
+            font-size: 8px;
+            color: #999;
+            text-align: right;
         }
 
-        /* Info penumpang */
-        .passenger-info {
-            background: #f8fafc;
-            border-radius: 12px;
-            padding: 14px 16px;
-        }
-        .passenger-row {
-            display: flex;
-            margin-bottom: 10px;
-        }
-        .passenger-label {
-            width: 110px;
-            font-weight: 600;
-            color: #475569;
-            font-size: 11px;
-        }
-        .passenger-value {
-            flex: 1;
-            font-weight: 500;
-            font-size: 12px;
-        }
-
-        /* QR Code */
-        .qr-container {
-            text-align: center;
-            margin: 16px 24px;
-            padding: 16px;
-            background: #f8fafc;
-            border-radius: 12px;
-            border: 1px solid #e2e8f0;
-        }
-        .qr-container img {
-            width: 130px;
-            height: 130px;
-            margin: 0 auto;
-        }
-        .qr-text {
-            font-size: 10px;
-            color: #475569;
-            margin-top: 8px;
-        }
-
-        /* Kontak & pembayaran */
+        /* Contact section */
         .contact-section {
-            background: #f1f5f9;
-            padding: 14px 24px;
-            display: flex;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 12px;
-            border-top: 1px solid #e2e8f0;
-            font-size: 11px;
+            border: 1px solid #e8e8e8;
+            margin: 10px 24px 0;
         }
-        .contact-section strong {
-            font-size: 11px;
+
+        .contact-section-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .contact-section-left {
+            width: 170px;
+            background: #fafafa;
+            border-right: 1px solid #e8e8e8;
+            padding: 14px 16px;
+            vertical-align: middle;
+        }
+
+        .contact-section-right {
+            padding: 14px 16px;
+            vertical-align: middle;
+        }
+
+        .contact-detail-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .contact-detail-col {
+            padding-right: 24px;
+            vertical-align: top;
         }
 
         /* Footer */
         .print-footer {
-            padding: 12px 24px;
-            background: white;
-            font-size: 9px;
-            color: #64748b;
+            margin: 14px 24px 20px;
+            padding-top: 10px;
+            border-top: 1px solid #e8e8e8;
+            font-size: 8.5px;
+            color: #999;
             text-align: center;
-            border-top: 1px solid #e2e8f0;
-        }
-
-        @media print {
-            body {
-                background: white;
-                padding: 0;
-                margin: 0;
-            }
-            .ticket {
-                box-shadow: none;
-                border-radius: 0;
-                max-width: 100%;
-            }
-            .alert-qr, .contact-bar, .contact-section {
-                break-inside: avoid;
-            }
+            line-height: 1.6;
         }
     </style>
 </head>
+
 <body>
-<div class="ticket">
-    <!-- Header Perusahaan -->
-    <div class="header-office">
-        <div class="office-name">INDI'S 88 TRANS</div>
-        <div class="office-address">
-            Jl. Brawijaya, Darungan, Jubung, Kec. Sukorambi, Kab. Jember, Jawa Timur
+    <div class="page">
+
+        {{-- ── Header Strip ── --}}
+        <div class="header-strip"></div>
+
+        {{-- ── Header Body ── --}}
+        <div class="header-body">
+            <table class="header-table">
+                <tr>
+                    <td class="logo-cell">
+                        <table style="border-collapse:collapse;">
+                            <tr>
+                                <td style="vertical-align:middle;padding-right:10px;">
+                                    <div
+                                        style="width:36px;height:36px;background:#CC0000;border-radius:6px;text-align:center;line-height:36px;">
+                                        <span style="color:#fff;font-size:14px;font-weight:900;">88</span>
+                                    </div>
+                                </td>
+                                <td style="vertical-align:middle;">
+                                    <div class="logo-name">BUS <span>88</span></div>
+                                    <div class="logo-sub">Perusahaan Otobus &amp; Travel</div>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                    <td class="address-cell">
+                        <div class="address-title">Kantor Pusat Bus 88</div>
+                        <div class="address-text">
+                            Jl. Brawijaya, Darungan, Jubung, Kec. Sukorambi,<br>
+                            Kab. Jember, Jawa Timur 68151
+                        </div>
+                    </td>
+                </tr>
+            </table>
         </div>
-    </div>
 
-    <!-- Peringatan -->
-    <div class="alert-qr">
-        ⚠️ Penting: Kode QR wajib dipindai saat naik. Hadir 30 menit sebelum jadwal.
-    </div>
+        {{-- ── Info Bar ── --}}
+        <div class="info-bar">
+            <table class="info-bar-table">
+                <tr>
+                    <td class="info-alert">
+                        <div class="info-alert-label">Penting</div>
+                        <div class="info-alert-text">Kode QR anda harus dipindai saat naik.</div>
+                    </td>
+                    <td class="info-contacts">
+                        <table class="info-contacts-table">
+                            <tr>
+                                <td class="contact-col">
+                                    <div class="contact-label">Contact Center</div>
+                                    <div class="contact-value">(0331) 3058888</div>
+                                </td>
+                                <td class="contact-col">
+                                    <div class="contact-label">Email Customer Service</div>
+                                    <div class="contact-value">cs@bus88.co.id</div>
+                                </td>
+                                <td class="contact-col">
+                                    <div class="contact-label">Website</div>
+                                    <div class="contact-value"><a href="#">www.bus88.co.id</a></div>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+        </div>
 
-    <!-- Kontak -->
-    <div class="contact-bar">
-        <span>📞 0822-3072-5758 / (0331) 3058888</span>
-        <span>✉ cs@inds88trans.co.id</span>
-        <span>📷 @inds88trans</span>
-    </div>
+        {{-- ── Route Section ── --}}
+        <div class="route-section">
+            <table class="route-table">
+                <tr>
+                    <td class="route-origin">
+                        <div class="route-city">{{ $booking->schedule->route->origin }}</div>
+                        @if($booking->schedule->route->origin_detail ?? false)
+                            <div class="route-station">{{ $booking->schedule->route->origin_detail }}</div>
+                        @endif
+                        <div class="route-datetime">
+                            {{ \Carbon\Carbon::parse($booking->schedule->departure_date)->translatedFormat('l, d F Y') }}<br>
+                            {{ \Carbon\Carbon::parse($booking->schedule->departure_time)->format('H:i') }} WIB
+                        </div>
+                    </td>
+                    <td class="route-arrow">
+                        <div class="route-arrow-img"
+                            style="font-size:20px;font-weight:900;color:#CC0000;text-align:center;">-&gt;</div>
+                    </td>
+                    <td class="route-destination">
+                        <div class="route-city">{{ $booking->schedule->route->destination }}</div>
+                        @if($booking->schedule->route->destination_detail ?? false)
+                            <div class="route-station">{{ $booking->schedule->route->destination_detail }}</div>
+                        @endif
+                        <div class="route-datetime">
+                            {{ \Carbon\Carbon::parse($booking->schedule->arrival_date ?? $booking->schedule->departure_date)->translatedFormat('l, d F Y') }}<br>
+                            @if($booking->schedule->arrival_time)
+                                {{ \Carbon\Carbon::parse($booking->schedule->arrival_time)->format('H:i') }} WIB
+                            @endif
+                        </div>
+                    </td>
+                    <td class="route-booking">
+                        <div class="booking-code-box">
+                            <div class="booking-code-label">Kode Booking :</div>
+                            <div class="booking-code-value">{{ $booking->booking_code }}</div>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
 
-    <!-- Rute -->
-    <div class="route-row">
-        <div class="route-item">
-            <div class="route-location">{{ $booking->schedule->route->origin }}</div>
-            <div class="route-datetime">
-                {{ \Carbon\Carbon::parse($booking->schedule->departure_date)->translatedFormat('l, d F Y') }}<br>
-                {{ \Carbon\Carbon::parse($booking->schedule->departure_time)->format('H:i') }} WIB
+        {{-- ── Total Harga ── --}}
+        <div style="padding: 0 24px; margin-top: 10px;">
+            <div style="border: 1px solid #e0e0e0; background: #f9f9f9; padding: 10px 16px;">
+                <div class="total-harga">Total Harga : Rp {{ number_format($booking->total_price, 0, ',', '.') }}</div>
+                <div class="total-time">Pembayaran diterima pada
+                    {{ $booking->updated_at->translatedFormat('l, d F Y H:i') }}</div>
             </div>
         </div>
-        <div class="route-item right">
-            <div class="route-location">{{ $booking->schedule->route->destination }}</div>
-            <div class="route-datetime">
-                {{ \Carbon\Carbon::parse($booking->schedule->arrival_date)->translatedFormat('l, d F Y') }}<br>
-                {{ \Carbon\Carbon::parse($booking->schedule->arrival_time)->format('H:i') }} WIB
-            </div>
+
+        {{-- ── Rincian Perjalanan ── --}}
+        <div class="section-wrapper">
+            <table class="section-table">
+                <tr>
+                    <td class="section-left">
+                        <div class="section-icon">&#128652;</div>
+                        <div class="section-label">Rincian Perjalanan</div>
+                    </td>
+                    <td class="section-right">
+                        <table class="journey-table">
+                            <tr>
+                                <td class="journey-bus" colspan="2">
+                                    {{ $booking->schedule->bus->name ?? 'Bus 88' }}
+                                    @if($booking->schedule->bus->bus_class ?? false)
+                                        - {{ $booking->schedule->bus->bus_class }}
+                                    @endif
+                                </td>
+                            </tr>
+                            {{-- Berangkat --}}
+                            <tr class="journey-point-row">
+                                <td class="journey-dot-cell">
+                                    <div class="journey-dot"></div>
+                                </td>
+                                <td class="journey-content">
+                                    <div class="journey-dir-label">Berangkat Dari</div>
+                                    <div class="journey-place">{{ $booking->schedule->route->origin }}</div>
+                                    @if($booking->schedule->route->origin_detail ?? false)
+                                        <div class="journey-address">{{ $booking->schedule->route->origin_detail }}</div>
+                                    @endif
+                                </td>
+                            </tr>
+                            {{-- Garis --}}
+                            <tr>
+                                <td class="journey-line-cell">
+                                    <div class="journey-line"></div>
+                                </td>
+                                <td></td>
+                            </tr>
+                            {{-- Tiba --}}
+                            <tr class="journey-point-row">
+                                <td class="journey-dot-cell">
+                                    <div class="journey-dot" style="background:#CC0000;"></div>
+                                </td>
+                                <td class="journey-content">
+                                    <div class="journey-dir-label">Menuju ke</div>
+                                    <div class="journey-place">{{ $booking->schedule->route->destination }}</div>
+                                    @if($booking->schedule->route->destination_detail ?? false)
+                                        <div class="journey-address">{{ $booking->schedule->route->destination_detail }}
+                                        </div>
+                                    @endif
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
         </div>
-    </div>
 
-    <!-- Kode Booking & Harga -->
-    <div class="code-price">
-        <div class="code">Kode Booking: {{ $booking->booking_code }}</div>
-        <div class="price">Total: Rp {{ number_format($booking->total_price, 0, ',', '.') }}</div>
-    </div>
+        {{-- ── Rincian Penumpang ── --}}
+        @php $firstPassenger = $booking->passengers->first(); @endphp
+        <div class="section-wrapper">
+            <table class="section-table">
+                <tr>
+                    <td class="section-left">
+                        <div class="section-icon">&#128101;</div>
+                        <div class="section-label">Rincian Penumpang</div>
+                    </td>
+                    <td class="section-right">
+                        <table class="pass-table">
+                            <tr>
+                                <td class="pass-info-cell">
+                                    {{-- Loop semua penumpang --}}
+                                    @foreach($booking->passengers as $index => $p)
+                                        <div
+                                            style="margin-bottom: 10px; {{ !$loop->last ? 'border-bottom: 1px dashed #eee; padding-bottom: 8px;' : '' }}">
+                                            <div class="pass-row">
+                                                <div class="pass-label">Nama Penumpang
+                                                    {{ $booking->passengers->count() > 1 ? ($index + 1) : '' }}</div>
+                                                <div class="pass-value">{{ $p->passenger_name }}</div>
+                                            </div>
+                                            <div class="pass-row">
+                                                <div class="pass-label">Nomor Kursi</div>
+                                                <div class="pass-value">Kursi #{{ $p->seat_number }}</div>
+                                            </div>
+                                        </div>
+                                    @endforeach
 
-    <!-- Rincian Perjalanan -->
-    <div class="section">
-        <div class="section-title">RINCIAN PERJALANAN</div>
-        <div class="journey-detail">
-            <div class="detail-row">
-                <div class="detail-label">Bus / Kelas</div>
-                <div class="detail-value">
-                    {{ $booking->schedule->bus->name ?? "INDI'S 88 TRANS" }} 
-                    ({{ $booking->schedule->bus->bus_class ?? 'Eksekutif' }})
-                </div>
-            </div>
-            <div class="detail-row">
-                <div class="detail-label">Berangkat</div>
-                <div class="detail-value">
-                    <strong>{{ $booking->schedule->route->origin }}</strong><br>
-                    {{ \Carbon\Carbon::parse($booking->schedule->departure_time)->format('H:i') }} WIB,
-                    {{ \Carbon\Carbon::parse($booking->schedule->departure_date)->translatedFormat('l, d F Y') }}
-                </div>
-            </div>
-            <div class="detail-row">
-                <div class="detail-label">Tiba di</div>
-                <div class="detail-value">
-                    <strong>{{ $booking->schedule->route->destination }}</strong><br>
-                    {{ \Carbon\Carbon::parse($booking->schedule->arrival_time)->format('H:i') }} WIB,
-                    {{ \Carbon\Carbon::parse($booking->schedule->arrival_date)->translatedFormat('l, d F Y') }}
-                </div>
-            </div>
+                                    <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #eee;">
+                                        <div class="pass-row">
+                                            <div class="pass-label">No. Telepon</div>
+                                            <div class="pass-value">{{ $booking->user->phone ?? '-' }}</div>
+                                        </div>
+                                        <div class="pass-row">
+                                            <div class="pass-label">Kode Tiket</div>
+                                            <div class="pass-code">{{ $booking->booking_code }}</div>
+                                        </div>
+                                        <div class="pass-row">
+                                            <div class="pass-label">Waktu Keberangkatan</div>
+                                            <div class="pass-value">
+                                                {{ \Carbon\Carbon::parse($booking->schedule->departure_date)->translatedFormat('l, d F Y') }}<br>
+                                                Pukul
+                                                {{ \Carbon\Carbon::parse($booking->schedule->departure_time)->format('H:i') }}
+                                                WIB
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="pass-qr-cell">
+                                    @if(!empty($qrCode))
+                                        <img src="data:image/png;base64,{{ $qrCode }}" class="qr-img" alt="QR Code">
+                                        <div class="qr-price">Rp {{ number_format($booking->total_price, 0, ',', '.') }}
+                                        </div>
+                                        <div class="qr-timestamp">Dicetak: {{ now()->format('Y-m-d H:i:s') }}</div>
+                                    @else
+                                        <div style="font-size:9px;color:#999;">QR tidak tersedia</div>
+                                    @endif
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
         </div>
-    </div>
 
-    <!-- Rincian Penumpang -->
-    <div class="section">
-        <div class="section-title">RINCIAN PENUMPANG</div>
-        @php
-            $firstPassenger = $booking->passengers->first();
-        @endphp
-        <div class="passenger-info">
-            <div class="passenger-row">
-                <div class="passenger-label">Nama Utama</div>
-                <div class="passenger-value">{{ $firstPassenger->passenger_name ?? $booking->user->name ?? '-' }}</div>
-            </div>
-            <div class="passenger-row">
-                <div class="passenger-label">Nomor Kursi</div>
-                <div class="passenger-value">{{ $firstPassenger->seat_number ?? '-' }}</div>
-            </div>
-            <div class="passenger-row">
-                <div class="passenger-label">No. Telepon</div>
-                <div class="passenger-value">{{ $booking->user->phone ?? '-' }}</div>
-            </div>
-            <div class="passenger-row">
-                <div class="passenger-label">Kode Tiket</div>
-                <div class="passenger-value">{{ $booking->booking_code }}</div>
-            </div>
+        {{-- ── Kontak ── --}}
+        <div class="contact-section">
+            <table class="contact-section-table">
+                <tr>
+                    <td class="contact-section-left">
+                        <div class="section-label">Kontak</div>
+                    </td>
+                    <td class="contact-section-right">
+                        <table class="contact-detail-table">
+                            <tr>
+                                <td class="contact-detail-col">
+                                    <div class="contact-label">No. Telepon</div>
+                                    <div class="contact-value">(0331) 3058888</div>
+                                </td>
+                                <td class="contact-detail-col">
+                                    <div class="contact-label">Email</div>
+                                    <div class="contact-value">cs@bus88.co.id</div>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
         </div>
-        @if($booking->passengers->count() > 1)
-            <div style="margin-top: 10px; font-size: 11px; color: #b91c1c; background: #fee2e2; padding: 6px 12px; border-radius: 8px;">
-                + {{ $booking->passengers->count() - 1 }} penumpang lainnya (detail lengkap di sistem)
-            </div>
-        @endif
-    </div>
 
-    <!-- QR Code -->
-    <div class="qr-container">
-        @if(!empty($qrCode))
-            <img src="data:image/png;base64,{{ $qrCode }}" alt="QR Code">
-            <div class="qr-text">Scan QR ini untuk verifikasi tiket</div>
-        @else
-            <div class="qr-text">QR Code tidak tersedia</div>
-        @endif
-    </div>
-
-    <!-- Kontak & Pembayaran -->
-    <div class="contact-section">
-        <div>
-            <strong>Kontak Kami</strong><br>
-            📞 0822-3072-5758 / (0331) 3058888<br>
-            ✉ cs@inds88trans.co.id<br>
-            📷 Instagram: @inds88trans
+        {{-- ── Footer ── --}}
+        <div class="print-footer">
+            Dicetak: {{ now()->translatedFormat('d F Y, H:i:s') }} WIB &nbsp;|&nbsp;
+            Bus 88 — Perusahaan Otobus &amp; Tour &amp; Travel &nbsp;|&nbsp;
+            Tiket ini sah tanpa tanda tangan basah. Berlaku untuk satu kali perjalanan.
         </div>
-        <div>
-            <strong>Pembayaran diterima</strong><br>
-            {{ $booking->updated_at->translatedFormat('l, d F Y H:i') }}
-        </div>
-    </div>
 
-    <!-- Footer -->
-    <div class="print-footer">
-        Dicetak: {{ now()->translatedFormat('Y-m-d H:i:s') }} WIB<br>
-        Ind's 88 Trans — Perusahaan Otobus & Tour & Travel<br>
-        Tiket ini sah tanpa tanda tangan basah. Berlaku untuk satu kali perjalanan.
     </div>
-</div>
 </body>
+
 </html>

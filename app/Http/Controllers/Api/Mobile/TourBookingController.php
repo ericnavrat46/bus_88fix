@@ -113,8 +113,8 @@ class TourBookingController extends Controller
         }
 
         $booking->payment_status = 'cancelled';
-        $booking->cancel_reason  = $request->reason;  // ✅
-        $booking->cancelled_at   = now();              // ✅
+        $booking->cancel_reason  = $request->reason;  
+        $booking->cancelled_at   = now();              
         $booking->save();
 
         return response()->json([
@@ -161,7 +161,7 @@ class TourBookingController extends Controller
         $booking->payment_status = 'pending';
         $booking->save();
 
-        // 🔥 NOTIF KE ADMIN — ada bukti bayar masuk
+        //  NOTIF KE ADMIN — ada bukti bayar masuk
         $admin = \App\Models\User::where('role', 'admin')->first();
         if ($admin) {
             \App\Helpers\NotificationHelper::send(
@@ -179,7 +179,7 @@ class TourBookingController extends Controller
         ]);
     }
 
-    // 🔥 FUNGSI BARU — Admin konfirmasi / tolak pembayaran
+    //FUNGSI BARU — Admin konfirmasi / tolak pembayaran
     public function confirmPayment(Request $request)
     {
         $request->validate([

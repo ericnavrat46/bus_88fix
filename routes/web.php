@@ -186,3 +186,13 @@ Route::middleware(['auth', \App\Http\Middleware\AdminMiddleware::class])
         Route::get('/ticket/scan', [TicketController::class, 'scanPage'])->name('ticket.scan');
         Route::post('/ticket/scan/result', [TicketController::class, 'scanResult'])->name('ticket.scan.result');
     });
+
+// Test Broadcast
+Route::get('/test-broadcast', function () {
+    event(new \App\Events\TestEvent('Hello from Reverb!'));
+    return 'Event broadcasted!';
+});
+
+Route::get('/reverb-test-page', function () {
+    return view('test-reverb');
+});

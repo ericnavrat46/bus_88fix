@@ -87,23 +87,39 @@ class TransactionController extends Controller
     {
         $midtrans = app(\App\Services\MidtransService::class);
         foreach ($items as $item) {
-            if ($item->payment_status === 'pending' || $item->payment_status === 'unpaid') {
-                $orderId = $item->booking_code ?? $item->rental_code ?? null;
+            // Jalankan sync jika status masih pending, ATAU sudah paid tapi detail metodenya masih kosong
+            if ($item->payment_status === 'pending' || $item->payment_status === 'unpaid' || ($item->payment_status === 'paid' && empty($item->payment_method))) {
+                // Ambil order ID dari record payment terbaru (agar support Mobile & Web)
+                $payment = \App\Models\Payment::where('payable_id', $item->id)
+                    ->where('payable_type', get_class($item))
+                    ->latest()
+                    ->first();
+
+                $orderId = $payment->midtrans_order_id ?? $item->booking_code ?? $item->rental_code ?? null;
+
                 if ($orderId) {
                     $statusData = $midtrans->getTransactionStatus($orderId);
                     if ($statusData) {
                         $rawStatus = $statusData['transaction_status'] ?? 'pending';
                         if (in_array($rawStatus, ['settlement', 'capture', 'success'])) {
+                            $paymentType = $statusData['payment_type'] ?? null;
+                            $transactionId = $statusData['transaction_id'] ?? null;
+
                             $item->update([
                                 'payment_status' => 'paid',
-                                'paid_at' => now()
+                                'paid_at' => now(),
+                                'payment_method' => $paymentType // Simpan ke model utama
                             ]);
-                            // Also update the payment record if exists
-                            Payment::where('midtrans_order_id', $orderId)->update([
-                                'status' => 'settlement',
-                                'payment_type' => $statusData['payment_type'] ?? null,
-                                'midtrans_transaction_id' => $statusData['transaction_id'] ?? null,
-                            ]);
+
+                            // Update record payment
+                            if ($payment) {
+                                $payment->update([
+                                    'status' => 'settlement',
+                                    'payment_type' => $paymentType,
+                                    'midtrans_transaction_id' => $transactionId,
+                                    'raw_response' => $statusData
+                                ]);
+                            }
                         }
                     }
                 }

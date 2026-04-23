@@ -35,3 +35,39 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+    @if(isset($payment) && $status === 'pending')
+        // 1. WebSocket Listener (Reverb)
+        window.Echo.channel('payment.{{ $payment->id }}')
+            .listen('.payment.updated', (e) => {
+                if (e.status === 'settlement' || e.status === 'capture') {
+                    window.location.reload();
+                }
+            });
+
+        // 2. Backup Polling (Sangat berguna untuk pengujian di Localhost)
+        let checkCount = 0;
+        const maxChecks = 40; // Cek selama 2 menit (40 * 3 detik)
+
+        const statusInterval = setInterval(() => {
+            checkCount++;
+            if (checkCount > maxChecks) {
+                clearInterval(statusInterval);
+                return;
+            }
+
+            fetch('{{ route("payment.check-status", $payment->id) }}')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status && (data.payment_status === 'settlement' || data.payment_status === 'capture' || data.payment_status === 'paid')) {
+                        clearInterval(statusInterval);
+                        window.location.reload();
+                    }
+                })
+                .catch(err => console.error('Error checking status:', err));
+        }, 3000); // Cek setiap 3 detik
+    @endif
+</script>
+@endpush

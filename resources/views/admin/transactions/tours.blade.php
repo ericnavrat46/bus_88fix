@@ -41,6 +41,8 @@
                         <th class="px-6 py-4">Pelanggan</th>
                         <th class="px-6 py-4">Tgl Berangkat</th>
                         <th class="px-6 py-4">Total</th>
+                        <th class="px-6 py-4">Metode</th>
+                        <th class="px-6 py-4">Midtrans ID</th>
                         <th class="px-6 py-4">Status</th>
                         <th class="px-6 py-4">Aksi</th>
                     </tr>
@@ -62,8 +64,14 @@
                         <td class="px-6 py-4 text-sm font-bold text-dark">
                             Rp {{ number_format($booking->total_price, 0, ',', '.') }}
                         </td>
+                        <td class="px-6 py-4 text-xs text-gray-warm-600">
+                            {{ $booking->payment_method ?? '-' }}
+                        </td>
+                        <td class="px-6 py-4 text-[10px] text-gray-warm-400 font-mono">
+                            {{ $booking->payments->last()->midtrans_transaction_id ?? '-' }}
+                        </td>
                         <td class="px-6 py-4 text-sm text-gray-warm-600">
-                            <span class="{{ match($booking->payment_status) { 'paid' => 'badge-success', 'pending' => 'badge-warning', default => 'badge-gray' } }}">
+                            <span class="{{ match($booking->payment_status) { 'paid' => 'badge-success', 'pending' => 'badge-warning', default => 'badge-gray' } }} text-[10px]">
                                 {{ ucfirst($booking->payment_status) }}
                             </span>
                         </td>

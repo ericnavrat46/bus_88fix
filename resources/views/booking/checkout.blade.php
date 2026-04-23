@@ -142,16 +142,41 @@
                 window.location.href = '{{ route("payment.finish") }}?order_id={{ $booking->booking_code }}&transaction_status=settlement';
             },
             onPending: function(result) {
-                window.location.href = '{{ route("payment.finish") }}?order_id={{ $booking->booking_code }}&transaction_status=pending';
+                // Biarkan user tetap di halaman ini untuk menunggu via Echo
+                Swal.fire({
+                    icon: 'info',
+                    title: 'Menunggu Pembayaran',
+                    text: 'Silakan selesaikan pembayaran Anda di aplikasi/bank terkait.',
+                    showConfirmButton: false,
+                    allowOutsideClick: false,
+                    allowEscapeKey: false,
+                    timer: 2000
+                });
             },
             onError: function(result) {
-                alert('Pembayaran gagal. Silakan coba lagi.');
-            },
-            onClose: function() {
-                // User closed popup without finishing
+                Swal.fire({ icon: 'error', title: 'Gagal', text: 'Pembayaran gagal. Silakan coba lagi.' });
             }
         });
     });
+
+    // Real-time listener dengan Echo
+    @php $payment = $booking->payments->last(); @endphp
+    @if($payment)
+        window.Echo.channel('payment.{{ $payment->id }}')
+            .listen('.payment.updated', (e) => {
+                if (e.status === 'settlement' || e.status === 'capture') {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Pembayaran Berhasil!',
+                        text: 'Pesanan Anda sedang kami proses.',
+                        showConfirmButton: false,
+                        timer: 2000
+                    }).then(() => {
+                        window.location.href = '{{ route("payment.finish") }}?order_id={{ $booking->booking_code }}&transaction_status=settlement';
+                    });
+                }
+            });
+    @endif
 </script>
 @endpush
 @endif

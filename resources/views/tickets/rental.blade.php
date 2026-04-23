@@ -4,236 +4,289 @@
 <meta charset="UTF-8">
 <title>E-Ticket Sewa Bus - {{ $rental->rental_code }}</title>
 <style>
-* { margin:0; padding:0; box-sizing:border-box; }
-body { font-family:'DejaVu Sans',Arial,sans-serif; background:#f4f6f8; color:#1a1a1a; font-size:12px; }
-.page { width:794px; min-height:1123px; margin:0 auto; padding:28px; background:#f4f6f8; }
-.ticket-wrap { background:#fff; border-radius:12px; overflow:hidden; box-shadow:0 2px 16px rgba(0,0,0,0.10); }
+    @page { margin: 0; }
+    body { 
+        font-family: Arial, sans-serif; 
+        margin: 0; 
+        padding: 20px; 
+        background: #f4f6f8; 
+        color: #1a1a1a; 
+        font-size: 12px;
+    }
+    .ticket-wrap { 
+        width: 100%; 
+        background: #fff; 
+        border-radius: 12px; 
+        overflow: hidden; 
+        border: 1px solid #ddd;
+    }
+    
+    /* Layout Utama dengan Tabel */
+    table { width: 100%; border-collapse: collapse; border: 0; }
+    td { vertical-align: top; }
 
-/* HEADER — dark navy untuk rental */
-.header { background:#1a237e; padding:20px 28px 18px; color:#fff; display:flex; justify-content:space-between; align-items:flex-start; }
-.brand-name   { font-size:22px; font-weight:900; letter-spacing:-0.5px; }
-.brand-tagline{ font-size:10px; opacity:0.85; letter-spacing:0.3px; }
-.booking-label{ font-size:9px; opacity:0.8; text-transform:uppercase; letter-spacing:1px; }
-.booking-code { font-size:14px; font-weight:900; letter-spacing:2px; margin-top:2px; }
-.badge-paid   { background:#e8f5e9; color:#2e7d32; border:1px solid #a5d6a7; border-radius:4px; padding:3px 10px; font-size:10px; font-weight:700; display:inline-flex; align-items:center; gap:4px; }
+    /* HEADER */
+    .header { 
+        background: #1a237e; 
+        padding: 20px 30px; 
+        color: #fff; 
+    }
+    .brand-name { font-size: 24px; font-weight: bold; }
+    .brand-tagline { font-size: 10px; opacity: 0.8; }
+    .booking-label { font-size: 9px; opacity: 0.8; text-transform: uppercase; }
+    .booking-code { font-size: 16px; font-weight: bold; letter-spacing: 1px; }
+    .badge-paid { 
+        background: #e8f5e9; 
+        color: #2e7d32; 
+        padding: 4px 12px; 
+        border-radius: 4px; 
+        font-size: 10px; 
+        font-weight: bold; 
+        margin-top: 5px;
+        display: inline-block;
+    }
 
-/* ROUTE BANNER */
-.route-banner { background:#fff; border-bottom:1px solid #efefef; padding:16px 28px; display:flex; align-items:center; }
-.city-name { font-size:18px; font-weight:900; color:#1a237e; margin-bottom:2px; }
-.city-sub  { font-size:10px; color:#888; }
-.route-mid { text-align:center; padding:0 20px; }
-.mid-arrow { font-size:20px; color:#1a237e; }
+    /* BANNER RUTE */
+    .route-banner { 
+        background: #fff; 
+        padding: 20px 30px; 
+        border-bottom: 1px solid #efefef;
+    }
+    .city-name { font-size: 18px; font-weight: bold; color: #1a237e; }
+    .city-sub { font-size: 10px; color: #888; }
+    .route-arrow { font-size: 24px; color: #1a237e; text-align: center; }
 
-/* ALERT */
-.alert-strip { background:#e8eaf6; border-top:2px solid #3f51b5; padding:8px 28px; font-size:10px; color:#283593; font-weight:600; }
+    /* ALERT */
+    .alert-strip { 
+        background: #e8eaf6; 
+        border-top: 2px solid #3f51b5; 
+        padding: 10px 30px; 
+        font-size: 10px; 
+        color: #283593; 
+        font-weight: bold; 
+    }
 
-/* BODY */
-.body { padding:20px 28px; display:flex; gap:24px; }
-.body-left  { flex:1; }
-.body-right { width:200px; flex-shrink:0; display:flex; flex-direction:column; align-items:center; gap:6px; padding-left:20px; border-left:1px dashed #ddd; }
+    /* CONTENT BODY */
+    .body-container { padding: 30px; }
+    .body-left { padding-right: 20px; border-right: 1px dashed #ddd; }
+    .body-right { width: 220px; padding-left: 20px; text-align: center; }
 
-/* SECTION */
-.section { margin-bottom:18px; }
-.section-head { display:flex; align-items:center; gap:8px; margin-bottom:10px; padding-bottom:6px; border-bottom:1.5px solid #f0f0f0; }
-.section-icon  { font-size:14px; }
-.section-title { font-size:11px; font-weight:700; color:#1a237e; text-transform:uppercase; letter-spacing:0.8px; }
+    /* SECTION */
+    .section-title { 
+        font-size: 11px; 
+        font-weight: bold; 
+        color: #1a237e; 
+        text-transform: uppercase; 
+        border-bottom: 1.5px solid #f0f0f0; 
+        padding-bottom: 5px;
+        margin-bottom: 15px;
+    }
 
-/* JOURNEY */
-.journey-detail { display:flex; gap:10px; padding:12px; background:#fafafa; border-radius:8px; border:1px solid #f0f0f0; }
-.journey-timeline { display:flex; flex-direction:column; align-items:center; padding-top:4px; }
-.jt-dot-top { width:10px; height:10px; border:2px solid #1a237e; border-radius:50%; background:#fff; flex-shrink:0; }
-.jt-dot-bot { width:10px; height:10px; border:2px solid #1a237e; border-radius:50%; background:#1a237e; flex-shrink:0; }
-.jt-line { width:2px; flex:1; background:repeating-linear-gradient(180deg,#1a237e 0,#1a237e 4px,transparent 4px,transparent 8px); min-height:30px; margin:3px 0; }
-.journey-info { flex:1; display:flex; flex-direction:column; gap:14px; }
-.jp-label   { font-size:9px; color:#999; text-transform:uppercase; letter-spacing:0.5px; }
-.jp-place   { font-size:13px; font-weight:800; color:#1a1a1a; margin:1px 0; }
-.jp-address { font-size:10px; color:#777; line-height:1.4; }
-.jp-time    { font-size:11px; font-weight:700; color:#1a237e; margin-top:3px; }
+    /* JOURNEY BOX */
+    .journey-box { 
+        background: #fafafa; 
+        border: 1px solid #f0f0f0; 
+        border-radius: 8px; 
+        padding: 15px; 
+        margin-bottom: 20px;
+    }
+    .jp-label { font-size: 9px; color: #999; text-transform: uppercase; }
+    .jp-place { font-size: 13px; font-weight: bold; color: #1a1a1a; margin: 2px 0; }
+    .jp-time { font-size: 11px; font-weight: bold; color: #1a237e; }
 
-/* INFO GRID */
-.info-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
-.info-label { font-size:9px; color:#999; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:3px; font-weight:600; }
-.info-value { font-size:13px; font-weight:700; color:#1a1a1a; }
+    /* INFO GRID (TABLE) */
+    .info-table td { padding: 8px 0; }
+    .info-label { font-size: 9px; color: #999; text-transform: uppercase; }
+    .info-value { font-size: 12px; font-weight: bold; color: #1a1a1a; }
 
-/* DETAIL TABLE */
-.detail-table { width:100%; border-collapse:collapse; }
-.detail-table tr { border-bottom:1px solid #f5f5f5; }
-.detail-table tr:last-child { border-bottom:none; }
-.detail-table td { padding:7px 10px; font-size:11px; vertical-align:top; }
-.detail-table td:first-child { color:#888; width:40%; font-size:10px; }
-.detail-table td:last-child { font-weight:700; color:#1a1a1a; }
-.detail-table tr:nth-child(even) td { background:#fafafa; }
+    /* DETAIL TABLE */
+    .detail-table tr td { 
+        padding: 8px 10px; 
+        border-bottom: 1px solid #f5f5f5;
+        font-size: 11px;
+    }
+    .detail-table td.label { color: #888; width: 40%; font-size: 10px; }
+    .detail-table td.value { font-weight: bold; color: #1a1a1a; }
 
-/* NOTICE */
-.notice { background:#e8eaf6; border-left:3px solid #3f51b5; border-radius:4px; padding:8px 12px; font-size:10px; color:#283593; line-height:1.6; }
+    /* NOTICE */
+    .notice { 
+        background: #e8eaf6; 
+        border-left: 4px solid #3f51b5; 
+        padding: 12px; 
+        font-size: 10px; 
+        color: #283593; 
+        line-height: 1.5;
+        margin-top: 20px;
+    }
 
-/* QR */
-.qr-label-top { font-size:9px; font-weight:700; color:#444; text-transform:uppercase; letter-spacing:1px; text-align:center; }
-.qr-img { width:160px; height:160px; }
-.qr-code-text { font-size:10px; font-weight:700; color:#1a237e; text-align:center; letter-spacing:1px; font-family:'Courier New',monospace; }
-.qr-hint  { font-size:9px; color:#999; text-align:center; line-height:1.5; }
-.qr-divider { width:100%; border:none; border-top:1px dashed #e0e0e0; margin:4px 0; }
-.qr-price-label { font-size:9px; color:#888; text-align:center; }
-.qr-price-value { font-size:16px; font-weight:900; color:#1a237e; text-align:center; }
+    /* QR SIDE */
+    .qr-img { width: 160px; height: 160px; margin: 10px 0; }
+    .qr-code-text { font-size: 12px; font-weight: bold; color: #1a237e; letter-spacing: 1px; }
+    .qr-hint { font-size: 9px; color: #999; margin-top: 5px; }
+    .price-box { 
+        border-top: 1px dashed #ddd; 
+        border-bottom: 1px dashed #ddd; 
+        padding: 15px 0; 
+        margin: 15px 0;
+    }
+    .price-label { font-size: 10px; color: #888; }
+    .price-value { font-size: 18px; font-weight: bold; color: #1a237e; }
 
-/* FOOTER */
-.footer { background:#1a1a1a; padding:12px 28px; display:flex; justify-content:space-between; align-items:center; }
-.footer-left  { color:#888; font-size:9px; line-height:1.6; }
-.footer-price { font-size:18px; font-weight:900; color:#fff; }
-.footer-price-label { font-size:9px; color:#888; text-align:right; }
+    /* FOOTER */
+    .footer { background: #1a1a1a; padding: 15px 30px; color: #fff; }
+    .footer-text { font-size: 9px; color: #aaa; }
+    .footer-price { font-size: 20px; font-weight: bold; text-align: right; }
 
-.watermark { text-align:center; margin-top:12px; font-size:9px; color:#bbb; letter-spacing:1px; }
+    .watermark { text-align: center; margin-top: 15px; font-size: 10px; color: #bbb; }
 </style>
 </head>
 <body>
-<div class="page">
+
 <div class="ticket-wrap">
+    <!-- HEADER -->
+    <table class="header">
+        <tr>
+            <td>
+                <div class="brand-name">BUS 88</div>
+                <div class="brand-tagline">E-Ticket Sewa Bus &bull; Bus Charter Ticket</div>
+            </td>
+            <td style="text-align:right;">
+                <div class="booking-label">Kode Sewa</div>
+                <div class="booking-code">{{ $rental->rental_code }}</div>
+                <div class="badge-paid">LUNAS</div>
+            </td>
+        </tr>
+    </table>
 
-    <div class="header">
-        <div>
-            <div class="brand-name">BUS 88</div>
-            <div class="brand-tagline">E-Ticket Sewa Bus &bull; Bus Charter Ticket</div>
-        </div>
-        <div style="text-align:right;">
-            <div class="booking-label">Kode Sewa</div>
-            <div class="booking-code">{{ $rental->rental_code }}</div>
-            <div style="margin-top:6px;"><span class="badge-paid">&#10003; LUNAS</span></div>
-        </div>
-    </div>
-
-    <div class="route-banner">
-        <div style="flex:1;">
-            <div class="city-name">{{ $rental->pickup_location }}</div>
-            <div class="city-sub">Lokasi Penjemputan</div>
-        </div>
-        <div class="route-mid">
-            <div class="mid-arrow">&#8594;</div>
-            <div style="font-size:9px;color:#aaa;">{{ $rental->duration_days ?? '-' }} hari</div>
-        </div>
-        <div style="flex:1; text-align:right;">
-            <div class="city-name">{{ $rental->destination }}</div>
-            <div class="city-sub">Tujuan</div>
-        </div>
-    </div>
+    <!-- ROUTE -->
+    <table class="route-banner">
+        <tr>
+            <td width="40%">
+                <div class="city-name">{{ $rental->pickup_location }}</div>
+                <div class="city-sub">Lokasi Penjemputan</div>
+            </td>
+            <td width="20%" class="route-arrow">
+                &rarr;
+                <div style="font-size:10px; color:#aaa; font-weight:normal;">{{ $rental->duration_days ?? '-' }} Hari</div>
+            </td>
+            <td width="40%" style="text-align:right;">
+                <div class="city-name">{{ $rental->destination }}</div>
+                <div class="city-sub">Tujuan</div>
+            </td>
+        </tr>
+    </table>
 
     <div class="alert-strip">
-        &#9888; Tunjukkan tiket ini beserta identitas diri kepada petugas sebelum keberangkatan.
+        PENTING: Tunjukkan e-tiket ini kepada pengemudi/petugas saat penjemputan armada.
     </div>
 
-    <div class="body">
+    <div class="body-container">
+        <table>
+            <tr>
+                <td class="body-left">
+                    <!-- Rincian Perjalanan -->
+                    <div class="section-title">Rincian Perjalanan</div>
+                    <table class="journey-box">
+                        <tr>
+                            <td style="padding-bottom:15px;">
+                                <div class="jp-label">Penjemputan</div>
+                                <div class="jp-place">{{ $rental->pickup_location }}</div>
+                                <div class="jp-time">{{ \Carbon\Carbon::parse($rental->start_date)->translatedFormat('d F Y') }}</div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="jp-label">Tujuan Utama</div>
+                                <div class="jp-place">{{ $rental->destination }}</div>
+                                <div class="jp-time">{{ \Carbon\Carbon::parse($rental->end_date)->translatedFormat('d F Y') }}</div>
+                            </td>
+                        </tr>
+                    </table>
 
-        <div class="body-left">
+                    <!-- Informasi Penyewa -->
+                    <div class="section-title">Informasi Penyewa</div>
+                    <table class="info-table">
+                        <tr>
+                            <td width="50%">
+                                <div class="jp-label">Nama Penyewa</div>
+                                <div class="info-value">{{ $rental->user->name }}</div>
+                            </td>
+                            <td width="50%">
+                                <div class="jp-label">No. Telepon</div>
+                                <div class="info-value">{{ $rental->contact_phone ?? $rental->user->phone ?? '-' }}</div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="jp-label">Email</div>
+                                <div class="info-value">{{ $rental->user->email }}</div>
+                            </td>
+                            <td>
+                                <div class="jp-label">Tgl Pemesanan</div>
+                                <div class="info-value">{{ $rental->created_at->translatedFormat('d M Y') }}</div>
+                            </td>
+                        </tr>
+                    </table>
 
-            <div class="section">
-                <div class="section-head">
-                    <span class="section-icon">&#128652;</span>
-                    <span class="section-title">Rincian Perjalanan</span>
-                </div>
-                <div class="journey-detail">
-                    <div class="journey-timeline">
-                        <div class="jt-dot-top"></div>
-                        <div class="jt-line"></div>
-                        <div class="jt-dot-bot"></div>
-                    </div>
-                    <div class="journey-info">
-                        <div>
-                            <div class="jp-label">Lokasi Penjemputan</div>
-                            <div class="jp-place">{{ $rental->pickup_location }}</div>
-                            <div class="jp-time">{{ \Carbon\Carbon::parse($rental->start_date)->translatedFormat('d F Y') }}</div>
-                        </div>
-                        <div>
-                            <div class="jp-label">Tujuan</div>
-                            <div class="jp-place">{{ $rental->destination }}</div>
-                            <div class="jp-time">{{ \Carbon\Carbon::parse($rental->end_date)->translatedFormat('d F Y') }}</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+                    <!-- Detail Armada -->
+                    <div style="margin-top:10px;" class="section-title">Detail Armada & Sewa</div>
+                    <table class="detail-table">
+                        <tr><td class="label">Nama Armada</td><td class="value">{{ $rental->bus->name ?? '-' }}</td></tr>
+                        <tr><td class="label">Kapasitas</td><td class="value">{{ $rental->bus->capacity ?? '-' }} Kursi</td></tr>
+                        <tr><td class="label">Durasi</td><td class="value">{{ $rental->duration_days }} Hari</td></tr>
+                        @if($rental->purpose)
+                        <tr><td class="label">Keperluan</td><td class="value">{{ $rental->purpose }}</td></tr>
+                        @endif
+                    </table>
 
-            <div class="section">
-                <div class="section-head">
-                    <span class="section-icon">&#128203;</span>
-                    <span class="section-title">Informasi Penyewa</span>
-                </div>
-                <div class="info-grid">
-                    <div>
-                        <div class="info-label">Nama Penyewa</div>
-                        <div class="info-value">{{ $rental->user->name }}</div>
+                    <div class="notice">
+                        <strong>Syarat & Ketentuan:</strong><br>
+                        - Armada akan standby 30 menit sebelum waktu penjemputan.<br>
+                        - Biaya sudah termasuk BBM dan Driver (Kecuali disepakati lain).<br>
+                        - Hubungi CS di 0812-XXXX-XXXX jika ada kendala lapangan.
                     </div>
-                    <div>
-                        <div class="info-label">No. Telepon</div>
-                        <div class="info-value">{{ $rental->user->phone ?? '-' }}</div>
-                    </div>
-                    <div>
-                        <div class="info-label">Email</div>
-                        <div class="info-value" style="font-size:11px;">{{ $rental->user->email }}</div>
-                    </div>
-                    <div>
-                        <div class="info-label">Tanggal Pemesanan</div>
-                        <div class="info-value">{{ $rental->created_at->translatedFormat('d M Y') }}</div>
-                    </div>
-                </div>
-            </div>
+                </td>
 
-            <div class="section">
-                <div class="section-head">
-                    <span class="section-icon">&#128664;</span>
-                    <span class="section-title">Detail Armada &amp; Sewa</span>
-                </div>
-                <table class="detail-table">
-                    <tr><td>Nama Armada</td><td>{{ $rental->bus->name ?? '-' }}</td></tr>
-                    <tr><td>Kapasitas</td><td>{{ $rental->bus->capacity ?? '-' }} penumpang</td></tr>
-                    <tr><td>Tanggal Mulai</td><td>{{ \Carbon\Carbon::parse($rental->start_date)->translatedFormat('d F Y') }}</td></tr>
-                    <tr><td>Tanggal Selesai</td><td>{{ \Carbon\Carbon::parse($rental->end_date)->translatedFormat('d F Y') }}</td></tr>
-                    <tr><td>Durasi Sewa</td><td>{{ $rental->duration_days ?? \Carbon\Carbon::parse($rental->start_date)->diffInDays(\Carbon\Carbon::parse($rental->end_date)) + 1 }} hari</td></tr>
-                    @if($rental->notes)
-                    <tr><td>Catatan</td><td>{{ $rental->notes }}</td></tr>
+                <td class="body-right">
+                    <div style="font-size:10px; font-weight:bold; color:#666;">VERIFIKASI TIKET</div>
+                    @if($qrCode)
+                        <img class="qr-img" src="data:image/png;base64,{{ $qrCode }}">
                     @endif
-                </table>
-            </div>
+                    <div class="qr-code-text">{{ $rental->rental_code }}</div>
+                    <div class="qr-hint">Scan untuk cek keaslian</div>
 
-            <div class="notice">
-                <strong>Penting:</strong> Bus akan standby di lokasi penjemputan sesuai jadwal yang telah disepakati.
-                Hubungi kami minimal H-1 jika ada perubahan jadwal. Tiket tidak dapat dipindahtangankan.
-                CS: <strong>cs@bus88.co.id</strong>
-            </div>
+                    <div class="price-box">
+                        <div class="price-label">Total Harga Sewa</div>
+                        <div class="price-value">Rp {{ number_format($rental->total_price, 0, ',', '.') }}</div>
+                    </div>
 
-        </div>
-
-        <div class="body-right">
-            <div class="qr-label-top">Scan Untuk Verifikasi</div>
-            @if($qrCode)
-                <img class="qr-img" src="data:image/png;base64,{{ $qrCode }}" alt="QR Code">
-            @else
-                <div style="width:160px;height:160px;background:#f5f5f5;display:flex;align-items:center;justify-content:center;font-size:10px;color:#aaa;text-align:center;border:1px solid #e0e0e0;border-radius:4px;">QR tidak tersedia</div>
-            @endif
-            <div class="qr-code-text">{{ $rental->rental_code }}</div>
-            <div class="qr-hint">Scan QR Code ini<br>untuk memverifikasi<br>keaslian tiket Anda</div>
-            <hr class="qr-divider">
-            <div class="qr-price-label">Total Harga Sewa</div>
-            <div class="qr-price-value">Rp {{ number_format($rental->total_price, 0, ',', '.') }}</div>
-            <hr class="qr-divider">
-            <div style="font-size:9px;color:#999;text-align:center;line-height:1.6;">
-                Pembayaran diterima<br>{{ $rental->updated_at->translatedFormat('d M Y H:i') }}<br>
-                Dicetak: {{ now()->translatedFormat('d M Y H:i') }}
-            </div>
-        </div>
-
+                    <div style="font-size:9px; color:#999; line-height:1.4;">
+                        Status: <strong>LUNAS</strong><br>
+                        Dicetak pada: {{ now()->translatedFormat('d/m/Y H:i') }}
+                    </div>
+                </td>
+            </tr>
+        </table>
     </div>
 
-    <div class="footer">
-        <div class="footer-left">
-            BUS 88 &mdash; Layanan Charter &amp; Sewa Bus Terpercaya<br>
-            Dokumen ini sah tanpa tanda tangan basah &bull; Berlaku sesuai tanggal sewa
-        </div>
-        <div style="text-align:right;">
-            <div class="footer-price-label">Total Pembayaran</div>
-            <div class="footer-price">Rp {{ number_format($rental->total_price, 0, ',', '.') }}</div>
-        </div>
-    </div>
+    <!-- FOOTER -->
+    <table class="footer">
+        <tr>
+            <td class="footer-text">
+                <strong>BUS 88 - Layanan Sewa Bus Terpercaya</strong><br>
+                Dokumen ini diterbitkan secara digital dan sah tanpa tanda tangan.
+            </td>
+            <td class="footer-price">
+                <div style="font-size:9px; color:#aaa; font-weight:normal;">Total Pembayaran</div>
+                Rp {{ number_format($rental->total_price, 0, ',', '.') }}
+            </td>
+        </tr>
+    </table>
+</div>
 
+<div class="watermark">
+    {{ $rental->rental_code }} &bull; BUS 88 E-TICKET &bull; {{ date('Y') }}
 </div>
-<div class="watermark">{{ $rental->rental_code }} &bull; BUS 88 E-Ticket Sewa &bull; {{ now()->format('Y') }}</div>
-</div>
+
 </body>
 </html>

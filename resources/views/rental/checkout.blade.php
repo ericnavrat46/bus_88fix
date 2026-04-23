@@ -64,11 +64,42 @@
             <script>
                 document.getElementById('pay-button').addEventListener('click', function () {
                     window.snap.pay('{{ $snapToken }}', {
-                        onSuccess: function (result) { window.location.href = '{{ route("payment.finish") }}?order_id={{ $rental->rental_code }}&transaction_status=settlement'; },
-                        onPending: function (result) { window.location.href = '{{ route("payment.finish") }}?order_id={{ $rental->rental_code }}&transaction_status=pending'; },
-                        onError: function (result) { alert('Pembayaran gagal.'); }
+                        onSuccess: function (result) {
+                            window.location.href = '{{ route("payment.finish") }}?order_id={{ $rental->rental_code }}&transaction_status=settlement';
+                        },
+                        onPending: function (result) {
+                            Swal.fire({
+                                icon: 'info',
+                                title: 'Menunggu Pembayaran',
+                                text: 'Silakan selesaikan pembayaran Anda.',
+                                showConfirmButton: false,
+                                timer: 2000
+                            });
+                        },
+                        onError: function (result) {
+                            Swal.fire({ icon: 'error', title: 'Gagal', text: 'Pembayaran gagal.' });
+                        }
                     });
                 });
+
+                // Real-time listener dengan Echo
+                @php $payment = $rental->payments->last(); @endphp
+                @if($payment)
+                    window.Echo.channel('payment.{{ $payment->id }}')
+                        .listen('.payment.updated', (e) => {
+                            if (e.status === 'settlement' || e.status === 'capture') {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Pembayaran Berhasil!',
+                                    text: 'Terima kasih, pembayaran sewa bus Anda telah kami terima.',
+                                    showConfirmButton: false,
+                                    timer: 2000
+                                }).then(() => {
+                                    window.location.href = '{{ route("payment.finish") }}?order_id={{ $rental->rental_code }}&transaction_status=settlement';
+                                });
+                            }
+                        });
+                @endif
             </script>
         @endpush
     @endif

@@ -33,17 +33,18 @@
 
 <div class="table-container overflow-x-auto" style="overflow: visible;">
     <table class="w-full">
-        <thead><tr><th class="table-header">Kode</th><th class="table-header">Customer</th><th class="table-header">Rute</th><th class="table-header">Tanggal</th><th class="table-header">Kursi</th><th class="table-header">Total</th><th class="table-header">Status</th><th class="table-header">Aksi</th></tr></thead>
+        <thead><tr><th class="table-header">Kode</th><th class="table-header">Customer</th><th class="table-header">Rute</th><th class="table-header">Tanggal</th><th class="table-header">Total</th><th class="table-header">Metode</th><th class="table-header">Midtrans ID</th><th class="table-header">Status</th><th class="table-header">Aksi</th></tr></thead>
         <tbody>
         @foreach($bookings as $booking)
         <tr class="border-b border-gray-warm-50 hover:bg-gray-warm-50">
             <td class="table-cell font-semibold text-dark text-xs tracking-wider">{{ $booking->booking_code }}</td>
             <td class="table-cell"><p class="font-medium">{{ $booking->user->name }}</p><p class="text-xs text-gray-warm-400">{{ $booking->user->email }}</p></td>
             <td class="table-cell text-xs">{{ $booking->schedule->route->origin }} → {{ $booking->schedule->route->destination }}</td>
-            <td class="table-cell text-xs">{{ $booking->schedule->departure_date->format('d/m/Y') }} {{ \Carbon\Carbon::parse($booking->schedule->departure_time)->format('H:i') }}</td>
-            <td class="table-cell">{{ $booking->total_seats }}</td>
-            <td class="table-cell font-semibold text-merah-600">Rp {{ number_format($booking->total_price, 0, ',', '.') }}</td>
-            <td class="table-cell"><span class="{{ match($booking->payment_status) { 'paid' => 'badge-success', 'pending' => 'badge-warning', 'expired' => 'badge-gray', 'cancelled' => 'badge-danger', default => 'badge-info' } }}">{{ ucfirst($booking->payment_status) }}</span></td>
+            <td class="table-cell text-xs">{{ $booking->schedule->departure_date->format('d/m/Y') }}</td>
+            <td class="table-cell font-semibold text-merah-600 text-xs">Rp {{ number_format($booking->total_price, 0, ',', '.') }}</td>
+            <td class="table-cell text-xs text-gray-warm-600">{{ $booking->payment_method ?? '-' }}</td>
+            <td class="table-cell text-[10px] text-gray-warm-400 font-mono">{{ $booking->latestPayment->midtrans_transaction_id ?? '-' }}</td>
+            <td class="table-cell"><span class="{{ match($booking->payment_status) { 'paid' => 'badge-success', 'pending' => 'badge-warning', 'expired' => 'badge-gray', 'cancelled' => 'badge-danger', default => 'badge-info' } }} text-[10px]">{{ ucfirst($booking->payment_status) }}</span></td>
             <td class="table-cell">
                 <div class="flex flex-col gap-2">
                     <div x-data="{ open: false }" class="relative">

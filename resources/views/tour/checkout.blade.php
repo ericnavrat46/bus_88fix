@@ -81,13 +81,38 @@
                 window.location.href = '{{ route("payment.finish") }}?order_id={{ $booking->booking_code }}&transaction_status=settlement';
             },
             onPending: function(result) {
-                window.location.href = '{{ route("payment.finish") }}?order_id={{ $booking->booking_code }}&transaction_status=pending';
+                Swal.fire({
+                    icon: 'info',
+                    title: 'Menunggu Pembayaran',
+                    text: 'Selesaikan pembayaran Anda untuk melanjutkan.',
+                    showConfirmButton: false,
+                    timer: 2000
+                });
             },
             onError: function(result) {
-                alert('Pembayaran gagal. Silakan coba lagi.');
+                Swal.fire({ icon: 'error', title: 'Gagal', text: 'Pembayaran gagal.' });
             }
         });
     });
+
+    // Real-time listener dengan Echo
+    @php $payment = $booking->payments->last(); @endphp
+    @if($payment)
+        window.Echo.channel('payment.{{ $payment->id }}')
+            .listen('.payment.updated', (e) => {
+                if (e.status === 'settlement' || e.status === 'capture') {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Pembayaran Berhasil!',
+                        text: 'Terima kasih, paket wisata Anda telah terkonfirmasi.',
+                        showConfirmButton: false,
+                        timer: 2000
+                    }).then(() => {
+                        window.location.href = '{{ route("payment.finish") }}?order_id={{ $booking->booking_code }}&transaction_status=settlement';
+                    });
+                }
+            });
+    @endif
 </script>
 @endpush
 @endif

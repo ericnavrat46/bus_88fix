@@ -42,6 +42,13 @@
                     @if($rental->payment_status !== 'unpaid')
                     <span class="{{ match($rental->payment_status) { 'paid' => 'badge-success', 'pending' => 'badge-warning', default => 'badge-gray' } }}">Bayar: {{ $rental->payment_status }}</span>
                     @endif
+                    @if($rental->payment_method)
+                    <span class="badge-info text-[10px]">Via: {{ $rental->payment_method }}</span>
+                    @endif
+                    @php $p = $rental->latestPayment; @endphp
+                    @if($p && $p->midtrans_transaction_id)
+                    <span class="text-[10px] text-gray-warm-400 font-mono">MID: {{ $p->midtrans_transaction_id }}</span>
+                    @endif
                 </div>
                 <p class="font-medium text-dark">{{ $rental->user->name }} <span class="text-gray-warm-400">•</span> {{ $rental->contact_phone }}</p>
                 <div class="flex items-center gap-2 mt-1">

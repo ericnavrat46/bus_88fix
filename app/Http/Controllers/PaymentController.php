@@ -84,6 +84,9 @@ class PaymentController extends Controller
             'raw_response' => $payload,
         ]);
 
+        // Broadcast perubahan status
+        broadcast(new \App\Events\PaymentStatusUpdated($payment, $status));
+
         $this->updatePayableStatus($payment, $status);
 
         return response()->json(['message' => 'OK']);
@@ -123,6 +126,9 @@ class PaymentController extends Controller
 
         // Update related payable
         $this->updatePayableStatus($payment, $status);
+
+        // Broadcast perubahan status
+        broadcast(new \App\Events\PaymentStatusUpdated($payment, $status));
 
         return response()->json([
             'status' => true,
@@ -175,6 +181,7 @@ class PaymentController extends Controller
             $payable->update([
                 'payment_status' => $bookingStatus,
                 'paid_at' => $isSuccess ? now() : $payable->paid_at,
+                'payment_method' => $payment->payment_type ?? $payable->payment_method,
             ]);
 
             // Notification for Ticket Booking
@@ -197,6 +204,7 @@ class PaymentController extends Controller
             $payable->update([
                 'payment_status' => $rentalStatus,
                 'paid_at' => $isSuccess ? now() : $payable->paid_at,
+                'payment_method' => $payment->payment_type ?? $payable->payment_method,
             ]);
 
             // Notification for Rental
@@ -219,6 +227,7 @@ class PaymentController extends Controller
             $payable->update([
                 'payment_status' => $tourStatus,
                 'paid_at' => $isSuccess ? now() : $payable->paid_at,
+                'payment_method' => $payment->payment_type ?? $payable->payment_method,
             ]);
 
             // Notification for Tour
@@ -239,11 +248,21 @@ class PaymentController extends Controller
         $status = $request->get('transaction_status', 'pending');
 
         $payment = Payment::where('midtrans_order_id', $orderId)->first();
+
+        // Jika tidak ketemu di tabel payment, coba cari dari tabel utama dan ambil/buat record payment-nya
+        if (!$payment && $orderId) {
+            $payable = Rental::where('rental_code', $orderId)->first() 
+                      ?? Booking::where('booking_code', $orderId)->first() 
+                      ?? \App\Models\TourBooking::where('booking_code', $orderId)->first();
+            
+            if ($payable) {
+                $payment = $payable->payments()->latest()->first();
+            }
+        }
         
         if ($payment) {
             $statusData = $this->midtrans->getTransactionStatus($orderId);
             
-            // Validate if we actually got a valid transaction from Midtrans API
             $isValidResponse = $statusData && isset($statusData['status_code']) && in_array($statusData['status_code'], ['200', '201', '202']);
             
             if ($isValidResponse) {
@@ -253,20 +272,20 @@ class PaymentController extends Controller
                 
                 $payment->update([
                     'status' => $status,
+                    'midtrans_transaction_id' => $statusData['transaction_id'] ?? $payment->midtrans_transaction_id,
+                    'payment_type' => $statusData['payment_type'] ?? $payment->payment_type,
                     'raw_response' => $statusData
                 ]);
             } else {
-                // If API returns 404 (often happens in sandbox testing via URL manipulation),
-                // we'll tentatively trust the URL parameter or existing status
                 $status = $this->mapTransactionStatus($status, null);
-                
                 $payment->update([
                     'status' => $status,
-                    'raw_response' => $statusData ?? $payment->raw_response
+                    'payment_type' => $request->get('payment_type') ?? $payment->payment_type,
                 ]);
             }
             
             $this->updatePayableStatus($payment, $status);
+            broadcast(new \App\Events\PaymentStatusUpdated($payment, $status));
 
             $redirectRoute = 'dashboard';
             $id = $payment->payable_id;
@@ -280,40 +299,19 @@ class PaymentController extends Controller
             }
 
             return view('payment.finish', [
-                'orderId' => $orderId,
                 'status' => $status,
-                'redirectUrl' => route($redirectRoute, $id)
+                'orderId' => $orderId,
+                'redirectUrl' => route($redirectRoute, $id),
+                'payment' => $payment
             ]);
         }
 
-        // --- FALLBACK: If payment record not found yet, try finding in main tables ---
-        $redirectUrl = route('dashboard');
-        
-        // Check Rental
-        $match = Rental::where('rental_code', $orderId)->first();
-        if ($match) {
-            $redirectUrl = route('dashboard.rental', $match->id);
-        } else {
-            // Check Booking
-            $match = Booking::where('booking_code', $orderId)->first();
-            if ($match) {
-                $redirectUrl = route('dashboard.booking', $match->id);
-            } else {
-                // Check Tour
-                $match = \App\Models\TourBooking::where('booking_code', $orderId)->first();
-                if ($match) {
-                    $redirectUrl = route('dashboard.tour', $match->id);
-                }
-            }
-        }
-
-        // If it's settlement/capture in query but record not yet synced, still show success UI if possible
-        // but it's safer to just show whatever status we have.
-        
+        // --- FALLBACK: Jika benar-benar buntu ---
         return view('payment.finish', [
             'orderId' => $orderId, 
             'status' => $status,
-            'redirectUrl' => $redirectUrl
+            'redirectUrl' => route('dashboard'),
+            'payment' => null
         ]);
     }
 }

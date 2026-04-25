@@ -8,6 +8,7 @@ use App\Http\Controllers\Auth\SocialAuthController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\PublicPromoController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\BookingController;
@@ -28,17 +29,21 @@ use App\Http\Controllers\Admin\TransactionController;
 use App\Http\Controllers\Admin\TourPackageController;
 use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\FlashSaleController;
+use App\Http\Controllers\Admin\PromoBannerController;
 
 // ─────────────────────────────────────────────
 // PUBLIC ROUTES
 // ─────────────────────────────────────────────
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/search', [HomeController::class, 'searchSchedules'])->name('schedules.search');
-Route::get('/promo/{flashSale}', [HomeController::class, 'promoDetail'])->name('promo.detail');
 
 // Tour
 Route::get('/tour', [TourController::class, 'index'])->name('tour.index');
 Route::get('/tour/{package:slug}', [TourController::class, 'show'])->name('tour.show');
+
+// Promo
+Route::get('/promo', [PublicPromoController::class, 'index'])->name('promos.index');
+Route::get('/promo/{promo}', [PublicPromoController::class, 'show'])->name('promos.show');
 
 // Static Pages
 Route::get('/about',   [PageController::class, 'about'])->name('about');
@@ -160,6 +165,9 @@ Route::middleware(['auth', \App\Http\Middleware\AdminMiddleware::class])
         Route::resource('schedules', ScheduleController::class);
         Route::resource('tour-packages', TourPackageController::class);
         Route::resource('flash-sales', FlashSaleController::class);
+        Route::resource('promo-banners', PromoBannerController::class);
+        Route::post('/promo-banners/{promo_banner}/toggle', [PromoBannerController::class, 'toggleStatus'])->name('promo-banners.toggle');
+
 
         // Transactions
         Route::get('/transactions/bookings', [TransactionController::class, 'bookings'])->name('transactions.bookings');

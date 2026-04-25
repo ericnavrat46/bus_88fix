@@ -3,6 +3,7 @@
 @section('title', 'Bus 88 - Tiket Bus & Sewa Bus Terpercaya')
 
 @push('styles')
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
 <style>
     /* ── Hero foto zoom on hover ── */
     .hero-img {
@@ -106,7 +107,34 @@
     .review-card:hover .review-img {
         transform: scale(1.05);
     }
+
+    /* ── Swiper Custom ── */
+    .promo-swiper {
+        padding-bottom: 50px !important;
+    }
+    .promo-swiper .swiper-pagination-bullet {
+        background: #cc0000;
+        opacity: 0.2;
+    }
+    .promo-swiper .swiper-pagination-bullet-active {
+        opacity: 1;
+        width: 20px;
+        border-radius: 4px;
+    }
+    .promo-swiper .swiper-button-next, .promo-swiper .swiper-button-prev {
+        background: white;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        color: #cc0000;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    .promo-swiper .swiper-button-next:after, .promo-swiper .swiper-button-prev:after {
+        font-size: 18px;
+        font-weight: bold;
+    }
 </style>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
 @endpush
 
 @section('content')
@@ -303,6 +331,97 @@
     </div>
 </section>
 
+{{-- Banner Promo Section --}}
+@if($promoBanners->isNotEmpty())
+<section id="promo-section" class="py-20 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between mb-8">
+            <div>
+                <h2 class="text-2xl lg:text-3xl font-black text-dark">Promo <span class="text-gradient-merah">Terbatas</span></h2>
+                <p class="text-gray-warm-500">Jangan lewatkan penawaran menarik hari ini</p>
+            </div>
+            <div class="flex gap-2">
+                <button class="promo-prev p-2 rounded-full border border-gray-200 hover:bg-merah-600 hover:text-white transition-all shadow-sm">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                </button>
+                <button class="promo-next p-2 rounded-full border border-gray-200 hover:bg-merah-600 hover:text-white transition-all shadow-sm">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                </button>
+            </div>
+        </div>
+
+        <div class="swiper promo-swiper rounded-[2rem] overflow-hidden shadow-2xl shadow-blue-900/10">
+            <div class="swiper-wrapper">
+                @foreach($promoBanners as $banner)
+                @php 
+                    $promoUrl = $banner->link && $banner->link !== '#' ? $banner->link : route('promos.show', $banner);
+                @endphp
+                <div class="swiper-slide relative aspect-[16/9] md:aspect-[21/9] group cursor-pointer" 
+                     onclick="window.open('{{ $promoUrl }}', '_blank')">
+                    {{-- Background Image --}}
+                    <img src="{{ asset($banner->image_url) }}" class="absolute inset-0 w-full h-full object-cover transition-transform duration-[5000ms] group-hover:scale-110" alt="{{ $banner->title }}" loading="lazy">
+                    
+                    {{-- Overlay Gradient --}}
+                    <div class="absolute inset-0 bg-gradient-to-r from-dark/90 via-dark/40 to-transparent"></div>
+
+                    {{-- Content --}}
+                    <div class="absolute inset-0 flex items-center px-8 md:px-16">
+                        <div class="max-w-xl text-white">
+                            <h3 class="text-2xl md:text-4xl lg:text-5xl font-black mb-4 leading-tight transform translate-y-4 opacity-0 transition-all duration-700 delay-100 group-[.swiper-slide-active]:translate-y-0 group-[.swiper-slide-active]:opacity-100">
+                                {{ $banner->title }}
+                            </h3>
+                            
+                            @if($banner->description)
+                            <p class="text-sm md:text-lg text-white/80 mb-6 line-clamp-2 transform translate-y-4 opacity-0 transition-all duration-700 delay-200 group-[.swiper-slide-active]:translate-y-0 group-[.swiper-slide-active]:opacity-100">
+                                {{ $banner->description }}
+                            </p>
+                            @endif
+
+                            <div class="flex flex-wrap items-center gap-4 transform translate-y-4 opacity-0 transition-all duration-700 delay-300 group-[.swiper-slide-active]:translate-y-0 group-[.swiper-slide-active]:opacity-100">
+                                {{-- Promo Code Box --}}
+                                <div class="bg-white/10 backdrop-blur-md border border-white/20 rounded-xl px-4 py-3 flex items-center gap-4" onclick="event.stopPropagation()">
+                                    <div class="flex flex-col">
+                                        <span class="text-[10px] uppercase font-bold text-white/60 tracking-widest">Kode Promo</span>
+                                        <span class="text-lg font-black tracking-tighter">{{ $banner->promo_code }}</span>
+                                    </div>
+                                    <button onclick="copyPromoCode('{{ $banner->promo_code }}')" class="bg-white text-dark hover:bg-merah-600 hover:text-white transition-all px-4 py-2 rounded-lg text-xs font-black uppercase">
+                                        Salin
+                                    </button>
+                                </div>
+
+                                {{-- Countdown if needed --}}
+                                @if(now()->diffInDays($banner->end_date) <= 7)
+                                <div class="bg-amber-500/90 backdrop-blur-md text-white px-4 py-3 rounded-xl flex flex-col" onclick="event.stopPropagation()">
+                                    <span class="text-[10px] uppercase font-bold text-white/80 tracking-widest">Berakhir Dalam</span>
+                                    <span class="text-sm font-black whitespace-nowrap countdown-timer" data-until="{{ $banner->end_date->endOfDay()->toIso8601String() }}">
+                                        Menghitung...
+                                    </span>
+                                </div>
+                                @else
+                                <div class="bg-blue-600/80 backdrop-blur-md text-white px-4 py-3 rounded-xl flex flex-col" onclick="event.stopPropagation()">
+                                    <span class="text-[10px] uppercase font-bold text-white/80 tracking-widest">Berlaku Hingga</span>
+                                    <span class="text-sm font-black whitespace-nowrap">{{ $banner->end_date->translatedFormat('d F Y') }}</span>
+                                </div>
+                                @endif
+
+                                @if($banner->link)
+                                <a href="{{ $promoUrl }}" target="_blank" onclick="event.stopPropagation()" class="btn-primary py-4 px-8 shadow-lg shadow-merah-600/20">Gunakan Sekarang</a>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                @endforeach
+            </div>
+            {{-- Pagination --}}
+            <div class="swiper-pagination !bottom-8 !left-16 !w-auto !justify-start"></div>
+        </div>
+    </div>
+</section>
+@endif
+
+
+
 {{-- Reviews Section --}}
 @if($reviews->isNotEmpty())
 <section class="py-24 bg-white overflow-hidden">
@@ -371,5 +490,69 @@
     </div>
 </section>
 @push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Promo Swiper
+        const promoSwiper = new Swiper('.promo-swiper', {
+            loop: true,
+            autoplay: {
+                delay: 5000,
+                disableOnInteraction: false,
+                pauseOnMouseEnter: true,
+            },
+            pagination: {
+                el: '.swiper-pagination',
+                clickable: true,
+            },
+            navigation: {
+                nextEl: '.promo-next',
+                prevEl: '.promo-prev',
+            },
+            effect: 'slide',
+            speed: 800,
+        });
+
+        // Copy Promo Code
+        window.copyPromoCode = function(code) {
+            navigator.clipboard.writeText(code).then(() => {
+                Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    icon: 'success',
+                    title: `Kode [${code}] berhasil disalin!`,
+                    showConfirmButton: false,
+                    timer: 3000,
+                    timerProgressBar: true,
+                });
+            });
+        };
+
+        // Countdown Timer
+        function updateCountdowns() {
+            const timers = document.querySelectorAll('.countdown-timer');
+            timers.forEach(timer => {
+                const until = new Date(timer.dataset.until).getTime();
+                const now = new Date().getTime();
+                const distance = until - now;
+
+                if (distance < 0) {
+                    timer.innerHTML = "PROMO BERAKHIR";
+                    return;
+                }
+
+                const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+                timer.innerHTML = `${days}h ${hours}j ${minutes}m ${seconds}d`;
+            });
+        }
+
+        setInterval(updateCountdowns, 1000);
+        updateCountdowns();
+    });
+</script>
 @endpush
 @endsection

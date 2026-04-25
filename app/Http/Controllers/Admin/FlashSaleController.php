@@ -9,6 +9,8 @@ use App\Models\Schedule;
 use App\Models\Rental;
 use Illuminate\Http\Request;
 
+use App\Events\FlashSaleCreated;
+
 class FlashSaleController extends Controller
 {
     public function index()
@@ -37,7 +39,10 @@ class FlashSaleController extends Controller
             'quota' => 'required|integer|min:1',
         ]);
 
-        FlashSale::create($data);
+        $flashSale = FlashSale::create($data);
+
+        // Broadcast the event
+        broadcast(new FlashSaleCreated($flashSale))->toOthers();
 
         return redirect()->route('admin.flash-sales.index')
             ->with('success', 'Flash Sale created successfully.');

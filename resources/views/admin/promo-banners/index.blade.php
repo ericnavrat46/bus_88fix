@@ -49,7 +49,7 @@
             @forelse($banners as $banner)
             <tr class="hover:bg-gray-warm-50/50 transition-colors">
                 <td class="table-cell">
-                    <div class="aspect-[16/9] w-40 rounded-xl overflow-hidden border border-gray-warm-200 shadow-sm">
+                    <div class="w-40 rounded-xl overflow-hidden border border-gray-warm-200 shadow-sm" style="aspect-ratio: 16/9;">
                         <img src="{{ $banner->image_url }}" class="w-full h-full object-cover" alt="{{ $banner->title }}">
                     </div>
                 </td>

@@ -112,6 +112,14 @@
     .promo-swiper {
         padding-bottom: 50px !important;
     }
+    .aspect-promo {
+        aspect-ratio: 16/9;
+    }
+    @media (min-width: 768px) {
+        .aspect-promo {
+            aspect-ratio: 4/1;
+        }
+    }
     .promo-swiper .swiper-pagination-bullet {
         background: #cc0000;
         opacity: 0.2;
@@ -335,18 +343,10 @@
 @if($promoBanners->isNotEmpty())
 <section id="promo-section" class="py-20 bg-white">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex items-center justify-between mb-8">
+        <div class="mb-8">
             <div>
                 <h2 class="text-2xl lg:text-3xl font-black text-dark">Promo <span class="text-gradient-merah">Terbatas</span></h2>
                 <p class="text-gray-warm-500">Jangan lewatkan penawaran menarik hari ini</p>
-            </div>
-            <div class="flex gap-2">
-                <button class="promo-prev p-2 rounded-full border border-gray-200 hover:bg-merah-600 hover:text-white transition-all shadow-sm">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
-                </button>
-                <button class="promo-next p-2 rounded-full border border-gray-200 hover:bg-merah-600 hover:text-white transition-all shadow-sm">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-                </button>
             </div>
         </div>
 
@@ -356,10 +356,10 @@
                 @php 
                     $promoUrl = $banner->link && $banner->link !== '#' ? $banner->link : route('promos.show', $banner);
                 @endphp
-                <div class="swiper-slide relative aspect-[16/9] md:aspect-[21/9] group cursor-pointer" 
+                <div class="swiper-slide relative group cursor-pointer aspect-promo"
                      onclick="window.open('{{ $promoUrl }}', '_blank')">
                     {{-- Background Image --}}
-                    <img src="{{ asset($banner->image_url) }}" class="absolute inset-0 w-full h-full object-cover transition-transform duration-[5000ms] group-hover:scale-110" alt="{{ $banner->title }}" loading="lazy">
+                    <img src="{{ $banner->image_url }}" class="absolute inset-0 w-full h-full object-cover transition-transform duration-[5000ms] group-hover:scale-110" alt="{{ $banner->title }}" loading="lazy">
                     
                     {{-- Overlay Gradient --}}
                     <div class="absolute inset-0 bg-gradient-to-r from-dark/90 via-dark/40 to-transparent"></div>
@@ -415,6 +415,14 @@
             </div>
             {{-- Pagination --}}
             <div class="swiper-pagination !bottom-8 !left-16 !w-auto !justify-start"></div>
+
+            {{-- Navigation Buttons --}}
+            <button class="promo-prev absolute top-1/2 left-4 -translate-y-1/2 z-10 w-12 h-12 bg-white/30 hover:bg-white text-white hover:text-red-600 rounded-full flex items-center justify-center backdrop-blur-md transition-all border border-white/40 shadow-lg">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
+            </button>
+            <button class="promo-next absolute top-1/2 right-4 -translate-y-1/2 z-10 w-12 h-12 bg-white/30 hover:bg-white text-white hover:text-red-600 rounded-full flex items-center justify-center backdrop-blur-md transition-all border border-white/40 shadow-lg">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
+            </button>
         </div>
     </div>
 </section>

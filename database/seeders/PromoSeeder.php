@@ -12,20 +12,26 @@ class PromoSeeder extends Seeder
      */
     public function run(): void
     {
-        \App\Models\Promo::create([
+        \App\Models\PromoBanner::create([
             'title' => 'Liburan Hemat ke Bali',
-            'slug' => 'liburan-hemat-ke-bali',
+            'promo_code' => 'BALI30',
             'description' => 'Nikmati diskon s.d. 30% untuk perjalanan ke Bali dengan Bus 88.',
-            'image' => 'promos/banner1.png',
+            'image' => 'banner1.png',
+            'start_date' => now(),
+            'end_date' => now()->addDays(30),
             'is_active' => true,
+            'sort_order' => 1,
         ]);
 
-        \App\Models\Promo::create([
+        \App\Models\PromoBanner::create([
             'title' => 'Eksplor Jogja',
-            'slug' => 'eksplor-jogja',
+            'promo_code' => 'JOGJA50',
             'description' => 'Cashback Instant Rp 50rb untuk setiap tiket ke Yogyakarta.',
-            'image' => 'promos/banner2.png',
+            'image' => 'banner2.png',
+            'start_date' => now(),
+            'end_date' => now()->addDays(30),
             'is_active' => true,
+            'sort_order' => 2,
         ]);
     }
 }

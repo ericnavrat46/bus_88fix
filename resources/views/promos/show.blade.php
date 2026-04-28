@@ -16,8 +16,8 @@
 
         <div class="bg-white rounded-[3rem] overflow-hidden shadow-2xl shadow-gray-warm-200/50 border border-gray-warm-100">
             {{-- Big Image --}}
-            <div class="relative aspect-[21/9]">
-                <img src="{{ asset($promo->image_url) }}" class="w-full h-full object-cover" alt="{{ $promo->title }}">
+            <div class="relative" style="aspect-ratio: 21/9;">
+                <img src="{{ $promo->image_url }}" class="w-full h-full object-cover" alt="{{ $promo->title }}">
                 <div class="absolute inset-0 bg-gradient-to-t from-dark/60 via-transparent to-transparent"></div>
             </div>
 

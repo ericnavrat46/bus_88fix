@@ -196,3 +196,14 @@ Route::get('/test-broadcast', function () {
 Route::get('/reverb-test-page', function () {
     return view('test-reverb');
 });
+
+// Simulasi Payment Broadcast (untuk demo/screenshot laporan)
+Route::get('/test-payment-broadcast/{payment_id}', function ($payment_id) {
+    $payment = \App\Models\Payment::findOrFail($payment_id);
+    broadcast(new \App\Events\PaymentStatusUpdated($payment, 'settlement'));
+    return response()->json([
+        'status' => 'ok',
+        'message' => "PaymentStatusUpdated broadcasted untuk payment ID: {$payment_id}",
+        'channel' => "payment.{$payment_id}",
+    ]);
+});

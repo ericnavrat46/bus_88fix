@@ -7,8 +7,10 @@ use App\Models\FlashSale;
 use App\Models\TourPackage;
 use App\Models\Schedule;
 use App\Models\Rental;
+use App\Models\Notification;
+use App\Models\User;
 use Illuminate\Http\Request;
-
+use Illuminate\Support\Facades\Http;
 use App\Events\FlashSaleCreated;
 
 class FlashSaleController extends Controller
@@ -43,6 +45,42 @@ class FlashSaleController extends Controller
 
         // Broadcast the event
         broadcast(new FlashSaleCreated($flashSale))->toOthers();
+
+        // ============================================
+        // NOTIFIKASI FLASH SALE
+        // ============================================
+
+        $discount = $flashSale->discount_type === 'percentage'
+            ? $flashSale->discount_value . '% OFF — Kuota terbatas!'
+            : 'Diskon Rp ' . number_format($flashSale->discount_value, 0, ',', '.') . ' — Kuota terbatas!';
+
+        $title   = '🔥 Flash Sale: ' . $flashSale->title;
+        $message = $discount;
+
+        // Ambil semua user yang punya FCM token
+        $users = User::whereNotNull('fcm_token')->get();
+
+        foreach ($users as $user) {
+            // 1. Kirim push notification pakai NotificationHelper (sama seperti notif pembayaran)
+            \App\Helpers\NotificationHelper::send(
+                $user->id,
+                $title,
+                $message,
+                'flash_sale'
+            );
+
+            // 2. Simpan ke tabel notifications
+            Notification::create([
+                'user_id' => $user->id,
+                'title'   => $title,
+                'message' => $message,
+                'type'    => 'flash_sale',
+                'data'    => json_encode(['flash_sale_id' => $flashSale->id]),
+                'is_read' => false,
+            ]);
+        }
+
+        // ============================================
 
         return redirect()->route('admin.flash-sales.index')
             ->with('success', 'Flash Sale created successfully.');
@@ -81,4 +119,3 @@ class FlashSaleController extends Controller
             ->with('success', 'Flash Sale deleted successfully.');
     }
 }
-

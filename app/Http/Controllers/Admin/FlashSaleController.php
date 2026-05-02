@@ -46,9 +46,7 @@ class FlashSaleController extends Controller
         // Broadcast the event
         broadcast(new FlashSaleCreated($flashSale))->toOthers();
 
-        // ============================================
         // NOTIFIKASI FLASH SALE
-        // ============================================
 
         $discount = $flashSale->discount_type === 'percentage'
             ? $flashSale->discount_value . '% OFF — Kuota terbatas!'
@@ -61,7 +59,7 @@ class FlashSaleController extends Controller
         $users = User::whereNotNull('fcm_token')->get();
 
         foreach ($users as $user) {
-            // 1. Kirim push notification pakai NotificationHelper (sama seperti notif pembayaran)
+            
             \App\Helpers\NotificationHelper::send(
                 $user->id,
                 $title,
@@ -69,7 +67,6 @@ class FlashSaleController extends Controller
                 'flash_sale'
             );
 
-            // 2. Simpan ke tabel notifications
             Notification::create([
                 'user_id' => $user->id,
                 'title'   => $title,
@@ -79,8 +76,6 @@ class FlashSaleController extends Controller
                 'is_read' => false,
             ]);
         }
-
-        // ============================================
 
         return redirect()->route('admin.flash-sales.index')
             ->with('success', 'Flash Sale created successfully.');

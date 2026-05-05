@@ -7,54 +7,43 @@
                 <h2 class="text-2xl font-bold text-dark mb-6">Pembayaran Sewa Bus</h2>
                 <div class="p-6 bg-merah-50 rounded-2xl border border-merah-100 mb-6">
                     <p class="text-sm text-gray-warm-500 mb-1">Total Pembayaran</p>
-                    <p class="text-3xl font-black text-merah-600">Rp {{ number_format($rental->total_price, 0, ',', '.') }}
+                    <p class="text-3xl font-black text-merah-600" id="total-price-display">Rp {{ number_format($rental->total_price - ($rental->discount_amount ?? 0), 0, ',', '.') }}
                     </p>
+                    @if($rental->discount_amount > 0)
+                        <p class="text-xs text-green-600 font-bold mt-1" id="discount-display">Diskon: - Rp {{ number_format($rental->discount_amount, 0, ',', '.') }}</p>
+                    @endif
                     <p class="text-xs text-gray-warm-400 mt-2">{{ $rental->rental_code }} • {{ $rental->destination }}</p>
                 </div>
+
+                {{-- Promo Code Section --}}
+                @if(!$rental->promo_banner_id)
+                <div class="mb-8 p-6 bg-white rounded-xl border border-gray-warm-100 shadow-sm text-left">
+                    <label class="label-field text-xs mb-2 block">Punya Kode Promo?</label>
+                    <div class="flex gap-2">
+                        <input type="text" id="promo-code-input" class="input-field py-2.5 text-sm uppercase flex-1" placeholder="MASUKKAN KODE">
+                        <button type="button" id="apply-promo-btn" class="btn-primary px-4 text-xs font-bold">GUNAKAN</button>
+                    </div>
+                    <p id="promo-message" class="text-[10px] font-bold mt-2 hidden"></p>
+                </div>
+                @endif
                 @if($snapToken)
                     {{-- Midtrans Option --}}
                     <div class="mb-8 p-6 bg-white rounded-xl border border-gray-warm-100 shadow-sm">
-                        <h3 class="font-bold text-dark mb-3">Opsi 1: Pembayaran Instan</h3>
+                        <h3 class="font-bold text-dark mb-3 text-lg">Pembayaran Instan</h3>
                         <button id="pay-button" class="btn-primary w-full text-center text-lg py-4 animate-pulse-glow">
                             Bayar via Midtrans
                         </button>
-                        <p class="text-xs text-gray-warm-400 mt-3 text-center">Virtual Account, E-Wallet, Kartu Kredit</p>
+                        <p class="text-xs text-emerald-600 mt-4 italic font-medium">Virtual Account, E-Wallet, Kartu Kredit • Otomatis Terverifikasi</p>
                     </div>
-
-                    <div class="flex items-center gap-4 mb-8">
-                        <div class="h-px flex-1 bg-gray-warm-200"></div>
-                        <span class="text-xs font-bold text-gray-warm-400 uppercase tracking-widest">ATAU</span>
-                        <div class="h-px flex-1 bg-gray-warm-200"></div>
+                @else
+                    <div class="p-8 bg-amber-50 border border-amber-200 rounded-2xl text-center">
+                        <div class="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4 text-amber-600">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                        </div>
+                        <h3 class="font-bold text-amber-900 mb-2">Sistem Pembayaran Sedang Kendala</h3>
+                        <p class="text-sm text-amber-800">Maaf, sistem pembayaran otomatis kami sedang mengalami gangguan teknis. Mohon coba beberapa saat lagi atau hubungi layanan pelanggan kami.</p>
                     </div>
                 @endif
-
-                {{-- Transfer Manual — selalu tampil --}}
-                <div class="p-6 bg-white rounded-xl border border-gray-warm-100 shadow-sm text-left">
-                    <h3 class="font-bold text-dark mb-4 text-center">
-                        {{ $snapToken ? 'Opsi 2: Transfer Manual' : 'Transfer Manual' }}</h3>
-                    <div class="p-4 bg-gray-warm-50 rounded-xl mb-6 text-sm">
-                        <p class="text-gray-warm-600 mb-2">Silakan transfer ke rekening berikut:</p>
-                        <div class="flex items-center justify-between mb-1">
-                            <span class="font-bold text-dark">BANK BRI</span>
-                            <span class="text-merah-600 font-mono text-base">1234-5678-9012-345</span>
-                        </div>
-                        <p class="text-xs text-gray-warm-500">a.n. PT Bus 88 Merah Putih</p>
-                    </div>
-
-                    <form action="{{ route('rental.upload-proof', $rental) }}" method="POST" enctype="multipart/form-data"
-                        class="space-y-4">
-                        @csrf
-                        <div>
-                            <label class="label-field text-xs">Unggah Bukti Pembayaran</label>
-                            <input type="file" name="payment_proof" class="input-field py-2.5 text-sm" required
-                                accept="image/*">
-                            <p class="text-[10px] text-gray-warm-400 mt-1">*Format: JPG, PNG, JPEG. Maks 2MB</p>
-                        </div>
-                        <button type="submit" class="btn-secondary w-full py-4 font-bold tracking-wide">
-                            KLIK UNTUK UNGGAH BUKTI
-                        </button>
-                    </form>
-                </div>
             </div>
         </div>
     </div>
@@ -81,6 +70,55 @@
                         }
                     });
                 });
+
+                // Promo Application Logic
+                const applyPromoBtn = document.getElementById('apply-promo-btn');
+                if (applyPromoBtn) {
+                    applyPromoBtn.addEventListener('click', function() {
+                        const promoCode = document.getElementById('promo-code-input').value;
+                        const promoMessage = document.getElementById('promo-message');
+                        
+                        if (!promoCode) return;
+
+                        applyPromoBtn.disabled = true;
+                        applyPromoBtn.innerText = '...';
+
+                        fetch('{{ route("rental.apply-promo", $rental) }}', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                'Accept': 'application/json'
+                            },
+                            body: JSON.stringify({ promo_code: promoCode })
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.valid) {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Promo Berhasil!',
+                                    text: data.message,
+                                    timer: 1500,
+                                    showConfirmButton: false
+                                }).then(() => {
+                                    window.location.reload(); // Reload to regenerate snap token and update UI
+                                });
+                            } else {
+                                applyPromoBtn.disabled = false;
+                                applyPromoBtn.innerText = 'GUNAKAN';
+                                promoMessage.innerText = data.message;
+                                promoMessage.classList.remove('hidden');
+                                promoMessage.classList.add('text-red-500');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            applyPromoBtn.disabled = false;
+                            applyPromoBtn.innerText = 'GUNAKAN';
+                        });
+                    });
+                }
 
                 // Real-time listener dengan Echo
                 @php $payment = $rental->payments->last(); @endphp

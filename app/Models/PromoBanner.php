@@ -20,12 +20,22 @@ class PromoBanner extends Model
         'link',
         'is_active',
         'sort_order',
+        'target_type',
+        'discount_type',
+        'discount_value',
+        'min_transaction',
+        'max_discount',
+        'quota',
+        'used_quota',
     ];
 
     protected $casts = [
         'start_date' => 'date',
         'end_date' => 'date',
         'is_active' => 'boolean',
+        'discount_value' => 'decimal:2',
+        'min_transaction' => 'decimal:2',
+        'max_discount' => 'decimal:2',
     ];
 
     protected $appends = ['image_url', 'status_label', 'is_expired'];
@@ -61,6 +71,36 @@ class PromoBanner extends Model
         return $query->where('is_active', true)
                      ->where('start_date', '<=', now())
                      ->where('end_date', '>=', now())
+                     ->where(function ($q) {
+                         $q->where('quota', 0)->orWhereColumn('used_quota', '<', 'quota');
+                     })
                      ->orderBy('sort_order', 'asc');
+    }
+
+    public function isValidFor($type)
+    {
+        if (!$this->is_active || $this->is_expired) return false;
+        if ($this->quota > 0 && $this->used_quota >= $this->quota) return false;
+        if ($this->target_type !== 'all' && $this->target_type !== $type) return false;
+        return true;
+    }
+
+    public function calculateDiscount($amount)
+    {
+        if ($this->min_transaction && $amount < $this->min_transaction) {
+            return 0;
+        }
+
+        $discount = 0;
+        if ($this->discount_type === 'percent') {
+            $discount = $amount * ($this->discount_value / 100);
+            if ($this->max_discount && $discount > $this->max_discount) {
+                $discount = $this->max_discount;
+            }
+        } else {
+            $discount = $this->discount_value;
+        }
+
+        return min($discount, $amount);
     }
 }

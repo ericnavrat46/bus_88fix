@@ -62,6 +62,8 @@
                             </div>
                         </div>
 
+                        <input type="hidden" name="applied_promo_id" id="appliedPromoId">
+
                         <div class="pt-6">
                             <button type="submit" class="btn-primary w-full py-4 text-lg font-bold">LANJUT KE PEMBAYARAN</button>
                         </div>
@@ -88,13 +90,26 @@
 
                     <div class="space-y-3 pt-6 border-t border-gray-warm-100">
                         <div class="flex justify-between text-sm">
-                            <span class="text-gray-warm-500">Harga per Orang</span>
-                            <span class="font-semibold">Rp {{ number_format($package->price_per_person, 0, ',', '.') }}</span>
+                            <span class="text-gray-warm-500">Subtotal</span>
+                            <span class="font-semibold" id="display-subtotal" data-amount="{{ $package->price_per_person }}">Rp {{ number_format($package->price_per_person, 0, ',', '.') }}</span>
                         </div>
-                        <div class="flex justify-between text-lg font-black pt-4">
-                            <span class="text-dark">Total</span>
+                        <div id="discountRow" class="flex justify-between text-sm text-green-600 hidden">
+                            <span>Diskon Promo</span>
+                            <span id="discountAmount">- Rp 0</span>
+                        </div>
+                        <div class="flex justify-between text-lg font-black pt-4 border-t border-gray-warm-100 mt-2">
+                            <span class="text-dark">Total Pembayaran</span>
                             <span class="text-merah-600" id="display-total">Rp {{ number_format($package->price_per_person, 0, ',', '.') }}</span>
                         </div>
+                    </div>
+
+                    <div class="mt-6 pt-6 border-t border-gray-warm-100">
+                        <label class="label-field mb-2 block">Kode Promo</label>
+                        <div class="flex gap-2">
+                            <input type="text" id="promoCodeInput" value="{{ request('promo') }}" class="input-field uppercase flex-grow text-sm" placeholder="Masukkan kode promo">
+                            <button type="button" id="applyPromoBtn" class="btn-primary px-4 text-sm">Gunakan</button>
+                        </div>
+                        <p id="promoMessage" class="text-xs font-bold mt-2 hidden"></p>
                     </div>
 
                     <div class="mt-8 p-4 bg-blue-50 rounded-xl border border-blue-100 italic text-[10px] text-blue-700">
@@ -108,15 +123,106 @@
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 <script>
-    // Simple total update
+    // Price & Promo Logic
     const paxInput = document.getElementsByName('passenger_count')[0];
+    const displaySubtotal = document.getElementById('display-subtotal');
     const displayTotal = document.getElementById('display-total');
     const basePrice = {{ $package->price_per_person }};
+    
+    let currentSubtotal = basePrice;
+    let currentDiscount = 0;
 
-    paxInput.addEventListener('input', function() {
-        const total = basePrice * (parseInt(this.value) || 0);
-        displayTotal.innerText = 'Rp ' + total.toLocaleString('id-ID');
+    const applyPromoBtn = document.getElementById('applyPromoBtn');
+    const promoCodeInput = document.getElementById('promoCodeInput');
+    const promoMessage = document.getElementById('promoMessage');
+    const appliedPromoId = document.getElementById('appliedPromoId');
+    const discountRow = document.getElementById('discountRow');
+    const discountAmountSpan = document.getElementById('discountAmount');
+
+    function updatePrices() {
+        currentSubtotal = basePrice * (parseInt(paxInput.value) || 0);
+        displaySubtotal.innerText = 'Rp ' + currentSubtotal.toLocaleString('id-ID');
+        displaySubtotal.dataset.amount = currentSubtotal;
+        
+        // Re-validate promo if amount changes
+        if(appliedPromoId.value && promoCodeInput.value.trim() !== '') {
+            validatePromo(promoCodeInput.value.trim(), true);
+        } else {
+            displayTotal.innerText = 'Rp ' + currentSubtotal.toLocaleString('id-ID');
+        }
+    }
+
+    paxInput.addEventListener('input', updatePrices);
+
+    if(promoCodeInput.value.trim() !== '') {
+        validatePromo(promoCodeInput.value.trim());
+    }
+
+    applyPromoBtn.addEventListener('click', function() {
+        const code = promoCodeInput.value.trim();
+        if(!code) return;
+        validatePromo(code);
     });
+
+    function validatePromo(code, isSilent = false) {
+        if(!isSilent) {
+            applyPromoBtn.disabled = true;
+            applyPromoBtn.innerHTML = '...';
+            promoMessage.classList.add('hidden');
+        }
+
+        fetch('{{ route("promo.validate") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+                promo_code: code,
+                target_type: 'tour',
+                amount: currentSubtotal
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if(!isSilent) {
+                applyPromoBtn.disabled = false;
+                applyPromoBtn.innerHTML = 'Gunakan';
+                promoMessage.classList.remove('hidden');
+            }
+
+            if(data.valid) {
+                if(!isSilent) {
+                    promoMessage.className = 'text-xs font-bold mt-2 text-green-600';
+                    promoMessage.textContent = data.message;
+                }
+                appliedPromoId.value = data.promo_id;
+                currentDiscount = data.discount_amount;
+
+                discountRow.classList.remove('hidden');
+                discountAmountSpan.textContent = '- Rp ' + new Intl.NumberFormat('id-ID').format(currentDiscount);
+                displayTotal.textContent = 'Rp ' + new Intl.NumberFormat('id-ID').format(currentSubtotal - currentDiscount);
+            } else {
+                if(!isSilent) {
+                    promoMessage.className = 'text-xs font-bold mt-2 text-red-600';
+                    promoMessage.textContent = data.message;
+                }
+                appliedPromoId.value = '';
+                currentDiscount = 0;
+
+                discountRow.classList.add('hidden');
+                displayTotal.textContent = 'Rp ' + new Intl.NumberFormat('id-ID').format(currentSubtotal);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            if(!isSilent) {
+                applyPromoBtn.disabled = false;
+                applyPromoBtn.innerHTML = 'Gunakan';
+            }
+        });
+    }
 
     // Map Logic
     document.addEventListener('DOMContentLoaded', function() {

@@ -59,31 +59,6 @@
                         </div>
                     </div>
 
-                    @if($booking->payment_proof)
-                    <div x-data="{ modal: false }">
-                        <button @click="modal = true" class="text-[10px] bg-emerald-50 text-emerald-600 px-2 py-1 rounded border border-emerald-100 hover:bg-emerald-100 transition-colors">
-                            Lihat Bukti
-                        </button>
-                        
-                        {{-- Modal Bukti --}}
-                        <div x-show="modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-dark/50 backdrop-blur-sm" style="display: none;">
-                            <div @click.away="modal = false" class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl">
-                                <div class="flex justify-between items-center mb-4">
-                                    <h3 class="font-bold text-dark">Bukti Pembayaran #{{ $booking->booking_code }}</h3>
-                                    <button @click="modal = false" class="text-gray-warm-400 hover:text-dark">✕</button>
-                                </div>
-                                <img src="{{ asset('storage/' . $booking->payment_proof) }}" class="w-full rounded-xl mb-6 shadow-lg border border-gray-warm-100">
-                                <div class="flex gap-3">
-                                    <form method="POST" action="{{ route('admin.booking.approve-manual', $booking) }}" class="flex-1">
-                                        @csrf
-                                        <button type="submit" class="w-full btn-primary py-2 text-sm">Setujui Pembayaran</button>
-                                    </form>
-                                    <button @click="modal = false" class="flex-1 btn-secondary py-2 text-sm">Tutup</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    @endif
                 </div>
             </td>
         </tr>

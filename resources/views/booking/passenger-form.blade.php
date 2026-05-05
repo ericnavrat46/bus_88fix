@@ -54,13 +54,33 @@
                 </div>
                 @endforeach
 
-                {{-- Summary --}}
+                {{-- Summary & Promo --}}
                 <div class="p-6 bg-merah-50 rounded-2xl border border-merah-100">
-                    <div class="flex items-center justify-between mb-2">
-                        <span class="text-gray-warm-600">{{ count($selectedSeats) }} kursi × Rp {{ number_format($schedule->price, 0, ',', '.') }}</span>
-                        <span class="text-xl font-black text-merah-600">Rp {{ number_format($schedule->price * count($selectedSeats), 0, ',', '.') }}</span>
+                    <div class="mb-6 pb-6 border-b border-merah-200">
+                        <label class="label-field mb-2 block">Kode Promo</label>
+                        <div class="flex gap-2">
+                            <input type="text" id="promoCodeInput" name="promo_code" value="{{ request('promo') }}" class="input-field uppercase flex-grow" placeholder="Masukkan kode promo">
+                            <button type="button" id="applyPromoBtn" class="btn-primary px-6">Gunakan</button>
+                        </div>
+                        <p id="promoMessage" class="text-sm font-bold mt-2 hidden"></p>
+                        <input type="hidden" name="applied_promo_id" id="appliedPromoId">
                     </div>
-                    <p class="text-xs text-gray-warm-500">{{ $schedule->route->origin }} → {{ $schedule->route->destination }} • {{ $schedule->departure_date->translatedFormat('d M Y') }}</p>
+
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between text-gray-warm-600">
+                            <span>Subtotal ({{ count($selectedSeats) }} kursi)</span>
+                            <span id="subtotalAmount" data-amount="{{ $schedule->price * count($selectedSeats) }}">Rp {{ number_format($schedule->price * count($selectedSeats), 0, ',', '.') }}</span>
+                        </div>
+                        <div id="discountRow" class="flex items-center justify-between text-green-600 hidden">
+                            <span>Diskon Promo</span>
+                            <span id="discountAmount">- Rp 0</span>
+                        </div>
+                        <div class="flex items-center justify-between pt-3 border-t border-merah-200">
+                            <span class="text-gray-warm-600 font-bold">Total Pembayaran</span>
+                            <span id="totalAmount" class="text-xl font-black text-merah-600">Rp {{ number_format($schedule->price * count($selectedSeats), 0, ',', '.') }}</span>
+                        </div>
+                    </div>
+                    <p class="text-xs text-gray-warm-500 mt-4">{{ $schedule->route->origin }} → {{ $schedule->route->destination }} • {{ $schedule->departure_date->translatedFormat('d M Y') }}</p>
                 </div>
 
                 <button type="submit" class="btn-primary w-full text-center text-lg py-4">
@@ -71,4 +91,82 @@
         </div>
     </div>
 </div>
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const applyPromoBtn = document.getElementById('applyPromoBtn');
+        const promoCodeInput = document.getElementById('promoCodeInput');
+        const promoMessage = document.getElementById('promoMessage');
+        const appliedPromoId = document.getElementById('appliedPromoId');
+        
+        const subtotalAmountSpan = document.getElementById('subtotalAmount');
+        const discountRow = document.getElementById('discountRow');
+        const discountAmountSpan = document.getElementById('discountAmount');
+        const totalAmountSpan = document.getElementById('totalAmount');
+        
+        const subtotal = parseFloat(subtotalAmountSpan.dataset.amount);
+
+        // Auto-apply if promo is in URL
+        if(promoCodeInput.value.trim() !== '') {
+            validatePromo(promoCodeInput.value.trim());
+        }
+
+        applyPromoBtn.addEventListener('click', function() {
+            const code = promoCodeInput.value.trim();
+            if(!code) return;
+            validatePromo(code);
+        });
+
+        function validatePromo(code) {
+            applyPromoBtn.disabled = true;
+            applyPromoBtn.innerHTML = 'Mengecek...';
+            promoMessage.classList.add('hidden');
+
+            fetch('{{ route("promo.validate") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({
+                    promo_code: code,
+                    target_type: 'ticket',
+                    amount: subtotal
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                applyPromoBtn.disabled = false;
+                applyPromoBtn.innerHTML = 'Gunakan';
+                promoMessage.classList.remove('hidden');
+
+                if(data.valid) {
+                    promoMessage.className = 'text-sm font-bold mt-2 text-green-600';
+                    promoMessage.textContent = data.message;
+                    appliedPromoId.value = data.promo_id;
+
+                    // Update UI
+                    discountRow.classList.remove('hidden');
+                    discountAmountSpan.textContent = '- Rp ' + new Intl.NumberFormat('id-ID').format(data.discount_amount);
+                    totalAmountSpan.textContent = 'Rp ' + new Intl.NumberFormat('id-ID').format(subtotal - data.discount_amount);
+                } else {
+                    promoMessage.className = 'text-sm font-bold mt-2 text-red-600';
+                    promoMessage.textContent = data.message;
+                    appliedPromoId.value = '';
+
+                    // Reset UI
+                    discountRow.classList.add('hidden');
+                    totalAmountSpan.textContent = 'Rp ' + new Intl.NumberFormat('id-ID').format(subtotal);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                applyPromoBtn.disabled = false;
+                applyPromoBtn.innerHTML = 'Gunakan';
+            });
+        }
+    });
+</script>
+@endpush
 @endsection

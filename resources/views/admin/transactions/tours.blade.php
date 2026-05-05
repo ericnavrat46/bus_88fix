@@ -76,10 +76,6 @@
                             </span>
                         </td>
                         <td class="px-6 py-4 text-sm">
-                            <div class="flex gap-2">
-                                @if($booking->payment_proof && $booking->payment_status !== 'paid')
-                                <button onclick="openProofModal('{{ asset('storage/' . $booking->payment_proof) }}', '{{ route('admin.tour.approve-manual', $booking) }}')" class="btn-primary btn-sm">Periksa Bukti</button>
-                                @endif
                                 <a href="{{ route('admin.transactions.tours.show', $booking) }}" class="btn-secondary btn-sm">Detail</a>
                             </div>
                         </td>
@@ -93,30 +89,4 @@
         </div>
     </div>
 </div>
-
-{{-- Proof Modal --}}
-<div id="proof-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-dark/50 backdrop-blur-sm">
-    <div class="bg-white rounded-3xl p-8 max-w-lg w-full shadow-2xl">
-        <h3 class="text-xl font-black text-dark mb-6">Verifikasi Pembayaran Manual</h3>
-        <img id="modal-proof-img" src="" class="w-full rounded-2xl border-2 border-gray-warm-100 mb-8 max-h-[400px] object-contain">
-        <div class="flex gap-4">
-            <button onclick="closeProofModal()" class="btn-secondary flex-1 py-3 font-bold">TUTUP</button>
-            <form id="approve-form" method="POST" class="flex-1">
-                @csrf
-                <button type="submit" class="btn-primary w-full py-3 font-bold">SETUJUI PEMBAYARAN</button>
-            </form>
-        </div>
-    </div>
-</div>
-
-<script>
-    function openProofModal(imgSrc, actionUrl) {
-        document.getElementById('modal-proof-img').src = imgSrc;
-        document.getElementById('approve-form').action = actionUrl;
-        document.getElementById('proof-modal').classList.remove('hidden');
-    }
-    function closeProofModal() {
-        document.getElementById('proof-modal').classList.add('hidden');
-    }
-</script>
 @endsection

@@ -54,30 +54,45 @@ class TourController extends Controller
             'latitude' => 'nullable|numeric',
             'longitude' => 'nullable|numeric',
             'notes' => 'nullable|string',
+            'applied_promo_id' => 'nullable|exists:promo_banners,id',
         ]);
 
         $finalPricePerPerson = $package->final_price;
-        $totalPrice = $finalPricePerPerson * $validated['passenger_count'];
+        $subtotal = $finalPricePerPerson * $validated['passenger_count'];
         $user = auth()->user();
 
-        $booking = DB::transaction(function () use ($package, $validated, $totalPrice, $user) {
+        $booking = DB::transaction(function () use ($package, $validated, $subtotal, $user) {
+            $discountAmount = 0;
+            $promo = null;
+
+            if (!empty($validated['applied_promo_id'])) {
+                $promo = \App\Models\PromoBanner::find($validated['applied_promo_id']);
+                if ($promo && $promo->isValidFor('tour')) {
+                    $discountAmount = $promo->calculateDiscount($subtotal);
+                    $promo->increment('used_quota');
+                }
+            }
+
+            $totalPrice = $subtotal - $discountAmount;
+
             $booking = TourBooking::create([
                 'booking_code' => TourBooking::generateBookingCode(),
                 'user_id' => $user->id,
                 'tour_package_id' => $package->id,
+                'promo_banner_id' => $promo ? $promo->id : null,
                 'travel_date' => $validated['travel_date'],
                 'passenger_count' => $validated['passenger_count'],
                 'total_price' => $totalPrice,
+                'discount_amount' => $discountAmount,
                 'payment_status' => 'pending',
                 'latitude' => $validated['latitude'] ?? null,
                 'longitude' => $validated['longitude'] ?? null,
                 'notes' => $validated['notes'],
             ]);
 
-            // Increment Flash Sale Quota if active
-            if ($flash = $package->active_flash_sale) {
-                $flash->increment('used_quota');
-            }
+            // Note: Currently we are adjusting total_price directly.
+            // If Midtrans requires item details, TourController currently passes the single total_price as 1 quantity.
+            // So we'll pass the discounted total_price.
 
             return $booking;
         });
@@ -99,20 +114,31 @@ class TourController extends Controller
         $snapToken = $booking->snap_token;
 
         if (!$snapToken) {
+            $itemDetails = [
+                [
+                    'id' => $booking->booking_code,
+                    'price' => (int) ($booking->total_price + $booking->discount_amount),
+                    'quantity' => 1,
+                    'name' => "Paket Wisata: {$booking->tourPackage->name}",
+                ]
+            ];
+
+            if ($booking->discount_amount > 0) {
+                $itemDetails[] = [
+                    'id' => 'PROMO-' . $booking->booking_code,
+                    'price' => -(int) $booking->discount_amount,
+                    'quantity' => 1,
+                    'name' => 'Diskon Promo',
+                ];
+            }
+
             $params = $this->midtrans->buildTransactionParams(
                 $booking->booking_code,
                 (int) $booking->total_price,
                 $user->name,
                 $user->email,
                 $user->phone ?? '',
-                [
-                    [
-                        'id' => $booking->booking_code,
-                        'price' => (int) $booking->total_price,
-                        'quantity' => 1,
-                        'name' => "Paket Wisata: {$booking->tourPackage->name}",
-                    ]
-                ]
+                $itemDetails
             );
 
             $snapToken = $this->midtrans->createSnapToken($params);

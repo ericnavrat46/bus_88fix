@@ -61,25 +61,8 @@ class Schedule extends Model
         return $this->available_seats - count($this->booked_seats);
     }
 
-    public function flashSale(): MorphOne
-    {
-        return $this->morphOne(FlashSale::class, 'target');
-    }
-
-    public function getActiveFlashSaleAttribute()
-    {
-        return $this->flashSale()->active()->first();
-    }
-
     public function getFinalPriceAttribute()
     {
-        $flash = $this->active_flash_sale;
-        if (!$flash) return $this->price;
-
-        if ($flash->discount_type === 'percentage') {
-            return $this->price * (1 - ($flash->discount_value / 100));
-        }
-
-        return max(0, $this->price - $flash->discount_value);
+        return $this->price;
     }
 }

@@ -354,10 +354,27 @@
             <div class="swiper-wrapper">
                 @foreach($promoBanners as $banner)
                 @php 
-                    $promoUrl = $banner->link && $banner->link !== '#' ? $banner->link : route('promos.show', $banner);
+                    if ($banner->link && $banner->link !== '#') {
+                        $promoUrl = $banner->link;
+                    } else {
+                        switch ($banner->target_type) {
+                            case 'rental':
+                                $promoUrl = route('rental.index') . '?promo=' . $banner->promo_code;
+                                break;
+                            case 'tour':
+                                $promoUrl = route('tour.index') . '?promo=' . $banner->promo_code;
+                                break;
+                            case 'ticket':
+                            default:
+                                $promoUrl = '#search';
+                                break;
+                        }
+                    }
+                    $isExternal = Str::startsWith($promoUrl, 'http') && !Str::contains($promoUrl, request()->getHost());
+                    $target = $isExternal ? '_blank' : '_self';
                 @endphp
                 <div class="swiper-slide relative group cursor-pointer aspect-promo"
-                     onclick="window.open('{{ $promoUrl }}', '_blank')">
+                     onclick="if('{{ $promoUrl }}' === '#search') { document.getElementById('search').scrollIntoView({behavior: 'smooth'}); } else { window.open('{{ $promoUrl }}', '{{ $target }}'); }">
                     {{-- Background Image --}}
                     <img src="{{ $banner->image_url }}" class="absolute inset-0 w-full h-full object-cover transition-transform duration-[5000ms] group-hover:scale-110" alt="{{ $banner->title }}" loading="lazy">
                     
@@ -404,9 +421,7 @@
                                 </div>
                                 @endif
 
-                                @if($banner->link)
-                                <a href="{{ $promoUrl }}" target="_blank" onclick="event.stopPropagation()" class="btn-primary py-4 px-8 shadow-lg shadow-merah-600/20">Gunakan Sekarang</a>
-                                @endif
+                                <a href="{{ $promoUrl }}" target="{{ $target }}" onclick="event.stopPropagation(); if('{{ $promoUrl }}' === '#search') { document.getElementById('search').scrollIntoView({behavior: 'smooth'}); return false; }" class="btn-primary py-4 px-8 shadow-lg shadow-merah-600/20">Gunakan Sekarang</a>
                             </div>
                         </div>
                     </div>

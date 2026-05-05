@@ -30,39 +30,20 @@
                     @if($snapToken)
                         {{-- Midtrans --}}
                         <div class="mb-8">
-                            <h3 class="text-sm font-bold text-gray-warm-400 uppercase mb-4 tracking-wider">Opsi 1: Otomatis (Midtrans)</h3>
+                            <h3 class="text-sm font-bold text-gray-warm-400 uppercase mb-4 tracking-wider text-center">Pembayaran Instan</h3>
                             <button id="pay-button" class="btn-primary w-full py-4 text-lg font-bold shadow-lg flex items-center justify-center gap-2">
                                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
                                  BAYAR SEKARANG
                             </button>
-                            <p class="text-[10px] text-gray-warm-400 text-center mt-3 italic">Mendukung: VA, E-Wallet (Gopay, ShopeePay), Kartu Kredit</p>
-                        </div>
-
-                        <div class="flex items-center gap-4 mb-8">
-                            <div class="h-px flex-1 bg-gray-warm-100"></div>
-                            <span class="text-[10px] font-bold text-gray-warm-300">ATAU</span>
-                            <div class="h-px flex-1 bg-gray-warm-100"></div>
-                        </div>
-
-                        {{-- Manual --}}
-                        <div>
-                            <h3 class="text-sm font-bold text-gray-warm-400 uppercase mb-4 tracking-wider">Opsi 2: Transfer Manual</h3>
-                            <div class="p-4 bg-gray-warm-50 rounded-xl mb-4 text-xs">
-                                <p class="text-gray-warm-500 mb-2">Transfer ke Rekening BRI:</p>
-                                <p class="text-base font-black text-dark">1234-5678-9012-345</p>
-                                <p class="text-gray-warm-400">a.n. PT Bus 88 Merah Putih</p>
-                            </div>
-                            
-                            <form action="{{ route('tour.upload-proof', $booking) }}" method="POST" enctype="multipart/form-data" class="space-y-3">
-                                @csrf
-                                <input type="file" name="payment_proof" class="input-field py-2 text-xs" required accept="image/*">
-                                <button type="submit" class="btn-secondary w-full py-3 font-bold text-sm">UNGGAH BUKTI BAYAR</button>
-                            </form>
+                            <p class="text-xs text-emerald-600 text-center mt-4 italic font-medium">Virtual Account, E-Wallet, Kartu Kredit • Otomatis Terverifikasi</p>
                         </div>
                     @else
-                        <div class="p-6 bg-red-50 border border-red-100 rounded-2xl text-center">
-                            <p class="text-red-700 font-medium">Sistem pembayaran sedang sibuk. Silakan coba beberapa saat lagi.</p>
-                            <a href="{{ route('dashboard') }}" class="btn-secondary btn-sm mt-4">Ke Dashboard</a>
+                        <div class="p-8 bg-amber-50 border border-amber-200 rounded-2xl text-center">
+                            <div class="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4 text-amber-600">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                            </div>
+                            <h3 class="font-bold text-amber-900 mb-2">Sistem Pembayaran Sedang Kendala</h3>
+                            <p class="text-sm text-amber-800">Maaf, sistem pembayaran otomatis kami sedang mengalami gangguan teknis. Mohon coba beberapa saat lagi atau hubungi layanan pelanggan kami.</p>
                         </div>
                     @endif
                 </div>

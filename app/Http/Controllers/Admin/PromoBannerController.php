@@ -59,6 +59,12 @@ class PromoBannerController extends Controller
             'link' => 'nullable|url',
             'is_active' => 'nullable|boolean',
             'sort_order' => 'required|integer|min:0',
+            'target_type' => 'required|in:all,ticket,rental,tour',
+            'discount_type' => 'required|in:percent,fixed',
+            'discount_value' => 'nullable|numeric|min:0',
+            'min_transaction' => 'nullable|numeric|min:0',
+            'max_discount' => 'nullable|numeric|min:0',
+            'quota' => 'required|integer|min:0',
         ]);
 
         if ($request->hasFile('image')) {
@@ -92,6 +98,12 @@ class PromoBannerController extends Controller
             'link' => 'nullable|url',
             'is_active' => 'nullable|boolean',
             'sort_order' => 'required|integer|min:0',
+            'target_type' => 'required|in:all,ticket,rental,tour',
+            'discount_type' => 'required|in:percent,fixed',
+            'discount_value' => 'nullable|numeric|min:0',
+            'min_transaction' => 'nullable|numeric|min:0',
+            'max_discount' => 'nullable|numeric|min:0',
+            'quota' => 'required|integer|min:0',
         ]);
 
         if ($request->hasFile('image')) {

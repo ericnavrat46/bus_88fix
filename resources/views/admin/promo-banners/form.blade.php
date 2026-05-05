@@ -71,6 +71,50 @@
                     <input type="number" name="sort_order" value="{{ old('sort_order', $banner->sort_order ?? 0) }}" class="input-field" min="0" required>
                 </div>
 
+                {{-- Target Type --}}
+                <div>
+                    <label class="label-field">Berlaku Untuk</label>
+                    <select name="target_type" class="select-field" required>
+                        <option value="all" {{ old('target_type', $banner->target_type ?? 'all') == 'all' ? 'selected' : '' }}>Semua Layanan</option>
+                        <option value="ticket" {{ old('target_type', $banner->target_type ?? '') == 'ticket' ? 'selected' : '' }}>Tiket Bus</option>
+                        <option value="rental" {{ old('target_type', $banner->target_type ?? '') == 'rental' ? 'selected' : '' }}>Sewa Bus</option>
+                        <option value="tour" {{ old('target_type', $banner->target_type ?? '') == 'tour' ? 'selected' : '' }}>Paket Wisata</option>
+                    </select>
+                </div>
+
+                {{-- Discount Type --}}
+                <div>
+                    <label class="label-field">Tipe Diskon</label>
+                    <select name="discount_type" id="discountType" class="select-field" required>
+                        <option value="percent" {{ old('discount_type', $banner->discount_type ?? 'percent') == 'percent' ? 'selected' : '' }}>Persentase (%)</option>
+                        <option value="fixed" {{ old('discount_type', $banner->discount_type ?? '') == 'fixed' ? 'selected' : '' }}>Nominal (Rp)</option>
+                    </select>
+                </div>
+
+                {{-- Discount Value --}}
+                <div>
+                    <label class="label-field">Nilai Diskon</label>
+                    <input type="number" name="discount_value" value="{{ old('discount_value', isset($banner->discount_value) ? (float)$banner->discount_value : '') }}" class="input-field" min="0" step="0.01">
+                </div>
+
+                {{-- Max Discount --}}
+                <div id="maxDiscountContainer">
+                    <label class="label-field">Maksimal Diskon (Rp) <span class="text-[10px] text-gray-500 font-normal ml-2">Opsional</span></label>
+                    <input type="number" name="max_discount" value="{{ old('max_discount', isset($banner->max_discount) ? (float)$banner->max_discount : '') }}" class="input-field" min="0">
+                </div>
+
+                {{-- Min Transaction --}}
+                <div>
+                    <label class="label-field">Minimal Transaksi (Rp) <span class="text-[10px] text-gray-500 font-normal ml-2">Opsional</span></label>
+                    <input type="number" name="min_transaction" value="{{ old('min_transaction', isset($banner->min_transaction) ? (float)$banner->min_transaction : '') }}" class="input-field" min="0">
+                </div>
+
+                {{-- Quota --}}
+                <div>
+                    <label class="label-field">Kuota Penggunaan <span class="text-[10px] text-gray-500 font-normal ml-2">0 = Tanpa batas</span></label>
+                    <input type="number" name="quota" value="{{ old('quota', $banner->quota ?? 0) }}" class="input-field" min="0" required>
+                </div>
+
                 {{-- Dates --}}
                 <div>
                     <label class="label-field">Tanggal Mulai <span class="text-red-500">*</span></label>
@@ -203,6 +247,20 @@
         
         // Initial char count
         charCount.textContent = `${description.value.length}/200`;
+
+        // Max discount toggle
+        const discountType = document.getElementById('discountType');
+        const maxDiscountContainer = document.getElementById('maxDiscountContainer');
+        function toggleMaxDiscount() {
+            if (discountType.value === 'percent') {
+                maxDiscountContainer.style.display = 'block';
+            } else {
+                maxDiscountContainer.style.display = 'none';
+                document.querySelector('input[name="max_discount"]').value = '';
+            }
+        }
+        discountType.addEventListener('change', toggleMaxDiscount);
+        toggleMaxDiscount();
     });
 </script>
 @endpush

@@ -87,44 +87,22 @@
                         @if($snapToken)
                             {{-- Midtrans Option --}}
                             <div class="p-6 bg-white rounded-xl border border-emerald-100 shadow-sm text-center">
-                                <h3 class="font-bold text-dark mb-3">Opsi 1: Pembayaran Instan</h3>
+                                <h3 class="font-bold text-dark mb-3 text-lg">Pembayaran Instan</h3>
                                 <button id="pay-button" class="btn-primary w-full text-center text-lg py-4 animate-pulse-glow">
                                     <svg class="w-5 h-5 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
-                                    Bayar via Midtrans
+                                    Bayar Sekarang
                                 </button>
-                                <p class="text-[10px] text-emerald-600 mt-3 italic font-medium">Otomatis Terverifikasi • VA, E-Wallet, Kartu Kredit</p>
-                            </div>
-
-                            <div class="flex items-center gap-4 py-2">
-                                <div class="h-px flex-1 bg-gray-warm-200"></div>
-                                <span class="text-[10px] font-bold text-gray-warm-400 uppercase tracking-[0.2em]">ATAU</span>
-                                <div class="h-px flex-1 bg-gray-warm-200"></div>
+                                <p class="text-xs text-emerald-600 mt-4 italic font-medium">Layanan Pembayaran Aman via Midtrans • VA, E-Wallet, Kartu Kredit</p>
                             </div>
                         @else
-                            <div class="p-4 bg-amber-50 border border-amber-200 rounded-xl">
-                                <p class="text-xs text-amber-700 font-medium text-center italic">Pembayaran instan (Midtrans) sedang kendala. Silakan gunakan Transfer Manual di bawah.</p>
+                            <div class="p-8 bg-amber-50 border border-amber-200 rounded-2xl text-center">
+                                <div class="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4 text-amber-600">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                                </div>
+                                <h3 class="font-bold text-amber-900 mb-2">Sistem Pembayaran Sedang Kendala</h3>
+                                <p class="text-sm text-amber-800">Maaf, sistem pembayaran otomatis kami sedang mengalami gangguan teknis. Mohon coba beberapa saat lagi atau hubungi layanan pelanggan kami.</p>
                             </div>
                         @endif
-
-                        {{-- Manual Option --}}
-                        <div class="p-6 bg-gray-warm-50 rounded-2xl border border-gray-warm-100">
-                            <h3 class="font-bold text-dark mb-4 text-center">Opsi 2: Transfer Manual</h3>
-                            <div class="p-4 bg-white rounded-xl border border-gray-warm-200 text-sm mb-4">
-                                <p class="text-gray-warm-500 mb-1 text-center font-medium">Bank BRI</p>
-                                <p class="text-xl font-black text-merah-600 text-center tracking-wider">1234-5678-9012-345</p>
-                                <p class="text-[10px] text-gray-warm-400 text-center uppercase mt-1">a.n. PT Bus 88 Merah Putih</p>
-                            </div>
-                            
-                            <form action="{{ route('booking.upload-proof', $booking) }}" method="POST" enctype="multipart/form-data" class="space-y-4">
-                                @csrf
-                                <div>
-                                    <label class="label-field text-xs">Unggah Bukti Transfer</label>
-                                    <input type="file" name="payment_proof" class="input-field py-2.5 text-xs bg-white" required accept="image/*">
-                                </div>
-                                <button type="submit" class="btn-secondary w-full py-3.5 font-bold uppercase tracking-widest text-[11px]">Unggah Bukti & Konfirmasi</button>
-                            </form>
-                            <p class="text-[9px] text-gray-warm-400 text-center mt-3">*Verifikasi manual oleh admin (max 1x24 jam)</p>
-                        </div>
                     </div>
                 </div>
             </div>

@@ -87,20 +87,35 @@ class RentalController extends Controller
         $snapToken = $rental->snap_token;
 
         if (!$snapToken) {
+            $subtotal = $rental->total_price;
+            $discount = $rental->discount_amount ?? 0;
+            $finalPrice = $subtotal - $discount;
+
+            $itemDetails = [
+                [
+                    'id' => $rentalCode,
+                    'price' => (int) $subtotal,
+                    'quantity' => 1,
+                    'name' => "Sewa Bus - {$rental->destination} ({$rental->duration_days} hari)",
+                ]
+            ];
+
+            if ($discount > 0) {
+                $itemDetails[] = [
+                    'id' => 'DISC-' . $rentalCode,
+                    'price' => -(int) $discount,
+                    'quantity' => 1,
+                    'name' => 'Diskon Promo',
+                ];
+            }
+
             $params = $this->midtrans->buildTransactionParams(
                 $rentalCode,
-                (int) $rental->total_price,
+                (int) $finalPrice,
                 $user->name,
                 $user->email,
                 $user->phone ?? '',
-                [
-                    [
-                        'id' => $rentalCode,
-                        'price' => (int) $rental->total_price,
-                        'quantity' => 1,
-                        'name' => "Sewa Bus - {$rental->destination} ({$rental->duration_days} hari)",
-                    ]
-                ]
+                $itemDetails
             );
 
             $snapToken = $this->midtrans->createSnapToken($params);
@@ -117,7 +132,7 @@ class RentalController extends Controller
                     [
                         'payable_type' => Rental::class,
                         'payable_id' => $rental->id,
-                        'amount' => $rental->total_price,
+                        'amount' => $finalPrice,
                         'status' => 'pending',
                         'snap_token' => $snapToken,
                     ]
@@ -130,6 +145,55 @@ class RentalController extends Controller
             'snapToken' => $snapToken,
             'clientKey' => config('midtrans.client_key'),
             'snapUrl' => config('midtrans.snap_url'),
+        ]);
+    }
+    public function applyPromo(Request $request, Rental $rental)
+    {
+        if ($rental->user_id !== auth()->id()) {
+            return response()->json(['valid' => false, 'message' => 'Unauthorized'], 403);
+        }
+
+        $request->validate([
+            'promo_code' => 'required|string',
+        ]);
+
+        $promo = \App\Models\PromoBanner::active()
+            ->where('promo_code', strtoupper($request->promo_code))
+            ->first();
+
+        if (!$promo || !$promo->isValidFor('rental')) {
+            return response()->json([
+                'valid' => false,
+                'message' => 'Kode promo tidak ditemukan atau tidak berlaku untuk layanan ini.'
+            ]);
+        }
+
+        if ($promo->min_transaction && $rental->total_price < $promo->min_transaction) {
+            return response()->json([
+                'valid' => false,
+                'message' => 'Minimal transaksi untuk promo ini adalah Rp ' . number_format($promo->min_transaction, 0, ',', '.')
+            ]);
+        }
+
+        $discountAmount = $promo->calculateDiscount($rental->total_price);
+        $finalPrice = $rental->total_price - $discountAmount;
+
+        // Update Rental
+        $rental->update([
+            'promo_banner_id' => $promo->id,
+            'discount_amount' => $discountAmount,
+            // We keep the original total_price set by admin, but we need to pass the final price to Midtrans.
+            // Actually, it's better to store the final price separately or use the discount field.
+            'snap_token' => null, // Reset snap token so it regenerates with new price
+        ]);
+
+        $promo->increment('used_quota');
+
+        return response()->json([
+            'valid' => true,
+            'discount_amount' => $discountAmount,
+            'final_price' => $finalPrice,
+            'message' => 'Promo berhasil digunakan!'
         ]);
     }
 }

@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Route;
 use App\Models\Schedule;
-use App\Models\FlashSale;
 use Illuminate\Http\Request;
 
 class HomeController extends Controller
@@ -75,11 +74,6 @@ class HomeController extends Controller
         }
 
         return view('schedules.search-results', $viewData);
-    }
-
-    public function promoDetail(FlashSale $flashSale)
-    {
-        return view('promo.detail', compact('flashSale'));
     }
 
 }

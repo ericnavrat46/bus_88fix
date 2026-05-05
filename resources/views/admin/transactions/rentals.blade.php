@@ -76,31 +76,6 @@
                     <button @click="showAction = !showAction" class="btn-primary btn-sm">Proses</button>
                     @endif
 
-                    @if($rental->payment_proof && $rental->payment_status !== 'paid')
-                    <div x-data="{ modal: false }">
-                        <button @click="modal = true" class="px-3 py-1.5 bg-emerald-100 text-emerald-700 rounded-lg text-xs font-bold hover:bg-emerald-200 transition-colors">
-                            Lihat Bukti Bayar
-                        </button>
-                        
-                        {{-- Modal Bukti --}}
-                        <div x-show="modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-dark/50 backdrop-blur-sm text-left" style="display: none;">
-                            <div @click.away="modal = false" class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl">
-                                <div class="flex justify-between items-center mb-4">
-                                    <h3 class="font-bold text-dark text-lg">Bukti Sewa #{{ $rental->rental_code }}</h3>
-                                    <button @click="modal = false" class="text-gray-warm-400 hover:text-dark text-xl font-black">✕</button>
-                                </div>
-                                <img src="{{ asset('storage/' . $rental->payment_proof) }}" class="w-full rounded-xl mb-6 shadow-lg border border-gray-warm-100 max-h-[60vh] object-contain">
-                                <div class="flex gap-3">
-                                    <form method="POST" action="{{ route('admin.rental.approve-manual', $rental) }}" class="flex-1">
-                                        @csrf
-                                        <button type="submit" class="w-full btn-primary py-3 font-bold">SETUJUI PEMBAYARAN</button>
-                                    </form>
-                                    <button @click="modal = false" class="flex-1 btn-secondary py-3 font-bold">TUTUP</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    @endif
                 </div>
             </div>
         </div>

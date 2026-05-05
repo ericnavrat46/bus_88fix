@@ -52,4 +52,47 @@ class PublicPromoController extends Controller
         }
         return view('promos.show', compact('promo'));
     }
+
+    public function validatePromo(Request $request)
+    {
+        $request->validate([
+            'promo_code' => 'required|string',
+            'target_type' => 'required|string|in:ticket,rental,tour',
+            'amount' => 'required|numeric|min:0'
+        ]);
+
+        $promo = PromoBanner::active()
+            ->where('promo_code', strtoupper($request->promo_code))
+            ->first();
+
+        if (!$promo) {
+            return response()->json([
+                'valid' => false,
+                'message' => 'Kode promo tidak ditemukan atau sudah tidak aktif.'
+            ]);
+        }
+
+        if (!$promo->isValidFor($request->target_type)) {
+            return response()->json([
+                'valid' => false,
+                'message' => 'Kode promo ini tidak berlaku untuk layanan ini atau kuota telah habis.'
+            ]);
+        }
+
+        if ($promo->min_transaction && $request->amount < $promo->min_transaction) {
+            return response()->json([
+                'valid' => false,
+                'message' => 'Minimal transaksi untuk promo ini adalah Rp ' . number_format($promo->min_transaction, 0, ',', '.')
+            ]);
+        }
+
+        $discountAmount = $promo->calculateDiscount($request->amount);
+
+        return response()->json([
+            'valid' => true,
+            'discount_amount' => $discountAmount,
+            'message' => 'Promo berhasil digunakan!',
+            'promo_id' => $promo->id
+        ]);
+    }
 }

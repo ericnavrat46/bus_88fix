@@ -18,7 +18,6 @@ use App\Http\Controllers\TourController;
 use App\Http\Controllers\ProfileWebController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\TicketController;
-use App\Http\Controllers\PaymentProofController;
 
 // Admin
 use App\Http\Controllers\Admin\AdminDashboardController;
@@ -28,7 +27,6 @@ use App\Http\Controllers\Admin\ScheduleController;
 use App\Http\Controllers\Admin\TransactionController;
 use App\Http\Controllers\Admin\TourPackageController;
 use App\Http\Controllers\Admin\ReportController;
-use App\Http\Controllers\Admin\FlashSaleController;
 use App\Http\Controllers\Admin\PromoBannerController;
 
 // ─────────────────────────────────────────────
@@ -44,6 +42,7 @@ Route::get('/tour/{package:slug}', [TourController::class, 'show'])->name('tour.
 // Promo
 Route::get('/promo', [PublicPromoController::class, 'index'])->name('promos.index');
 Route::get('/promo/{promo}', [PublicPromoController::class, 'show'])->name('promos.show');
+Route::post('/promo/validate', [PublicPromoController::class, 'validatePromo'])->name('promo.validate');
 
 // Static Pages
 Route::get('/about',   [PageController::class, 'about'])->name('about');
@@ -133,11 +132,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/charter', [RentalController::class, 'index'])->name('rental.index');
     Route::post('/charter', [RentalController::class, 'store'])->name('rental.store');
     Route::get('/charter/{rental}/pay', [RentalController::class, 'pay'])->name('rental.pay');
+    Route::post('/charter/{rental}/apply-promo', [RentalController::class, 'applyPromo'])->name('rental.apply-promo');
 
-    // Payment Proof
-    Route::post('/booking/{booking}/upload-proof', [PaymentProofController::class, 'uploadBookingProof'])->name('booking.upload-proof');
-    Route::post('/rental/{rental}/upload-proof', [PaymentProofController::class, 'uploadRentalProof'])->name('rental.upload-proof');
-    Route::post('/tour/{booking}/upload-proof', [PaymentProofController::class, 'uploadTourProof'])->name('tour.upload-proof');
+
 
     // Tour Booking
     Route::get('/tour/{package:slug}/book', [TourController::class, 'bookingForm'])->name('tour.booking');
@@ -164,7 +161,6 @@ Route::middleware(['auth', \App\Http\Middleware\AdminMiddleware::class])
         Route::resource('routes', RouteController::class);
         Route::resource('schedules', ScheduleController::class);
         Route::resource('tour-packages', TourPackageController::class);
-        Route::resource('flash-sales', FlashSaleController::class);
         Route::resource('promo-banners', PromoBannerController::class);
         Route::post('/promo-banners/{promo_banner}/toggle', [PromoBannerController::class, 'toggleStatus'])->name('promo-banners.toggle');
 
@@ -182,9 +178,6 @@ Route::middleware(['auth', \App\Http\Middleware\AdminMiddleware::class])
 
         // Manual Payment
         Route::patch('/booking/{booking}/status', [TransactionController::class, 'updateBookingStatus'])->name('booking.status');
-        Route::post('/booking/{booking}/approve-manual', [TransactionController::class, 'approveManualBookingPayment'])->name('booking.approve-manual');
-        Route::post('/rental/{rental}/approve-manual', [TransactionController::class, 'approveManualRentalPayment'])->name('rental.approve-manual');
-        Route::post('/tour/{booking}/approve-manual', [TransactionController::class, 'approveManualTourPayment'])->name('tour.approve-manual');
 
         // Reports
         Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');

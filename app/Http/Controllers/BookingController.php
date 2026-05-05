@@ -60,6 +60,7 @@ class BookingController extends Controller
             'passengers.*.id_number' => 'nullable|string|max:30',
             'passengers.*.phone' => 'nullable|string|max:20',
             'notes' => 'nullable|string',
+            'applied_promo_id' => 'nullable|exists:promo_banners,id',
         ]);
 
         $schedule->load(['bus', 'route']);
@@ -69,24 +70,33 @@ class BookingController extends Controller
             $booking = DB::transaction(function () use ($validated, $schedule, $user) {
                 $totalSeats = count($validated['passengers']);
                 $finalPricePerSeat = $schedule->final_price;
-                $totalPrice = $finalPricePerSeat * $totalSeats;
+                $subtotal = $finalPricePerSeat * $totalSeats;
+                $discountAmount = 0;
+                $promo = null;
+
+                if (!empty($validated['applied_promo_id'])) {
+                    $promo = \App\Models\PromoBanner::find($validated['applied_promo_id']);
+                    if ($promo && $promo->isValidFor('ticket')) {
+                        $discountAmount = $promo->calculateDiscount($subtotal);
+                        $promo->increment('used_quota');
+                    }
+                }
+
+                $totalPrice = $subtotal - $discountAmount;
                 $bookingCode = Booking::generateBookingCode();
 
                 $booking = Booking::create([
                     'booking_code' => $bookingCode,
                     'user_id' => $user->id,
                     'schedule_id' => $schedule->id,
+                    'promo_banner_id' => $promo ? $promo->id : null,
                     'total_seats' => $totalSeats,
                     'total_price' => $totalPrice,
+                    'discount_amount' => $discountAmount,
                     'payment_status' => 'pending',
                     'midtrans_order_id' => $bookingCode,
                     'expired_at' => now()->addHours(2),
                 ]);
-
-                // Increment Flash Sale Quota if active
-                if ($flash = $schedule->active_flash_sale) {
-                    $flash->increment('used_quota');
-                }
 
                 foreach ($validated['passengers'] as $passenger) {
                     BookingPassenger::create([
@@ -106,6 +116,15 @@ class BookingController extends Controller
                         'price' => (int) $finalPricePerSeat,
                         'quantity' => 1,
                         'name' => "Kursi {$passenger['seat_number']} - {$schedule->route->origin} ke {$schedule->route->destination}",
+                    ];
+                }
+
+                if ($discountAmount > 0 && $promo) {
+                    $itemDetails[] = [
+                        'id' => 'PROMO-' . $promo->promo_code,
+                        'price' => -(int) $discountAmount,
+                        'quantity' => 1,
+                        'name' => 'Diskon Promo: ' . $promo->promo_code
                     ];
                 }
 
@@ -180,6 +199,15 @@ class BookingController extends Controller
                     'price'    => (int) $finalPricePerSeat,
                     'quantity' => 1,
                     'name'     => "Kursi {$passenger->seat_number} - {$booking->schedule->route->origin} ke {$booking->schedule->route->destination}",
+                ];
+            }
+
+            if ($booking->discount_amount > 0) {
+                $itemDetails[] = [
+                    'id'       => 'PROMO-' . $booking->booking_code,
+                    'price'    => -(int) $booking->discount_amount,
+                    'quantity' => 1,
+                    'name'     => 'Diskon Promo',
                 ];
             }
 

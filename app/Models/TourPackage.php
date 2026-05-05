@@ -49,16 +49,6 @@ class TourPackage extends Model
         return $this->hasMany(TourBooking::class);
     }
 
-    public function flashSale(): MorphOne
-    {
-        return $this->morphOne(FlashSale::class, 'target');
-    }
-
-    public function getActiveFlashSaleAttribute()
-    {
-        return $this->flashSale()->active()->first();
-    }
-
     public function reviews()
     {
         return $this->morphMany(Review::class, 'reviewable');
@@ -66,13 +56,6 @@ class TourPackage extends Model
 
     public function getFinalPriceAttribute()
     {
-        $flash = $this->active_flash_sale;
-        if (!$flash) return $this->price_per_person;
-
-        if ($flash->discount_type === 'percentage') {
-            return $this->price_per_person * (1 - ($flash->discount_value / 100));
-        }
-
-        return max(0, $this->price_per_person - $flash->discount_value);
+        return $this->price_per_person;
     }
 }

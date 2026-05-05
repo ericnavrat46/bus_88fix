@@ -110,20 +110,7 @@
                 </div>
             </div>
 
-            {{-- Payment Proof --}}
-            @if($booking->payment_proof)
-            <div class="card p-8">
-                <h3 class="text-base font-bold text-dark mb-4">Bukti Pembayaran</h3>
-                <img src="{{ asset('storage/' . $booking->payment_proof) }}" class="max-w-sm rounded-xl shadow-md border border-gray-warm-100">
 
-                @if($booking->payment_status !== 'paid')
-                <form action="{{ route('admin.tour.approve-manual', $booking) }}" method="POST" class="mt-6">
-                    @csrf
-                    <button type="submit" class="btn-primary px-6">✓ Setujui Pembayaran Ini</button>
-                </form>
-                @endif
-            </div>
-            @endif
         </div>
 
         {{-- Right Column: Customer & Info --}}

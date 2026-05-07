@@ -8,7 +8,6 @@ use App\Models\PromoBanner;
 
 class PromoController extends Controller
 {
-    // GET /api/promo/active
     public function getActivePromo()
     {
         $promos = PromoBanner::active()
@@ -23,7 +22,6 @@ class PromoController extends Controller
         ]);
     }
 
-    // POST /api/promo/detail
     public function getPromoDetail(Request $request)
     {
         $request->validate(['promo_id' => 'required|integer']);
@@ -39,7 +37,6 @@ class PromoController extends Controller
         ]);
     }
 
-    // POST /api/promo/apply
     public function applyPromo(Request $request)
     {
         $request->validate([
@@ -58,8 +55,6 @@ class PromoController extends Controller
 
         if ($promo->is_quota_habis)
             return response()->json(['success' => false, 'message' => 'Kuota promo sudah habis.'], 422);
-
-        // Cek minimum transaksi
         if ($promo->min_transaction > 0 && $request->original_price < $promo->min_transaction)
             return response()->json([
                 'success' => false,
@@ -80,7 +75,6 @@ class PromoController extends Controller
         ]);
     }
 
-    // POST /api/promo/confirm
     public function confirmPromo(Request $request)
     {
         $request->validate([
@@ -97,8 +91,6 @@ class PromoController extends Controller
 
         return response()->json(['success' => true, 'message' => 'Promo berhasil diterapkan.']);
     }
-
-    // ── Helper ───────────────────────────────────────────────
 
     private function formatPromo(PromoBanner $promo): array
     {

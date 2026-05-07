@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\DB;
 class RentalController extends Controller
 {
 
-    /// 🔥 CREATE RENTAL (WAJIB ADA)
+    /// CREATE RENTAL (WAJIB ADA)
     public function store(Request $request)
     {
         $request->validate([
@@ -128,7 +128,7 @@ class RentalController extends Controller
         $rental->cancelled_at   = now();
         $rental->save();
 
-        // 🔥 NOTIF KE USER — rental dibatalkan
+        //NOTIF KE USER — rental dibatalkan
         \App\Helpers\NotificationHelper::send(
             $rental->user_id,
             'Rental Dibatalkan ❌',
@@ -182,7 +182,7 @@ class RentalController extends Controller
         $rental->payment_status = 'pending';
         $rental->save();
 
-        // 🔥 NOTIF KE ADMIN — ada bukti bayar masuk
+        // NOTIF KE ADMIN — ada bukti bayar masuk
         $admin = \App\Models\User::where('role', 'admin')->first();
         if ($admin) {
             \App\Helpers\NotificationHelper::send(
@@ -201,7 +201,7 @@ class RentalController extends Controller
     }
 
 
-    // 🔥 CONFIRM PAYMENT — Admin konfirmasi / tolak pembayaran
+    // CONFIRM PAYMENT — Admin konfirmasi / tolak pembayaran
     public function confirmPayment(Request $request)
     {
         $request->validate([
@@ -221,7 +221,7 @@ class RentalController extends Controller
         $rental->payment_status = $request->status;
         $rental->save();
 
-        // 🔥 NOTIF KE USER — kasih tahu hasil konfirmasi
+        // NOTIF KE USER — kasih tahu hasil konfirmasi
         $title = $request->status == 'paid'
             ? 'Pembayaran Dikonfirmasi ✅'
             : 'Pembayaran Ditolak ❌';

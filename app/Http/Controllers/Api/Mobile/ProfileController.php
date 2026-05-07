@@ -29,8 +29,6 @@ class ProfileController extends Controller
             "require_phone" => $user->phone ? false : true
         ]);
     }
-
-    // 🔥 INPUT NOMOR PERTAMA (TANPA OTP)
     public function updatePhone(Request $request)
     {
         $request->validate([
@@ -46,8 +44,6 @@ class ProfileController extends Controller
                 "message" => "User tidak ditemukan"
             ]);
         }
-
-        // ❗ kalau sudah ada nomor, tidak boleh lewat sini
         if($user->phone){
             return response()->json([
                 "status" => false,
@@ -65,7 +61,6 @@ class ProfileController extends Controller
         ]);
     }
 
-    // UPLOAD FOTO AVATAR
     public function uploadAvatar(Request $request)
     {
         $request->validate([
@@ -164,8 +159,6 @@ class ProfileController extends Controller
             "message" => "Password berhasil diubah"
         ]);
     }
-
-    // 🔥 KIRIM OTP KE EMAIL
     public function sendOtp(Request $request)
     {
         $user = User::find($request->user_id);
@@ -190,8 +183,6 @@ class ProfileController extends Controller
             "message" => "OTP dikirim ke email"
         ]);
     }
-
-    // 🔥 VERIFIKASI OTP + UPDATE NOMOR
     public function verifyOtp(Request $request)
     {
         $user = User::find($request->user_id);

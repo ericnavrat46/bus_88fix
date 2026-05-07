@@ -115,10 +115,7 @@ class SeatController extends Controller
                 'created_at'      => now(),
                 'updated_at'      => now()
             ]);
-
-        // =============================
         // SIMPAN PENUMPANG
-        // =============================
         $passengers = $request->passengers ?? [];
 
         foreach ($seats as $index => $seat) {
@@ -133,10 +130,7 @@ class SeatController extends Controller
                 'updated_at'     => now()
             ]);
         }
-
-        // =============================
         // RETURN RESPONSE
-        // =============================
         $route = DB::table('routes')
             ->join('schedules', 'schedules.route_id', '=', 'routes.id')
             ->join('buses', 'schedules.bus_id', '=', 'buses.id')
@@ -170,11 +164,7 @@ class SeatController extends Controller
             ]
         ]);
     }
-
-
-    // =============================
     // GET SCHEDULES
-    // =============================
     public function getSchedules()
     {
         $schedules = DB::table('schedules')

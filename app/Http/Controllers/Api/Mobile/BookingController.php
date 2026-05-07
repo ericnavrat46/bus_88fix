@@ -128,10 +128,6 @@ class BookingController extends Controller
         ]);
     }
 
-
-    // ==============================
-    // UPLOAD BUKTI PEMBAYARAN
-    // ==============================
     public function uploadPayment(Request $request)
     {
         $request->validate([

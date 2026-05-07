@@ -41,7 +41,6 @@ class AuthController extends Controller
             "data" => $user
         ]);
     }
-
     // REGISTER
     public function register(Request $request)
     {
@@ -105,10 +104,7 @@ class AuthController extends Controller
             "require_phone" => $user->phone ? false : true
         ]);
     }
-
-    // =========================================
-    // 🔥 FORGOT PASSWORD (OTP)
-    // =========================================
+    // FORGOT PASSWORD (OTP)
     public function forgotPassword(Request $request)
     {
         $request->validate([
@@ -145,8 +141,6 @@ class AuthController extends Controller
             "message" => "OTP berhasil dikirim ke email"
         ]);
     }
-
-    // VERIFY OTP
     public function verifyOtpReset(Request $request)
     {
         $request->validate([
@@ -178,7 +172,6 @@ class AuthController extends Controller
         ]);
     }
 
-    // RESET PASSWORD
     public function resetPassword(Request $request)
     {
         $request->validate([
@@ -216,10 +209,7 @@ class AuthController extends Controller
             "message" => "Password berhasil diubah"
         ]);
     }
-
-    // =========================================
     // 🔔 SAVE FCM TOKEN
-    // =========================================
     public function saveFcmToken(Request $request)
     {
         $request->validate([
@@ -238,9 +228,7 @@ class AuthController extends Controller
             "message" => "FCM token berhasil disimpan"
         ]);
     }
-    // =========================================
         // 🔥 TEST NOTIF
-        // =========================================
         public function testNotif(Request $request)
         {
             $request->validate([

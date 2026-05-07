@@ -24,11 +24,20 @@ class PaymentController extends Controller
      */
     public function create(Request $request)
     {
-        $request->validate([
-            'booking_id' => 'required|exists:bookings,id',
-        ]);
+        $bookingId = $request->booking_id;
 
-        $booking = Booking::findOrFail($request->booking_id);
+        if (!$bookingId) {
+            return response()->json(['status' => false, 'message' => 'booking_id wajib diisi'], 422);
+        }
+
+        // Cari di semua tabel
+        $booking = Booking::find($bookingId)
+            ?? Rental::find($bookingId)
+            ?? \App\Models\TourBooking::find($bookingId);
+
+        if (!$booking) {
+            return response()->json(['status' => false, 'message' => 'Booking tidak ditemukan'], 404);
+        }
 
         try {
             $payment = $this->midtrans->createTransaction($booking);
@@ -44,7 +53,7 @@ class PaymentController extends Controller
 
             return response()->json([
                 'status' => false,
-                'message' => 'Gagal membuat transaksi',
+                'message' => 'Gagal membuat transaksi: ' . $e->getMessage(),
             ], 500);
         }
     }

@@ -8,10 +8,7 @@ use Illuminate\Support\Facades\DB;
 
 class BookingController extends Controller
 {
-
-    // ==============================
     // GET PESANAN USER
-    // ==============================
     public function myBookings($user_id)
     {
         $bookings = DB::table('bookings')
@@ -22,6 +19,9 @@ class BookingController extends Controller
                 'bookings.id',
                 'bookings.booking_code',
                 'bookings.total_price',
+                'bookings.final_price',        
+                'bookings.discount_amount',    
+                'bookings.promo_title',        
                 'bookings.total_seats',
                 'bookings.payment_status',
                 'bookings.payment_proof',
@@ -82,11 +82,7 @@ class BookingController extends Controller
             'data' => $bookings->values()
         ]);
     }
-
-
-    // ==============================
     // DETAIL BOOKING
-    // ==============================
     public function bookingDetail($booking_id)
     {
         $booking = DB::table('bookings')
@@ -97,6 +93,9 @@ class BookingController extends Controller
                 'bookings.id',
                 'bookings.booking_code',
                 'bookings.total_price',
+                'bookings.final_price',        
+                'bookings.discount_amount',   
+                'bookings.promo_title',        
                 'bookings.total_seats',
                 'bookings.payment_status',
                 'bookings.payment_proof',
@@ -129,10 +128,6 @@ class BookingController extends Controller
         ]);
     }
 
-
-    // ==============================
-    // UPLOAD BUKTI PEMBAYARAN
-    // ==============================
     public function uploadPayment(Request $request)
     {
         $request->validate([
@@ -191,39 +186,41 @@ class BookingController extends Controller
             'path' => $path
         ]);
     }
+
     // CANCEL BOOKING
     public function cancel(Request $request, $id)
-{
-    $booking = DB::table('bookings')->where('id', $id)->first();
+    {
+        $booking = DB::table('bookings')->where('id', $id)->first();
 
-    if (!$booking) {
+        if (!$booking) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Data tidak ditemukan'
+            ]);
+        }
+
+        if ($booking->payment_status == 'paid') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Sudah dibayar, hubungi admin'
+            ]);
+        }
+
+        DB::table('bookings')
+            ->where('id', $id)
+            ->update([
+                'payment_status' => 'cancelled',
+                'cancel_reason'  => $request->reason,
+                'cancelled_at'   => now(),
+                'updated_at'     => now(),
+            ]);
+
         return response()->json([
-            'success' => false,
-            'message' => 'Data tidak ditemukan'
+            'success' => true,
+            'message' => 'Booking dibatalkan'
         ]);
     }
 
-    if ($booking->payment_status == 'paid') {
-        return response()->json([
-            'success' => false,
-            'message' => 'Sudah dibayar, hubungi admin'
-        ]);
-    }
-
-    DB::table('bookings')
-        ->where('id', $id)
-        ->update([
-            'payment_status' => 'cancelled',
-            'cancel_reason'  => $request->reason,  // ✅
-            'cancelled_at'   => now(),              // ✅
-            'updated_at'     => now(),
-        ]);
-
-    return response()->json([
-        'success' => true,
-        'message' => 'Booking dibatalkan'
-    ]);
-}
     // FINISH BOOKING
     public function finish($id)
     {
@@ -239,7 +236,8 @@ class BookingController extends Controller
             'message' => 'Selesai'
         ]);
     }
-    //CONFIRM PAYMENT (BARU)
+
+    // CONFIRM PAYMENT (BARU)
     public function confirmPayment(Request $request)
     {
         $request->validate([

@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers\Api\Mobile;
 
+use App\Services\MidtransService;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\TourBooking;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class TourBookingController extends Controller
 {
@@ -179,7 +181,7 @@ class TourBookingController extends Controller
         ]);
     }
 
-    //FUNGSI BARU — Admin konfirmasi / tolak pembayaran
+    // FUNGSI BARU — Admin konfirmasi / tolak pembayaran
     public function confirmPayment(Request $request)
     {
         $request->validate([
@@ -219,5 +221,57 @@ class TourBookingController extends Controller
             'success' => true,
             'message' => 'Status pembayaran berhasil diupdate'
         ]);
+    }
+
+    // ─────────────────────────────────────────────────────────────────
+    // MIDTRANS — Generate Snap Token untuk Tour Booking
+    // Route: POST /api/tour-bookings/midtrans
+    // ─────────────────────────────────────────────────────────────────
+    public function createMidtrans(Request $request)
+    {
+        $request->validate([
+            'booking_id' => 'required|integer',
+        ]);
+
+        $booking = TourBooking::with(['user', 'tourPackage'])->find($request->booking_id);
+
+        if (!$booking) {
+            return response()->json([
+                'status'  => false,
+                'message' => 'Booking tidak ditemukan',
+            ], 404);
+        }
+
+        if (in_array($booking->payment_status, ['paid', 'cancelled', 'expired'])) {
+            return response()->json([
+                'status'  => false,
+                'message' => 'Booking tidak bisa dibayar, status: ' . $booking->payment_status,
+            ], 422);
+        }
+
+        // Jika snap_token sudah ada, langsung kembalikan (hemat request ke Midtrans)
+        if ($booking->snap_token) {
+            return response()->json([
+                'status'     => true,
+                'snap_token' => $booking->snap_token,
+            ]);
+        }
+
+        try {
+            $midtrans = app(MidtransService::class);
+            $payment  = $midtrans->createTourTransaction($booking);
+
+            return response()->json([
+                'status'     => true,
+                'snap_token' => $payment->snap_token,
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Midtrans Tour Error: ' . $e->getMessage());
+
+            return response()->json([
+                'status'  => false,
+                'message' => 'Gagal membuat transaksi: ' . $e->getMessage(),
+            ], 500);
+        }
     }
 }

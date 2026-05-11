@@ -8,11 +8,10 @@ use Illuminate\Support\Facades\DB;
 
 class BusController extends Controller
 {
-    /// 🔥 GET SEMUA BUS AKTIF
     public function index()
     {
         $buses = DB::table('buses')
-            ->where('status', 'active') // hanya bus aktif
+            ->where('status', 'active') 
             ->select(
                 'id',
                 'name',
@@ -31,8 +30,6 @@ class BusController extends Controller
             'data' => $buses
         ]);
     }
-
-    /// 🔥 DETAIL BUS (optional kalau mau)
     public function show($id)
     {
         $bus = DB::table('buses')->where('id', $id)->first();

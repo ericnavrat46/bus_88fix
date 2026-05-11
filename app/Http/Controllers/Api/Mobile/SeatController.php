@@ -8,9 +8,7 @@ use Illuminate\Support\Facades\DB;
 
 class SeatController extends Controller
 {
-    // =============================
     // GET SEAT LAYOUT
-    // =============================
     public function getSeatLayout($schedule_id)
     {
         $schedule = DB::table('schedules')->where('id', $schedule_id)->first();
@@ -22,16 +20,12 @@ class SeatController extends Controller
         }
 
         $bus = DB::table('buses')->where('id', $schedule->bus_id)->first();
-
-        // ✅ FIX: Jika tanggal perjalanan sudah lewat, kembalikan kursi kosong
         if ($schedule->departure_date < now()->toDateString()) {
             return response()->json([
                 'capacity' => $bus->capacity,
                 'booked_seats' => []
             ]);
         }
-
-        // ✅ FIX: hanya ambil kursi yang pending & paid
         $bookedSeats = DB::table('booking_passengers')
             ->join('bookings', 'booking_passengers.booking_id', '=', 'bookings.id')
             ->where('bookings.schedule_id', $schedule_id)
@@ -43,11 +37,7 @@ class SeatController extends Controller
             'booked_seats' => $bookedSeats
         ]);
     }
-
-
-    // =============================
     // BOOK SEATS
-    // =============================
     public function bookSeats(Request $request)
     {
         $request->validate([
@@ -62,19 +52,13 @@ class SeatController extends Controller
         $seats = $request->seats;
         $passenger_name = $request->passenger_name;
         $phone = $request->phone;
-
-        // =============================
         // MAX 5 SEATS
-        // =============================
         if (count($seats) > 5) {
             return response()->json([
                 'message' => 'Maksimal booking 5 kursi'
             ], 400);
         }
-
-        // =============================
         // GET SCHEDULE
-        // =============================
         $schedule = DB::table('schedules')->where('id', $schedule_id)->first();
 
         if (!$schedule) {
@@ -83,16 +67,12 @@ class SeatController extends Controller
             ], 404);
         }
 
-        // ✅ FIX: Cek jadwal sudah lewat, tidak bisa booking
         if ($schedule->departure_date < now()->toDateString()) {
             return response()->json([
                 'message' => 'Jadwal ini sudah selesai, tidak bisa booking'
             ], 400);
         }
-
-        // =============================
         // CEK KURSI SUDAH DIBOOKING
-        // =============================
         foreach ($seats as $seat) {
 
             $exists = DB::table('booking_passengers')
@@ -108,33 +88,34 @@ class SeatController extends Controller
                 ], 400);
             }
         }
-
-        // =============================
         // HITUNG TOTAL
-        // =============================
         $totalSeats = count($seats);
         $totalPrice = $schedule->price * $totalSeats;
 
-        // =============================
-        // BUAT BOOKING
-        // =============================
-        $expiredAt = now()->addHour(); // ← batas waktu 1 jam
+        $expiredAt = now()->addHour();
 
-        $bookingId = DB::table('bookings')->insertGetId([
-            'booking_code'   => 'BK-' . time(),
-            'user_id'        => $user_id,
-            'schedule_id'    => $schedule_id,
-            'total_seats'    => $totalSeats,
-            'total_price'    => $totalPrice,
-            'payment_status' => 'pending',
-            'expired_at'     => $expiredAt,  // ← tambah ini
-            'created_at'     => now(),
-            'updated_at'     => now()
-        ]);
+            // Ambil data promo dari request
+            $promoId       = $request->promo_id ?? null;
+            $promoTitle    = $request->promo_title ?? null;
+            $discountAmount = $request->discount_amount ?? 0;
+            $finalPrice    = $request->final_price ?? $totalPrice;
 
-        // =============================
+            $bookingId = DB::table('bookings')->insertGetId([
+                'booking_code'    => 'BK-' . time(),
+                'user_id'         => $user_id,
+                'schedule_id'     => $schedule_id,
+                'total_seats'     => $totalSeats,
+                'total_price'     => $totalPrice,
+                'final_price'     => $finalPrice,       
+                'discount_amount' => $discountAmount,    
+                'promo_title'     => $promoTitle,        
+                'promo_id'        => $promoId,           
+                'payment_status'  => 'pending',
+                'expired_at'      => $expiredAt,
+                'created_at'      => now(),
+                'updated_at'      => now()
+            ]);
         // SIMPAN PENUMPANG
-        // =============================
         $passengers = $request->passengers ?? [];
 
         foreach ($seats as $index => $seat) {
@@ -149,10 +130,7 @@ class SeatController extends Controller
                 'updated_at'     => now()
             ]);
         }
-
-        // =============================
         // RETURN RESPONSE
-        // =============================
         $route = DB::table('routes')
             ->join('schedules', 'schedules.route_id', '=', 'routes.id')
             ->join('buses', 'schedules.bus_id', '=', 'buses.id')
@@ -173,21 +151,20 @@ class SeatController extends Controller
                 'booking_code'   => 'BK-' . time(),
                 'total_price'    => $totalPrice,
                 'total_seats'    => $totalSeats,
+                'final_price'     => $finalPrice,        
+                'discount_amount' => $discountAmount,    
+                'promo_title'     => $promoTitle,
                 'seats'          => $seats,
                 'origin'         => $route->origin ?? '',
                 'destination'    => $route->destination ?? '',
                 'departure_date' => $route->departure_date ?? '',
                 'departure_time' => $route->departure_time ?? '',
                 'bus_name'       => $route->bus_name ?? '',
-                'expired_at'     => $expiredAt,  // ← tambah ini
+                'expired_at'     => $expiredAt,  
             ]
         ]);
     }
-
-
-    // =============================
     // GET SCHEDULES
-    // =============================
     public function getSchedules()
     {
         $schedules = DB::table('schedules')

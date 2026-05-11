@@ -5,7 +5,8 @@ namespace App\Services;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use App\Models\Payment;   
-use App\Models\Booking;   
+use App\Models\Booking;
+use App\Models\TourBooking;
 
 class MidtransService
 {
@@ -19,10 +20,6 @@ class MidtransService
         $this->baseUrl = config('midtrans.base_url');
         $this->isProduction = config('midtrans.is_production');
     }
-
-    /**
-     * Create Snap Token for payment
-     */
     public function createSnapToken(array $params): ?string
     {
         $snapUrl = $this->isProduction
@@ -49,10 +46,6 @@ class MidtransService
             return null;
         }
     }
-
-    /**
-     * Build transaction parameters for Snap
-     */
     public function buildTransactionParams(
         string $orderId,
         int $grossAmount,
@@ -77,14 +70,8 @@ class MidtransService
             ],
         ];
     }
-
-    /**
-     * CREATE TRANSACTION (UNTUK MOBILE & API)
-     * 🔥 FIX: cek dulu apakah sudah ada payment pending, kalau ada pakai yang lama
-     */
     public function createTransaction(Booking $booking)
     {
-        // 🔥 CEK EXISTING PAYMENT - hindari duplicate
         $existing = Payment::where('payable_id', $booking->id)
             ->where('payable_type', Booking::class)
             ->where('status', 'pending')
@@ -96,25 +83,20 @@ class MidtransService
             return $existing;
         }
 
-        // Generate order ID baru
-        $orderId = 'BOOK-' . $booking->id . '-' . time();
+        $orderId   = 'BOOK-' . $booking->id . '-' . time();
+        $firstName = $booking->user->name  ?? 'User';
+        $email     = $booking->user->email ?? 'test@mail.com';
+        $phone     = $booking->user->phone ?? '08123456789';
 
-        // Ambil data user
-        $firstName = $booking->user->name ?? 'User';
-        $email = $booking->user->email ?? 'test@mail.com';
-        $phone = $booking->user->phone ?? '08123456789';
-
-        // Item detail
         $items = [
             [
-                'id' => $booking->id,
-                'price' => (int) $booking->total_price,
+                'id'       => $booking->id,
+                'price'    => (int) $booking->total_price,
                 'quantity' => 1,
-                'name' => 'Booking Bus #' . $booking->booking_code,
+                'name'     => 'Booking Bus #' . $booking->booking_code,
             ]
         ];
 
-        // Build params
         $params = $this->buildTransactionParams(
             $orderId,
             (int) $booking->total_price,
@@ -124,31 +106,78 @@ class MidtransService
             $items
         );
 
-        // Ambil snap token
         $snapToken = $this->createSnapToken($params);
 
         if (!$snapToken) {
             throw new \Exception('Gagal mendapatkan Snap Token dari Midtrans');
         }
 
-        // Simpan ke database payments
         return Payment::create([
-            'payable_id' => $booking->id,
-            'payable_type' => Booking::class,
-            'midtrans_order_id' => $orderId,
-            'snap_token' => $snapToken,
-            'amount' => $booking->total_price,
-            'status' => 'pending',
+            'payable_id'         => $booking->id,
+            'payable_type'       => Booking::class,
+            'midtrans_order_id'  => $orderId,
+            'snap_token'         => $snapToken,
+            'amount'             => $booking->total_price,
+            'status'             => 'pending',
         ]);
     }
+    public function createTourTransaction(TourBooking $booking)
+    {
+        $existing = Payment::where('payable_id', $booking->id)
+            ->where('payable_type', TourBooking::class)
+            ->where('status', 'pending')
+            ->latest()
+            ->first();
 
-    /**
-     * Verify notification signature
-     */
+        if ($existing && $existing->snap_token) {
+            Log::info('Pakai snap token lama untuk tour booking: ' . $booking->id);
+            return $existing;
+        }
+
+        $orderId   = 'TOUR-' . $booking->id . '-' . time();
+        $firstName = $booking->user->name  ?? 'User';
+        $email     = $booking->user->email ?? 'test@mail.com';
+        $phone     = $booking->user->phone ?? '08123456789';
+
+        $packageName = $booking->tourPackage->name ?? 'Paket Wisata';
+
+        $items = [
+            [
+                'id'       => 'TOUR-' . $booking->tour_package_id,
+                'price'    => (int) $booking->total_price,
+                'quantity' => 1,
+                'name'     => 'Paket Wisata - ' . $packageName,
+            ]
+        ];
+
+        $params = $this->buildTransactionParams(
+            $orderId,
+            (int) $booking->total_price,
+            $firstName,
+            $email,
+            $phone,
+            $items
+        );
+
+        $snapToken = $this->createSnapToken($params);
+
+        if (!$snapToken) {
+            throw new \Exception('Gagal mendapatkan Snap Token dari Midtrans');
+        }
+
+        return Payment::create([
+            'payable_id'        => $booking->id,
+            'payable_type'      => TourBooking::class,
+            'midtrans_order_id' => $orderId,
+            'snap_token'        => $snapToken,
+            'amount'            => $booking->total_price,
+            'status'            => 'pending',
+        ]);
+    }
     public function verifySignature(array $notification): bool
     {
-        $orderId = $notification['order_id'];
-        $statusCode = $notification['status_code'];
+        $orderId     = $notification['order_id'];
+        $statusCode  = $notification['status_code'];
         $grossAmount = $notification['gross_amount'];
 
         $signature = hash('sha512', $orderId . $statusCode . $grossAmount . $this->serverKey);
@@ -156,9 +185,6 @@ class MidtransService
         return $signature === ($notification['signature_key'] ?? '');
     }
 
-    /**
-     * Get transaction status from Midtrans
-     */
     public function getTransactionStatus(string $orderId): ?array
     {
         try {
@@ -171,8 +197,8 @@ class MidtransService
 
             Log::error('Midtrans Status Check Failed', [
                 'order_id' => $orderId,
-                'status' => $response->status(),
-                'body' => $response->json(),
+                'status'   => $response->status(),
+                'body'     => $response->json(),
             ]);
 
             return null;

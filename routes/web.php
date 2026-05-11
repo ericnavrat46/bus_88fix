@@ -103,6 +103,7 @@ Route::middleware('auth')->group(function () {
 
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard/history/{type}', [DashboardController::class, 'history'])->name('dashboard.history');
 
     Route::get('/dashboard/booking/{booking}', [DashboardController::class, 'bookingDetail'])->name('dashboard.booking');
     Route::post('/dashboard/booking/{booking}/cancel', [DashboardController::class, 'cancelBooking'])->name('dashboard.booking.cancel');

@@ -6,6 +6,7 @@ use App\Models\Booking;
 use App\Models\Rental;
 use App\Models\TourBooking;
 use App\Models\Payment;
+use App\Models\PromoBanner;
 use Illuminate\Http\Request;
 
 class DashboardController extends Controller
@@ -37,7 +38,43 @@ class DashboardController extends Controller
         $this->syncPendingPayments($rentals, $midtrans, $paymentController);
         $this->syncPendingPayments($tourBookings, $midtrans, $paymentController);
 
-        return view('dashboard.index', compact('bookings', 'rentals', 'tourBookings'));
+        $promoBanners = PromoBanner::active()
+            ->latest()
+            ->take(5)
+            ->get();
+
+        // Calculate Stats accurately
+        $totalBusTrips = $user->bookings()->whereIn('payment_status', ['paid', 'settlement'])->count();
+        $totalRentalTrips = $user->rentals()->whereIn('payment_status', ['paid', 'settlement'])->count();
+        $totalTourTrips = $user->tourBookings()->whereIn('payment_status', ['paid', 'settlement'])->count();
+        $tripSelesaiCount = $totalBusTrips + $totalRentalTrips + $totalTourTrips;
+
+        // Get unique cities from Bus Bookings (Origin & Destination)
+        $busBookings = $user->bookings()->whereIn('payment_status', ['paid', 'settlement'])
+            ->with('schedule.route')
+            ->get();
+        $busCities = $busBookings->flatMap(fn($b) => [$b->schedule->route->origin, $b->schedule->route->destination]);
+
+        // Get unique cities from Rental Bookings
+        $rentalCities = $user->rentals()->whereIn('payment_status', ['paid', 'settlement'])
+            ->pluck('destination');
+
+        // Get unique cities from Tour Bookings (using destinations array)
+        $tourBookingsData = $user->tourBookings()->whereIn('payment_status', ['paid', 'settlement'])
+            ->with('tourPackage')
+            ->get();
+        $tourCities = $tourBookingsData->flatMap(fn($t) => $t->tourPackage->destinations ?? []);
+
+        $kotaDikunjungiCount = collect($busCities)
+            ->concat($rentalCities)
+            ->concat($tourCities)
+            ->unique()
+            ->count();
+
+        return view('dashboard.index', compact(
+            'bookings', 'rentals', 'tourBookings', 'promoBanners', 
+            'tripSelesaiCount', 'kotaDikunjungiCount'
+        ));
     }
 
     private function syncPendingPayments($items, $midtrans, $paymentController)
@@ -76,6 +113,37 @@ class DashboardController extends Controller
                 }
             }
         }
+    }
+
+    public function history($type)
+    {
+        $user = auth()->user();
+        $title = 'Riwayat ';
+        $items = collect();
+
+        if ($type === 'bus') {
+            $title .= 'Tiket Bus';
+            $items = Booking::with(['schedule.bus', 'schedule.route'])
+                ->where('user_id', $user->id)
+                ->latest()
+                ->paginate(12);
+        } elseif ($type === 'rental') {
+            $title .= 'Sewa Bus';
+            $items = Rental::with('bus')
+                ->where('user_id', $user->id)
+                ->latest()
+                ->paginate(12);
+        } elseif ($type === 'tour') {
+            $title .= 'Paket Wisata';
+            $items = TourBooking::with('tourPackage')
+                ->where('user_id', $user->id)
+                ->latest()
+                ->paginate(12);
+        } else {
+            abort(404);
+        }
+
+        return view('dashboard.history', compact('items', 'type', 'title'));
     }
 
     public function bookingDetail(Booking $booking)

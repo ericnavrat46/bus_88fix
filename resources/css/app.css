@@ -168,6 +168,58 @@
         @apply bg-clip-text text-transparent;
         background-image: linear-gradient(135deg, #cc0000, #ff2d2d);
     }
+
+    /* Home & Global Professional Components */
+    .hero-img {
+        transition: transform 8s ease;
+        transform: scale(1.05);
+    }
+
+    .hero-section:hover .hero-img {
+        transform: scale(1.12);
+    }
+
+    .feature-card {
+        @apply transition-all duration-300;
+        transition-timing-function: cubic-bezier(.22,.68,0,1.2);
+    }
+
+    .feature-card:hover {
+        @apply -translate-y-2 shadow-2xl shadow-merah-600/10;
+    }
+
+    .feature-icon {
+        @apply transition-transform duration-300;
+    }
+
+    .feature-card:hover .feature-icon {
+        @apply scale-110 -rotate-3;
+    }
+
+    .route-card {
+        @apply border-2 border-transparent transition-all duration-300;
+        transition-timing-function: cubic-bezier(.22,.68,0,1.2);
+    }
+
+    .route-card:hover {
+        @apply -translate-y-1.5 shadow-xl shadow-merah-600/10 border-merah-100;
+    }
+
+    .route-arrow {
+        @apply transition-transform duration-300;
+    }
+
+    .route-card:hover .route-arrow {
+        @apply translate-x-1;
+    }
+
+    .btn-cta {
+        @apply transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-white/20 active:translate-y-0 active:scale-95;
+    }
+
+    .review-card {
+        @apply transition-all duration-300 border border-gray-warm-100 hover:-translate-y-1.5 hover:shadow-xl hover:border-merah-100;
+    }
 }
 
 /* Animations */
@@ -191,6 +243,59 @@
     to { opacity: 1; }
 }
 
+/* ── 3D Keyframes ── */
+@keyframes float-3d {
+    0%, 100% {
+        transform: translateY(0px) rotateX(0deg) rotateY(0deg);
+    }
+    25% {
+        transform: translateY(-8px) rotateX(3deg) rotateY(-3deg);
+    }
+    50% {
+        transform: translateY(-14px) rotateX(-2deg) rotateY(4deg);
+    }
+    75% {
+        transform: translateY(-6px) rotateX(4deg) rotateY(-2deg);
+    }
+}
+
+@keyframes spin-3d {
+    0% { transform: perspective(600px) rotateY(0deg); }
+    100% { transform: perspective(600px) rotateY(360deg); }
+}
+
+@keyframes orbit {
+    0% { transform: rotate(0deg) translateX(60px) rotate(0deg); }
+    100% { transform: rotate(360deg) translateX(60px) rotate(-360deg); }
+}
+
+@keyframes tilt-shine {
+    0% { left: -100%; }
+    50%, 100% { left: 150%; }
+}
+
+@keyframes depth-pulse {
+    0%, 100% {
+        transform: perspective(800px) translateZ(0px) scale(1);
+        box-shadow: 0 8px 30px rgba(204, 0, 0, 0.1);
+    }
+    50% {
+        transform: perspective(800px) translateZ(20px) scale(1.02);
+        box-shadow: 0 20px 60px rgba(204, 0, 0, 0.2);
+    }
+}
+
+@keyframes scroll-reveal {
+    from {
+        opacity: 0;
+        transform: perspective(1000px) translateY(60px) rotateX(10deg);
+    }
+    to {
+        opacity: 1;
+        transform: perspective(1000px) translateY(0) rotateX(0deg);
+    }
+}
+
 .animate-float {
     animation: float 3s ease-in-out infinite;
 }
@@ -205,6 +310,185 @@
 
 .animate-fade-in {
     animation: fade-in 0.3s ease-out;
+}
+
+/* ── 3D Animation Classes ── */
+.animate-float-3d {
+    animation: float-3d 6s ease-in-out infinite;
+    transform-style: preserve-3d;
+}
+
+.animate-spin-3d {
+    animation: spin-3d 8s linear infinite;
+    transform-style: preserve-3d;
+}
+
+.animate-orbit {
+    animation: orbit 12s linear infinite;
+}
+
+.animate-depth-pulse {
+    animation: depth-pulse 4s ease-in-out infinite;
+}
+
+.animate-scroll-reveal {
+    animation: scroll-reveal 0.8s ease-out both;
+}
+
+/* 3D Tilt Card System */
+.tilt-card {
+    perspective: 1000px;
+    transform-style: preserve-3d;
+}
+
+.tilt-card-inner {
+    transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+    transform-style: preserve-3d;
+    will-change: transform;
+}
+
+.tilt-card:hover .tilt-card-inner {
+    transform: perspective(1000px) rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg));
+}
+
+/* Shine overlay for 3D cards */
+.tilt-shine {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        105deg,
+        transparent 40%,
+        rgba(255, 255, 255, 0.08) 45%,
+        rgba(255, 255, 255, 0.15) 50%,
+        rgba(255, 255, 255, 0.08) 55%,
+        transparent 60%
+    );
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    pointer-events: none;
+    border-radius: inherit;
+    z-index: 1;
+}
+
+.tilt-card:hover .tilt-shine {
+    opacity: 1;
+}
+
+/* 3D Shadow that follows tilt */
+.tilt-shadow {
+    transition: box-shadow 0.4s cubic-bezier(0.23, 1, 0.32, 1),
+                transform 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.tilt-card:hover .tilt-shadow {
+    box-shadow:
+        0 25px 50px -12px rgba(204, 0, 0, 0.15),
+        0 0 0 1px rgba(204, 0, 0, 0.05);
+}
+
+/* 3D Perspective Container */
+.perspective-container {
+    perspective: 1200px;
+    perspective-origin: center;
+}
+
+/* Parallax depth layers */
+.parallax-layer-back {
+    transform: translateZ(-100px) scale(1.1);
+}
+
+.parallax-layer-mid {
+    transform: translateZ(-50px) scale(1.05);
+}
+
+.parallax-layer-front {
+    transform: translateZ(0px);
+}
+
+/* 3D Decorative floating shapes */
+.shape-3d {
+    transform-style: preserve-3d;
+    backface-visibility: hidden;
+}
+
+.shape-3d-cube {
+    width: 40px;
+    height: 40px;
+    position: relative;
+    transform-style: preserve-3d;
+    animation: float-3d 8s ease-in-out infinite;
+}
+
+.shape-3d-cube::before,
+.shape-3d-cube::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 8px;
+}
+
+.shape-3d-cube::before {
+    background: rgba(204, 0, 0, 0.15);
+    transform: translateZ(10px);
+    border: 1px solid rgba(204, 0, 0, 0.2);
+}
+
+.shape-3d-cube::after {
+    background: rgba(204, 0, 0, 0.08);
+    transform: translateZ(-10px) rotateY(15deg);
+    border: 1px solid rgba(204, 0, 0, 0.1);
+}
+
+/* 3D Ring decoration */
+.shape-3d-ring {
+    width: 80px;
+    height: 80px;
+    border: 3px solid rgba(204, 0, 0, 0.2);
+    border-radius: 50%;
+    transform-style: preserve-3d;
+    animation: spin-3d 10s linear infinite;
+}
+
+.shape-3d-ring::before {
+    content: '';
+    position: absolute;
+    inset: 8px;
+    border: 2px dashed rgba(255, 45, 45, 0.15);
+    border-radius: 50%;
+    animation: spin-3d 15s linear infinite reverse;
+}
+
+/* Scroll-triggered 3D reveal */
+.reveal-3d {
+    opacity: 0;
+    transform: perspective(1000px) translateY(40px) rotateX(8deg);
+    transition: all 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.reveal-3d.revealed {
+    opacity: 1;
+    transform: perspective(1000px) translateY(0) rotateX(0deg);
+}
+
+/* Reduce motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+    .animate-float-3d,
+    .animate-spin-3d,
+    .animate-orbit,
+    .animate-depth-pulse,
+    .animate-float,
+    .animate-pulse-glow,
+    .shape-3d-ring,
+    .shape-3d-cube {
+        animation: none !important;
+    }
+    .tilt-card:hover .tilt-card-inner {
+        transform: none !important;
+    }
+    .reveal-3d {
+        opacity: 1;
+        transform: none;
+    }
 }
 
 /* Scroll behavior */
@@ -227,4 +511,43 @@ html {
 
 ::-webkit-scrollbar-thumb:hover {
     @apply bg-merah-500;
+}
+
+/* Hero Button variants (used in home hero) */
+.btn-hero-white {
+    @apply transition-all duration-300 hover:-translate-y-1;
+    &:hover { box-shadow: 0 12px 30px rgba(255,255,255,0.3); }
+}
+
+.btn-hero-ghost {
+    @apply transition-all duration-300 hover:-translate-y-1;
+    &:hover { background: rgba(255,255,255,0.18); border-color: rgba(255,255,255,0.5); }
+}
+
+/* Search card (home) */
+.search-card {
+    @apply transition-all duration-300 hover:-translate-y-1;
+    &:hover { box-shadow: 0 32px 64px rgba(0,0,0,0.18); }
+}
+
+/* Stagger animation delays for page load */
+.animate-delay-100 { animation-delay: 0.1s; }
+.animate-delay-200 { animation-delay: 0.2s; }
+.animate-delay-300 { animation-delay: 0.3s; }
+.animate-delay-400 { animation-delay: 0.4s; }
+
+/* Review image hover */
+.review-img {
+    @apply transition-transform duration-500;
+}
+.review-card:hover .review-img {
+    @apply scale-105;
+}
+
+/* Route price hover animation */
+.route-price {
+    @apply inline-block transition-all duration-300;
+}
+.route-card:hover .route-price {
+    @apply text-merah-700 scale-105;
 }

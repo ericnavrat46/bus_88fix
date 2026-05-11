@@ -5,144 +5,15 @@
 @push('styles')
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
 <style>
-    /* ── Hero foto zoom on hover ── */
-    .hero-img {
-        transition: transform 8s ease;
-        transform: scale(1.05);
-    }
-    .hero-section:hover .hero-img {
-        transform: scale(1.12);
-    }
-
-    /* ── Feature card hover ── */
-    .feature-card {
-        transition: transform 0.35s cubic-bezier(.22,.68,0,1.2), box-shadow 0.35s ease;
-    }
-    .feature-card:hover {
-        transform: translateY(-8px);
-        box-shadow: 0 24px 48px rgba(204,0,0,0.12), 0 8px 20px rgba(0,0,0,0.08);
-    }
-    .feature-card:hover .feature-icon {
-        transform: scale(1.15) rotate(-5deg);
-    }
-    .feature-icon {
-        transition: transform 0.35s cubic-bezier(.22,.68,0,1.2);
-    }
-
-    /* ── Route card hover ── */
-    .route-card {
-        transition: transform 0.3s cubic-bezier(.22,.68,0,1.2), box-shadow 0.3s ease, border-color 0.3s ease;
-        border: 1.5px solid transparent;
-    }
-    .route-card:hover {
-        transform: translateY(-6px);
-        box-shadow: 0 20px 40px rgba(204,0,0,0.13), 0 6px 16px rgba(0,0,0,0.07);
-        border-color: rgba(204,0,0,0.18);
-    }
-    .route-card:hover .route-price {
-        color: #b80000;
-        transform: scale(1.05);
-    }
-    .route-card:hover .route-arrow {
-        transform: translateX(4px);
-    }
-    .route-price  { transition: color 0.25s ease, transform 0.25s ease; display: inline-block; }
-    .route-arrow  { transition: transform 0.25s ease; display: inline-block; }
-
-    /* ── Search card hover ── */
-    .search-card {
-        transition: box-shadow 0.3s ease, transform 0.3s ease;
-    }
-    .search-card:hover {
-        box-shadow: 0 32px 64px rgba(0,0,0,0.18);
-        transform: translateY(-4px);
-    }
-
-    /* ── CTA button hover ── */
-    .btn-cta {
-        transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
-    }
-    .btn-cta:hover {
-        transform: translateY(-3px) scale(1.03);
-        box-shadow: 0 16px 40px rgba(255,255,255,0.25);
-    }
-    .btn-cta:active {
-        transform: translateY(0) scale(0.99);
-    }
-
-    /* ── Hero CTA buttons ── */
-    .btn-hero-white {
-        transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
-    }
-    .btn-hero-white:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 12px 30px rgba(255,255,255,0.3);
-    }
-    .btn-hero-ghost {
-        transition: transform 0.25s ease, background 0.25s ease, border-color 0.25s ease;
-    }
-    .btn-hero-ghost:hover {
-        transform: translateY(-3px);
-        background: rgba(255,255,255,0.18);
-        border-color: rgba(255,255,255,0.5);
-    }
-
-    /* ── Scrollbar hide ── */
+    /* Page-specific: Swiper promo & aspect ratio */
+    .promo-swiper { padding-bottom: 50px !important; }
+    .aspect-promo { aspect-ratio: 16/9; }
+    @media (min-width: 768px) { .aspect-promo { aspect-ratio: 4/1; } }
+    .promo-swiper .swiper-pagination-bullet { background: #cc0000; opacity: 0.2; }
+    .promo-swiper .swiper-pagination-bullet-active { opacity: 1; width: 20px; border-radius: 4px; }
     .scrollbar-hide::-webkit-scrollbar { display: none; }
     .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
-
-    /* ── Review card styles ── */
-    .review-card {
-        transition: all 0.3s ease;
-        border: 1px solid #f1f5f9;
-    }
-    .review-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 12px 24px -8px rgba(0,0,0,0.1);
-        border-color: #e2e8f0;
-    }
-    .review-img {
-        transition: transform 0.5s ease;
-    }
-    .review-card:hover .review-img {
-        transform: scale(1.05);
-    }
-
-    /* ── Swiper Custom ── */
-    .promo-swiper {
-        padding-bottom: 50px !important;
-    }
-    .aspect-promo {
-        aspect-ratio: 16/9;
-    }
-    @media (min-width: 768px) {
-        .aspect-promo {
-            aspect-ratio: 4/1;
-        }
-    }
-    .promo-swiper .swiper-pagination-bullet {
-        background: #cc0000;
-        opacity: 0.2;
-    }
-    .promo-swiper .swiper-pagination-bullet-active {
-        opacity: 1;
-        width: 20px;
-        border-radius: 4px;
-    }
-    .promo-swiper .swiper-button-next, .promo-swiper .swiper-button-prev {
-        background: white;
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        color: #cc0000;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    }
-    .promo-swiper .swiper-button-next:after, .promo-swiper .swiper-button-prev:after {
-        font-size: 18px;
-        font-weight: bold;
-    }
 </style>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
 @endpush
 
 @section('content')
@@ -156,13 +27,20 @@
         {{-- Overlay gelap supaya teks tetap terbaca --}}
         <div class="absolute inset-0" style="background: linear-gradient(105deg, rgba(10,0,0,0.82) 0%, rgba(140,0,0,0.65) 50%, rgba(10,0,0,0.45) 100%);"></div>
     </div>
-    {{-- Decorative Elements --}}
+    {{-- Decorative Elements + 3D Shapes --}}
     <div class="absolute inset-0 pointer-events-none">
         <div class="absolute top-10 left-10 w-72 h-72 bg-white/5 rounded-full blur-3xl"></div>
         <div class="absolute bottom-10 right-10 w-96 h-96 bg-white/5 rounded-full blur-3xl"></div>
         <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-white/3 rounded-full blur-3xl"></div>
         {{-- Pattern overlay --}}
         <div class="absolute inset-0" style="background-image: radial-gradient(circle at 25% 25%, rgba(255,255,255,0.05) 1px, transparent 1px); background-size: 50px 50px;"></div>
+
+        {{-- 3D Floating Shapes --}}
+        <div class="hidden lg:block absolute top-[15%] right-[8%] shape-3d-ring opacity-40"></div>
+        <div class="hidden lg:block absolute bottom-[20%] left-[5%] shape-3d-cube opacity-50" style="animation-delay: 2s;"></div>
+        <div class="hidden lg:block absolute top-[30%] left-[15%] w-3 h-3 bg-white/20 rounded-full animate-orbit" style="animation-duration: 18s;"></div>
+        <div class="hidden lg:block absolute bottom-[35%] right-[20%] w-2 h-2 bg-merah-400/30 rounded-full animate-orbit" style="animation-duration: 14s; animation-delay: 3s;"></div>
+        <div class="hidden lg:block absolute top-[60%] right-[12%] w-6 h-6 border border-white/15 rounded-lg animate-float-3d" style="animation-delay: 1s;"></div>
     </div>
 
     <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-28">
@@ -266,37 +144,46 @@
     </div>
 </section>
 
-{{-- Features Section --}}
+{{-- Features Section (3D Tilt Cards) --}}
 <section class="py-20 bg-white">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="text-center mb-14">
+        <div class="text-center mb-14 reveal-3d">
             <h2 class="text-3xl lg:text-4xl font-black text-dark mb-4">Mengapa <span class="text-gradient-merah">Bus 88</span>?</h2>
             <p class="text-gray-warm-500 text-lg max-w-2xl mx-auto">Kami berkomitmen memberikan layanan transportasi terbaik untuk perjalanan Anda</p>
         </div>
-        <div class="grid md:grid-cols-3 gap-8">
-            {{-- Feature 1 --}}
-            <div class="card-premium p-8 text-center group feature-card">
-                <div class="w-16 h-16 bg-merah-100 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:bg-merah-600 transition-colors duration-300 feature-icon">
-                    <svg class="w-8 h-8 text-merah-600 group-hover:text-white transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+        <div class="grid md:grid-cols-3 gap-8 perspective-container">
+            {{-- Feature 1 — 3D Tilt --}}
+            <div class="tilt-card reveal-3d" data-tilt>
+                <div class="tilt-card-inner card-premium p-8 text-center group feature-card tilt-shadow relative overflow-hidden">
+                    <div class="tilt-shine"></div>
+                    <div class="w-16 h-16 bg-merah-100 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:bg-merah-600 transition-colors duration-300 feature-icon">
+                        <svg class="w-8 h-8 text-merah-600 group-hover:text-white transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-dark mb-3 group-hover:text-merah-700 transition-colors duration-300">Aman & Terpercaya</h3>
+                    <p class="text-gray-warm-500 leading-relaxed">Armada terawat dengan pengemudi profesional berpengalaman untuk keselamatan Anda</p>
                 </div>
-                <h3 class="text-xl font-bold text-dark mb-3 group-hover:text-merah-700 transition-colors duration-300">Aman & Terpercaya</h3>
-                <p class="text-gray-warm-500 leading-relaxed">Armada terawat dengan pengemudi profesional berpengalaman untuk keselamatan Anda</p>
             </div>
-            {{-- Feature 2 --}}
-            <div class="card-premium p-8 text-center group feature-card">
-                <div class="w-16 h-16 bg-merah-100 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:bg-merah-600 transition-colors duration-300 feature-icon">
-                    <svg class="w-8 h-8 text-merah-600 group-hover:text-white transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            {{-- Feature 2 — 3D Tilt --}}
+            <div class="tilt-card reveal-3d" data-tilt style="transition-delay: 0.15s;">
+                <div class="tilt-card-inner card-premium p-8 text-center group feature-card tilt-shadow relative overflow-hidden">
+                    <div class="tilt-shine"></div>
+                    <div class="w-16 h-16 bg-merah-100 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:bg-merah-600 transition-colors duration-300 feature-icon">
+                        <svg class="w-8 h-8 text-merah-600 group-hover:text-white transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-dark mb-3 group-hover:text-merah-700 transition-colors duration-300">Harga Transparan</h3>
+                    <p class="text-gray-warm-500 leading-relaxed">Harga jelas tanpa biaya tersembunyi. Pembayaran mudah via Midtrans</p>
                 </div>
-                <h3 class="text-xl font-bold text-dark mb-3 group-hover:text-merah-700 transition-colors duration-300">Harga Transparan</h3>
-                <p class="text-gray-warm-500 leading-relaxed">Harga jelas tanpa biaya tersembunyi. Pembayaran mudah via Midtrans</p>
             </div>
-            {{-- Feature 3 --}}
-            <div class="card-premium p-8 text-center group feature-card">
-                <div class="w-16 h-16 bg-merah-100 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:bg-merah-600 transition-colors duration-300 feature-icon">
-                    <svg class="w-8 h-8 text-merah-600 group-hover:text-white transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+            {{-- Feature 3 — 3D Tilt --}}
+            <div class="tilt-card reveal-3d" data-tilt style="transition-delay: 0.3s;">
+                <div class="tilt-card-inner card-premium p-8 text-center group feature-card tilt-shadow relative overflow-hidden">
+                    <div class="tilt-shine"></div>
+                    <div class="w-16 h-16 bg-merah-100 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:bg-merah-600 transition-colors duration-300 feature-icon">
+                        <svg class="w-8 h-8 text-merah-600 group-hover:text-white transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-dark mb-3 group-hover:text-merah-700 transition-colors duration-300">Booking Cepat</h3>
+                    <p class="text-gray-warm-500 leading-relaxed">Pesan tiket dalam hitungan menit. Pilih kursi favorit dan bayar langsung</p>
                 </div>
-                <h3 class="text-xl font-bold text-dark mb-3 group-hover:text-merah-700 transition-colors duration-300">Booking Cepat</h3>
-                <p class="text-gray-warm-500 leading-relaxed">Pesan tiket dalam hitungan menit. Pilih kursi favorit dan bayar langsung</p>
             </div>
         </div>
     </div>
@@ -516,7 +403,7 @@
 <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Promo Swiper
+        // ── Promo Swiper ──
         const promoSwiper = new Swiper('.promo-swiper', {
             loop: true,
             autoplay: {
@@ -536,7 +423,7 @@
             speed: 800,
         });
 
-        // Copy Promo Code
+        // ── Copy Promo Code ──
         window.copyPromoCode = function(code) {
             navigator.clipboard.writeText(code).then(() => {
                 Swal.fire({
@@ -551,7 +438,7 @@
             });
         };
 
-        // Countdown Timer
+        // ── Countdown Timer ──
         function updateCountdowns() {
             const timers = document.querySelectorAll('.countdown-timer');
             timers.forEach(timer => {
@@ -572,9 +459,45 @@
                 timer.innerHTML = `${days}h ${hours}j ${minutes}m ${seconds}d`;
             });
         }
-
         setInterval(updateCountdowns, 1000);
         updateCountdowns();
+
+        // ── 3D Tilt Card Engine ──
+        document.querySelectorAll('[data-tilt]').forEach(card => {
+            const inner = card.querySelector('.tilt-card-inner');
+            if (!inner) return;
+
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+                const rotateX = ((y - centerY) / centerY) * -8;
+                const rotateY = ((x - centerX) / centerX) * 8;
+
+                inner.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
+            });
+
+            card.addEventListener('mouseleave', () => {
+                inner.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)';
+            });
+        });
+
+        // ── Scroll Reveal 3D (IntersectionObserver) ──
+        const revealElements = document.querySelectorAll('.reveal-3d');
+        if (revealElements.length > 0) {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('revealed');
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+
+            revealElements.forEach(el => observer.observe(el));
+        }
     });
 </script>
 @endpush

@@ -11,18 +11,18 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
-<body class="min-h-screen bg-gray-warm-50" x-data="{ sidebarOpen: true }">
+<body class="min-h-screen bg-gray-warm-50" x-data="{ sidebarOpen: true, sidebarHover: false }">
     <div class="flex">
         {{-- Sidebar --}}
-        <aside class="fixed left-0 top-0 h-screen w-64 bg-gradient-to-b from-merah-800 to-merah-950 text-white z-40 transition-transform duration-300"
+        <aside class="fixed left-0 top-0 h-screen w-64 bg-gradient-to-b from-merah-800 via-merah-900 to-merah-950 text-white z-40 transition-transform duration-300 shadow-2xl shadow-merah-950/50"
                :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'">
             <div class="flex items-center gap-3 px-6 py-5 border-b border-white/10">
-                <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center">
+                <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-lg shadow-white/10">
                     <span class="text-merah-600 font-black text-lg">88</span>
                 </div>
                 <div>
-                    <h1 class="text-lg font-bold">Bus 88</h1>
-                    <p class="text-xs text-merah-200">Admin Panel</p>
+                    <h1 class="text-lg font-bold tracking-tight">Bus 88</h1>
+                    <p class="text-[10px] text-merah-200 uppercase tracking-widest font-semibold">Admin Panel</p>
                 </div>
             </div>
             <nav class="mt-6 px-4 space-y-1">
@@ -114,10 +114,13 @@
             <header class="sticky top-0 z-30 bg-white/80 backdrop-blur-xl border-b border-gray-warm-100">
                 <div class="flex items-center justify-between px-6 py-4">
                     <div class="flex items-center gap-4">
-                        <button @click="sidebarOpen = !sidebarOpen" class="p-2 rounded-lg hover:bg-gray-warm-100 transition-colors">
+                        <button @click="sidebarOpen = !sidebarOpen" class="p-2 rounded-lg hover:bg-gray-warm-100 transition-colors duration-200">
                             <svg class="w-5 h-5 text-gray-warm-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
                         </button>
-                        <h2 class="text-lg font-bold text-dark">@yield('page-title', 'Dashboard')</h2>
+                        <div>
+                            <h2 class="text-lg font-bold text-dark">@yield('page-title', 'Dashboard')</h2>
+                            <p class="text-[11px] text-gray-warm-400 font-medium hidden md:block">{{ now()->translatedFormat('l, d F Y') }}</p>
+                        </div>
                     </div>
                     <div class="flex items-center gap-3">
                         {{-- Notification Bell --}}

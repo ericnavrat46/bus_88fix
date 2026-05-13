@@ -18,6 +18,7 @@ use App\Http\Controllers\TourController;
 use App\Http\Controllers\ProfileWebController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\TicketController;
+use App\Http\Controllers\RefundController;
 
 // Admin
 use App\Http\Controllers\Admin\AdminDashboardController;
@@ -80,6 +81,7 @@ Route::post('/logout', [AuthController::class, 'logout'])
 // ─────────────────────────────────────────────
 Route::post('/payment/notification', [PaymentController::class, 'notification'])->name('payment.notification');
 Route::get('/payment/finish',        [PaymentController::class, 'finish'])->name('payment.finish');
+Route::get('/payment/check/{payment}', [PaymentController::class, 'checkStatus'])->name('payment.check-status');
 
 // ─────────────────────────────────────────────
 // TICKET (PUBLIC + USER)
@@ -142,6 +144,10 @@ Route::middleware('auth')->group(function () {
     Route::post('/tour/{package:slug}/book', [TourController::class, 'storeBooking'])->name('tour.store-booking');
     Route::get('/tour/checkout/{booking}', [TourController::class, 'checkout'])->name('tour.checkout');
 
+    // Refund
+    Route::get('/dashboard/booking/{booking}/refund', [RefundController::class, 'create'])->name('booking.refund');
+    Route::post('/dashboard/booking/{booking}/refund', [RefundController::class, 'store']);
+
     // Review
     Route::post('/review/store', [ReviewController::class, 'store'])->name('review.store');
 });
@@ -172,6 +178,9 @@ Route::middleware(['auth', \App\Http\Middleware\AdminMiddleware::class])
         Route::get('/transactions/tours', [TransactionController::class, 'tours'])->name('transactions.tours');
         Route::get('/transactions/tours/{booking}', [TransactionController::class, 'tourShow'])->name('transactions.tours.show');
         Route::get('/transactions/payments', [TransactionController::class, 'payments'])->name('transactions.payments');
+        Route::get('/transactions/refunds', [RefundController::class, 'adminIndex'])->name('transactions.refunds');
+        Route::get('/refund/{refund}/edit', [RefundController::class, 'adminEdit'])->name('refund.edit');
+        Route::post('/refund/{refund}/action', [RefundController::class, 'adminAction'])->name('refund.action');
 
         // Approval
         Route::post('/rental/{rental}/approve', [TransactionController::class, 'approveRental'])->name('rental.approve');

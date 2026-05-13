@@ -18,10 +18,12 @@
 
         <span class="status-badge 
             @if($activity['status'] == 'paid' || $activity['status'] == 'settlement') status-paid 
+            @elseif($activity['status'] == 'refunded') bg-blue-100 text-blue-600
             @elseif($activity['status'] == 'pending' || $activity['status'] == 'unpaid') status-pending 
             @elseif($activity['status'] == 'cancelled') status-cancelled 
             @else status-expired @endif">
-            @if($activity['status'] == 'paid' || $activity['status'] == 'settlement') Selesai 
+            @if($activity['status'] == 'paid' || $activity['status'] == 'settlement') Telah Terbayar 
+            @elseif($activity['status'] == 'refunded') Refunded
             @elseif($activity['status'] == 'pending' || $activity['status'] == 'unpaid') Menunggu 
             @elseif($activity['status'] == 'cancelled') Dibatalkan 
             @else Kadaluarsa @endif

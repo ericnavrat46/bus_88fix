@@ -1,5 +1,10 @@
 @extends('layouts.app')
 @section('title', 'Detail Booking - Bus 88')
+
+@push('styles')
+<script src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="{{ config('midtrans.client_key') }}"></script>
+@endpush
+
 @section('content')
 <div class="bg-gradient-to-b from-merah-50 to-cream min-h-screen">
     <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
@@ -21,7 +26,7 @@
                         default => 'badge-gray',
                     };
                     $statusLabel = match($booking->payment_status) {
-                        'paid' => 'Lunas',
+                        'paid' => 'Telah Terbayar',
                         'pending' => 'Menunggu Bayar',
                         'expired' => 'Kedaluwarsa',
                         'cancelled' => 'Dibatalkan',
@@ -86,7 +91,28 @@
             {{-- Payment Section --}}
             @if($booking->payment_status === 'pending' && !$booking->isExpired())
                 <div class="mt-8 pt-8 border-t border-gray-warm-100">
-                    @if($booking->payment_proof)
+                    <div id="payment-status-checking" class="hidden mb-6 p-4 bg-blue-50 rounded-xl border border-blue-100 text-center animate-pulse">
+                        <p class="text-sm text-blue-600 flex items-center justify-center gap-2">
+                            <svg class="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                            Sinkronisasi status pembayaran...
+                        </p>
+                    </div>
+
+                    @if($booking->snap_token)
+                        <div class="p-6 bg-amber-50 rounded-2xl border border-amber-100 text-center">
+                            <h4 class="font-bold text-dark mb-2">Selesaikan Pembayaran</h4>
+                            <p class="text-sm text-gray-warm-500 mb-6">Gunakan metode pembayaran yang telah Anda pilih sebelumnya.</p>
+                            
+                            <div class="flex flex-col sm:flex-row gap-3 justify-center">
+                                <button onclick="payNow()" class="btn-primary px-8 py-3">
+                                    BAYAR SEKARANG
+                                </button>
+                                <button onclick="syncStatus()" id="syncBtn" class="btn-secondary px-8 py-3 flex items-center justify-center gap-2">
+                                    CEK STATUS
+                                </button>
+                            </div>
+                        </div>
+                    @elseif($booking->payment_proof)
                         <div class="p-6 bg-emerald-50 rounded-2xl border border-emerald-100 text-center">
                             <div class="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-3">
                                 <svg class="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
@@ -94,17 +120,6 @@
                             <h4 class="font-bold text-emerald-800 mb-1">Bukti Sudah Diunggah</h4>
                             <p class="text-sm text-emerald-600 mb-4">Mohon tunggu verifikasi admin.</p>
                             <img src="{{ asset('storage/' . $booking->payment_proof) }}" class="max-w-xs mx-auto rounded-xl shadow-sm border border-emerald-200">
-                            
-                            <div class="mt-6">
-                                <p class="text-xs text-emerald-500 mb-2 font-medium italic">Ganti bukti pembayaran?</p>
-                                <form action="{{ route('booking.upload-proof', $booking) }}" method="POST" enctype="multipart/form-data" class="flex items-center gap-2 max-w-xs mx-auto">
-                                    @csrf
-                                    <input type="file" name="payment_proof" class="text-xs file:btn-secondary file:btn-xs" required accept="image/*">
-                                    <button type="submit" class="p-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
-                                    </button>
-                                </form>
-                            </div>
                         </div>
                     @else
                         <div class="p-6 bg-amber-50 rounded-2xl border border-amber-100">
@@ -154,8 +169,118 @@
                         <p class="text-sm text-gray-500">Batas waktu pembayaran telah habis.</p>
                     </div>
                 </div>
+            @elseif($booking->payment_status === 'paid' || $booking->payment_status === 'pending_refund')
+                @php 
+                    $refund = \App\Models\Refund::where('booking_id', $booking->id)->first();
+                    $departure = \Carbon\Carbon::parse($booking->schedule->departure_date->format('Y-m-d') . ' ' . $booking->schedule->departure_time);
+                    $canRefund = now()->diffInHours($departure, false) >= 6;
+                @endphp
+                
+                <div class="mt-8 pt-8 border-t border-gray-warm-100">
+                    @if($booking->payment_status === 'pending_refund' || $refund)
+                        <div class="p-6 bg-amber-50 rounded-2xl border border-amber-100">
+                            <div class="flex items-center gap-3 mb-4">
+                                <div class="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center">
+                                    <svg class="w-5 h-5 text-amber-600 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-amber-800">Menunggu Verifikasi Refund</h4>
+                                    <p class="text-xs text-amber-600 italic">Tiket tidak dapat digunakan selama proses pemeriksaan.</p>
+                                </div>
+                            </div>
+                            @if($refund && $refund->status !== 'pending')
+                            <div class="p-4 bg-white/50 rounded-xl text-sm text-amber-700">
+                                <p class="font-bold mb-1">Status Verifikasi: {{ ucfirst($refund->status) }}</p>
+                                <p class="italic text-xs">{{ $refund->admin_notes ?? 'Sedang ditinjau oleh Admin...' }}</p>
+                            </div>
+                            @endif
+                        </div>
+                    @else
+                        @if($canRefund)
+                            <div class="p-6 bg-gray-warm-50 rounded-2xl border border-gray-warm-100">
+                                <h4 class="font-bold text-dark mb-2">Punya Rencana Lain?</h4>
+                                <p class="text-sm text-gray-warm-500 mb-4">Anda dapat mengajukan refund dengan aturan berikut:</p>
+                                <ul class="text-[11px] text-gray-400 space-y-1 mb-6 list-disc list-inside">
+                                    <li>> 24 jam sebelum berangkat: <strong>Refund 90%</strong></li>
+                                    <li>6 - 24 jam sebelum berangkat: <strong>Refund 70%</strong></li>
+                                    <li>< 6 jam sebelum berangkat: <strong>Refund Tidak Tersedia</strong></li>
+                                </ul>
+                                <a href="{{ route('booking.refund', $booking) }}" class="btn-secondary w-full py-3 text-sm font-bold text-center">
+                                    AJUKAN REFUND
+                                </a>
+                            </div>
+                        @else
+                            <div class="p-4 bg-gray-100 rounded-xl text-center">
+                                <p class="text-xs text-gray-400 italic font-medium">Batas waktu refund habis (minimal 6 jam sebelum berangkat).</p>
+                            </div>
+                        @endif
+                    @endif
+                </div>
             @endif
         </div>
     </div>
 </div>
+@push('scripts')
+<script>
+    function payNow() {
+        window.snap.pay("{{ $booking->snap_token }}", {
+            onSuccess: function(result) {
+                syncStatus();
+            },
+            onPending: function(result) {
+                syncStatus();
+            },
+            onError: function(result) {
+                console.error(result);
+            }
+        });
+    }
+
+    function syncStatus() {
+        const orderId = "{{ $booking->midtrans_order_id ?? $booking->booking_code }}";
+        const checkingDiv = document.getElementById('payment-status-checking');
+        const syncBtn = document.getElementById('syncBtn');
+
+        if (checkingDiv) checkingDiv.classList.remove('hidden');
+        if (syncBtn) syncBtn.disabled = true;
+
+        fetch(`/api/payments/check/${orderId}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.status && data.payment_status === 'settlement' || data.payment_status === 'paid') {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Pembayaran Berhasil!',
+                        text: 'Tiket Anda telah lunas.',
+                        timer: 2000,
+                        showConfirmButton: false
+                    }).then(() => {
+                        window.location.reload();
+                    });
+                } else {
+                    if (checkingDiv) checkingDiv.classList.add('hidden');
+                    if (syncBtn) syncBtn.disabled = false;
+                    
+                    if (data.payment_status === 'pending') {
+                        // Keep as is or show message
+                    } else {
+                        window.location.reload();
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error syncing status:', error);
+                if (checkingDiv) checkingDiv.classList.add('hidden');
+                if (syncBtn) syncBtn.disabled = false;
+            });
+    }
+
+    // Auto sync on page load if pending
+    @if($booking->payment_status === 'pending')
+    document.addEventListener('DOMContentLoaded', function() {
+        setTimeout(syncStatus, 1000);
+    });
+    @endif
+</script>
+@endpush
 @endsection

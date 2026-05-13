@@ -25,6 +25,13 @@ class BookingController extends Controller
     public function selectSeat(Schedule $schedule)
     {
         $schedule->load(['bus', 'route']);
+
+        // Check if schedule is past
+        $departureDateTime = \Carbon\Carbon::parse($schedule->departure_date->format('Y-m-d') . ' ' . $schedule->departure_time);
+        if ($departureDateTime->isPast()) {
+            return redirect()->route('home')->with('error', 'Maaf, jadwal ini sudah berangkat.');
+        }
+
         $bookedSeats = $schedule->booked_seats;
 
         return view('booking.select-seat', compact('schedule', 'bookedSeats'));
@@ -56,14 +63,27 @@ class BookingController extends Controller
         $validated = $request->validate([
             'passengers' => 'required|array|min:1',
             'passengers.*.seat_number' => 'required|string',
-            'passengers.*.passenger_name' => 'required|string|max:255',
-            'passengers.*.id_number' => 'nullable|string|max:30',
-            'passengers.*.phone' => 'nullable|string|max:20',
+            'passengers.*.passenger_name' => ['required', 'string', 'max:255', 'regex:/^[a-zA-Z\s]+$/'],
+            'passengers.*.id_number' => 'nullable|numeric|digits:16',
+            'passengers.*.phone' => 'nullable|numeric|digits_between:10,15',
             'notes' => 'nullable|string',
             'applied_promo_id' => 'nullable|exists:promo_banners,id',
+        ], [
+            'passengers.*.passenger_name.regex' => 'Nama penumpang hanya boleh berisi huruf dan spasi.',
+            'passengers.*.id_number.numeric' => 'Nomor KTP/Identitas harus berupa angka.',
+            'passengers.*.id_number.digits' => 'Nomor KTP harus tepat 16 angka.',
+            'passengers.*.phone.numeric' => 'Nomor telepon harus berupa angka.',
+            'passengers.*.phone.digits_between' => 'Nomor telepon harus antara 10 hingga 15 angka.',
         ]);
 
         $schedule->load(['bus', 'route']);
+
+        // Check if schedule is past
+        $departureDateTime = \Carbon\Carbon::parse($schedule->departure_date->format('Y-m-d') . ' ' . $schedule->departure_time);
+        if ($departureDateTime->isPast()) {
+            return redirect()->route('home')->with('error', 'Maaf, jadwal ini sudah berangkat.');
+        }
+
         $user = auth()->user();
 
         try {
@@ -182,6 +202,18 @@ class BookingController extends Controller
 
         if ($booking->payment_status === 'paid') {
             return redirect()->route('dashboard')->with('info', 'Booking ini sudah lunas.');
+        }
+
+        // Auto-check status if pending
+        if ($booking->payment_status === 'pending') {
+            $payment = $booking->payments()->latest()->first();
+            if ($payment) {
+                app(\App\Http\Controllers\PaymentController::class)->checkStatus(request(), $payment);
+                $booking->refresh();
+                if ($booking->payment_status === 'paid') {
+                    return redirect()->route('dashboard')->with('success', 'Pembayaran berhasil dikonfirmasi!');
+                }
+            }
         }
 
         $booking->load(['schedule.bus', 'schedule.route', 'passengers']);

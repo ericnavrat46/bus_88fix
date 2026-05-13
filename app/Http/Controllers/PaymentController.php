@@ -105,8 +105,9 @@ class PaymentController extends Controller
      * CHECK STATUS DARI MIDTRANS LANGSUNG (UNTUK MOBILE TANPA WEBHOOK)
      * 🔥 FIX: pakai DB::table() langsung biar pasti update
      */
-    public function checkStatus(Request $request, $orderId)
+    public function checkStatus(Request $request, Payment $payment)
     {
+        $orderId = $payment->midtrans_order_id;
         $statusData = $this->midtrans->getTransactionStatus($orderId);
 
         if (!$statusData) {
@@ -114,11 +115,6 @@ class PaymentController extends Controller
                 'status' => false,
                 'message' => 'Gagal mengambil status dari Midtrans',
             ], 500);
-        }
-
-        $payment = Payment::where('midtrans_order_id', $orderId)->first();
-        if (!$payment) {
-            return response()->json(['status' => false, 'message' => 'Payment tidak ditemukan'], 404);
         }
 
         $transactionStatus = $statusData['transaction_status'] ?? 'pending';

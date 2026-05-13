@@ -33,7 +33,7 @@
         <div class="grid lg:grid-cols-3 gap-8">
             {{-- Seat Map --}}
             <div class="lg:col-span-2">
-                <div class="card p-8" x-data="seatSelector()">
+                <div class="card p-8">
                     <h2 class="text-xl font-bold text-dark mb-6 flex items-center gap-2">
                         <svg class="w-6 h-6 text-merah-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
                         Pilih Nomor Kursi
@@ -84,9 +84,9 @@
                                                     </div>
                                                 @else
                                                     <button type="button"
-                                                        @click="toggleSeat('{{ $seatNum }}')"
-                                                        :class="selected.includes('{{ $seatNum }}') ? 'bg-merah-600 text-white shadow-lg shadow-merah-600/30' : 'bg-gray-warm-100 border-2 border-gray-warm-200 text-gray-warm-700 hover:border-merah-400 hover:bg-merah-50'"
-                                                        class="w-10 h-10 rounded-lg flex items-center justify-center text-xs font-bold transition-all duration-200 cursor-pointer">
+                                                        id="btn_seat_{{ $seatNum }}"
+                                                        onclick="toggleSeat('{{ $seatNum }}')"
+                                                        class="w-10 h-10 rounded-lg flex items-center justify-center text-xs font-bold transition-all duration-200 cursor-pointer bg-gray-warm-100 border-2 border-gray-warm-200 text-gray-warm-700 hover:border-merah-400 hover:bg-merah-50">
                                                         {{ $seatNum }}
                                                     </button>
                                                 @endif
@@ -106,9 +106,9 @@
                                                     </div>
                                                 @else
                                                     <button type="button"
-                                                        @click="toggleSeat('{{ $seatNum }}')"
-                                                        :class="selected.includes('{{ $seatNum }}') ? 'bg-merah-600 text-white shadow-lg shadow-merah-600/30' : 'bg-gray-warm-100 border-2 border-gray-warm-200 text-gray-warm-700 hover:border-merah-400 hover:bg-merah-50'"
-                                                        class="w-10 h-10 rounded-lg flex items-center justify-center text-xs font-bold transition-all duration-200 cursor-pointer">
+                                                        id="btn_seat_{{ $seatNum }}"
+                                                        onclick="toggleSeat('{{ $seatNum }}')"
+                                                        class="w-10 h-10 rounded-lg flex items-center justify-center text-xs font-bold transition-all duration-200 cursor-pointer bg-gray-warm-100 border-2 border-gray-warm-200 text-gray-warm-700 hover:border-merah-400 hover:bg-merah-50">
                                                         {{ $seatNum }}
                                                     </button>
                                                 @endif
@@ -123,11 +123,18 @@
                     {{-- Submit --}}
                     <form method="POST" action="{{ route('booking.passenger-form', $schedule) }}" class="mt-6">
                         @csrf
-                        <template x-for="seat in selected" :key="seat">
-                            <input type="hidden" name="seats[]" :value="seat">
-                        </template>
-                        <button type="submit" :disabled="selected.length === 0" class="btn-primary w-full text-center disabled:opacity-50 disabled:cursor-not-allowed">
-                            <span x-text="selected.length > 0 ? 'Lanjutkan (' + selected.length + ' kursi)' : 'Pilih kursi terlebih dahulu'"></span>
+                        {{-- Hidden Checkboxes --}}
+                        <div class="hidden">
+                            @php
+                                $totalSeats = $schedule->bus->capacity;
+                            @endphp
+                            @for($i = 1; $i <= $totalSeats; $i++)
+                                <input type="checkbox" id="chk_seat_{{ $i }}" name="seats[]" value="{{ $i }}">
+                            @endfor
+                        </div>
+
+                        <button type="submit" id="submit_btn" disabled class="btn-primary w-full text-center disabled:opacity-50 disabled:cursor-not-allowed">
+                            <span id="submit_text">Pilih kursi terlebih dahulu</span>
                             <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
                         </button>
                     </form>
@@ -188,25 +195,44 @@
     </div>
 </div>
 
+
 @push('scripts')
 <script>
-function seatSelector() {
-    return {
-        selected: [],
-        toggleSeat(seat) {
-            const index = this.selected.indexOf(seat);
-            if (index > -1) {
-                this.selected.splice(index, 1);
-            } else {
-                if (this.selected.length >= 5) {
-                    alert('Maksimal 5 kursi per booking');
-                    return;
-                }
-                this.selected.push(seat);
+    function toggleSeat(seatNum) {
+        const checkbox = document.getElementById('chk_seat_' + seatNum);
+        const button = document.getElementById('btn_seat_' + seatNum);
+        
+        if (checkbox.checked) {
+            checkbox.checked = false;
+            button.className = "w-10 h-10 rounded-lg flex items-center justify-center text-xs font-bold transition-all duration-200 cursor-pointer bg-gray-warm-100 border-2 border-gray-warm-200 text-gray-warm-700 hover:border-merah-400 hover:bg-merah-50";
+        } else {
+            const checkedCount = document.querySelectorAll('input[name="seats[]"]:checked').length;
+            if (checkedCount >= 5) {
+                alert('Maksimal 5 kursi per booking');
+                return;
             }
+            checkbox.checked = true;
+            button.className = "w-10 h-10 rounded-lg flex items-center justify-center text-xs font-bold transition-all duration-200 cursor-pointer bg-merah-600 text-white shadow-lg shadow-merah-600/30";
+        }
+        
+        updateSubmitButton();
+    }
+    
+    function updateSubmitButton() {
+        const checkedCount = document.querySelectorAll('input[name="seats[]"]:checked').length;
+        const btn = document.getElementById('submit_btn');
+        const span = document.getElementById('submit_text');
+        
+        if (checkedCount > 0) {
+            btn.disabled = false;
+            btn.classList.remove('opacity-50', 'cursor-not-allowed');
+            span.textContent = 'Lanjutkan (' + checkedCount + ' kursi)';
+        } else {
+            btn.disabled = true;
+            btn.classList.add('opacity-50', 'cursor-not-allowed');
+            span.textContent = 'Pilih kursi terlebih dahulu';
         }
     }
-}
 </script>
 @endpush
 @endsection

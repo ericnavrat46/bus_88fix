@@ -25,7 +25,7 @@
             <h2 class="text-xl font-bold text-dark mb-2">Data Penumpang</h2>
             <p class="text-gray-warm-500 mb-8">Lengkapi data untuk {{ count($selectedSeats) }} penumpang</p>
 
-            <form method="POST" action="{{ route('booking.store', $schedule) }}" class="space-y-6">
+            <form id="bookingForm" method="POST" action="{{ route('booking.store', $schedule) }}" class="space-y-6">
                 @csrf
                 @foreach($selectedSeats as $index => $seat)
                 <div class="p-6 bg-gray-warm-50 rounded-2xl border border-gray-warm-100">
@@ -40,15 +40,15 @@
                     <div class="grid md:grid-cols-3 gap-4">
                         <div>
                             <label class="label-field">Nama Lengkap *</label>
-                            <input type="text" name="passengers[{{ $index }}][passenger_name]" class="input-field" placeholder="Sesuai KTP" required>
+                            <input type="text" name="passengers[{{ $index }}][passenger_name]" class="input-field" placeholder="Sesuai KTP" pattern="^[a-zA-Z\s]+$" title="Hanya huruf dan spasi yang diizinkan." oninput="this.value = this.value.replace(/[^a-zA-Z\s]/g, '')" required>
                         </div>
                         <div>
                             <label class="label-field">No. KTP/Identitas</label>
-                            <input type="text" name="passengers[{{ $index }}][id_number]" class="input-field" placeholder="Opsional">
+                            <input type="text" name="passengers[{{ $index }}][id_number]" class="input-field" placeholder="16 Digit Angka" pattern="\d{16}" title="Nomor KTP harus tepat 16 angka." maxlength="16" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
                         </div>
                         <div>
                             <label class="label-field">No. Telepon</label>
-                            <input type="text" name="passengers[{{ $index }}][phone]" class="input-field" placeholder="08xxxxxxxxxx">
+                            <input type="tel" name="passengers[{{ $index }}][phone]" class="input-field" placeholder="08xxxxxxxxxx" pattern="\d{10,15}" title="Nomor telepon harus berupa angka antara 10 hingga 15 digit." maxlength="15" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
                         </div>
                     </div>
                 </div>
@@ -165,7 +165,70 @@
                 applyPromoBtn.disabled = false;
                 applyPromoBtn.innerHTML = 'Gunakan';
             });
-        }
+        // Confirmation before payment
+        const bookingForm = document.getElementById('bookingForm');
+        bookingForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Check HTML5 validation
+            if (!this.checkValidity()) {
+                this.reportValidity();
+                return;
+            }
+
+            const total = totalAmountSpan.textContent;
+            const route = "{{ $schedule->route->origin }} → {{ $schedule->route->destination }}";
+            const date = "{{ $schedule->departure_date->translatedFormat('d M Y') }}";
+            const seats = "{{ count($selectedSeats) }}";
+
+            Swal.fire({
+                title: 'Konfirmasi Pesanan',
+                html: `
+                    <div class="text-left space-y-3 p-2">
+                        <div class="flex justify-between border-b pb-2">
+                            <span class="text-gray-500">Rute:</span>
+                            <span class="font-bold text-dark">${route}</span>
+                        </div>
+                        <div class="flex justify-between border-b pb-2">
+                            <span class="text-gray-500">Tanggal:</span>
+                            <span class="font-bold text-dark">${date}</span>
+                        </div>
+                        <div class="flex justify-between border-b pb-2">
+                            <span class="text-gray-500">Jumlah Kursi:</span>
+                            <span class="font-bold text-dark">${seats} Kursi</span>
+                        </div>
+                        <div class="flex justify-between pt-2">
+                            <span class="text-gray-500">Total Bayar:</span>
+                            <span class="font-bold text-merah-600 text-lg">${total}</span>
+                        </div>
+                        <div class="mt-4 p-3 bg-blue-50 rounded-lg text-xs text-blue-700">
+                            Pastikan Nama dan No. KTP sudah benar. Data tidak dapat diubah setelah pembayaran.
+                        </div>
+                    </div>
+                `,
+                icon: 'info',
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: 'Ya, Lanjut Bayar',
+                cancelButtonText: 'Periksa Lagi',
+                borderRadius: '1rem'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Show loading
+                    Swal.fire({
+                        title: 'Memproses...',
+                        text: 'Menghubungkan ke sistem pembayaran',
+                        allowOutsideClick: false,
+                        showConfirmButton: false,
+                        willOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+                    bookingForm.submit();
+                }
+            });
+        });
     });
 </script>
 @endpush

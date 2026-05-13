@@ -81,6 +81,18 @@ class RentalController extends Controller
             return back()->withErrors(['error' => 'Rental belum disetujui atau harga belum ditentukan.']);
         }
 
+        // Auto-check status if pending
+        if ($rental->payment_status === 'pending') {
+            $payment = $rental->payments()->latest()->first();
+            if ($payment) {
+                app(\App\Http\Controllers\PaymentController::class)->checkStatus(request(), $payment);
+                $rental->refresh();
+                if ($rental->payment_status === 'paid') {
+                    return redirect()->route('dashboard')->with('success', 'Pembayaran berhasil dikonfirmasi!');
+                }
+            }
+        }
+
         $user = auth()->user();
         $rentalCode = $rental->rental_code;
 

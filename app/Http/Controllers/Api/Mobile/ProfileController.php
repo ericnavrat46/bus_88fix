@@ -104,7 +104,7 @@ class ProfileController extends Controller
     {
         $request->validate([
             'user_id' => 'required',
-            'name' => 'required|string|max:255'
+            'name' => 'required|string|max:255|regex:/^[a-zA-Z\s]+$/'
         ]);
 
         $user = User::find($request->user_id);

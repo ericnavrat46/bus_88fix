@@ -110,6 +110,18 @@ class TourController extends Controller
             return redirect()->route('dashboard')->with('info', 'Booking ini sudah lunas.');
         }
 
+        // Auto-check status if pending
+        if ($booking->payment_status === 'pending') {
+            $payment = $booking->payments()->latest()->first();
+            if ($payment) {
+                app(\App\Http\Controllers\PaymentController::class)->checkStatus(request(), $payment);
+                $booking->refresh();
+                if ($booking->payment_status === 'paid') {
+                    return redirect()->route('dashboard')->with('success', 'Pembayaran berhasil dikonfirmasi!');
+                }
+            }
+        }
+
         $user = auth()->user();
         $snapToken = $booking->snap_token;
 

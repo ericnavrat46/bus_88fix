@@ -47,18 +47,16 @@
             <td class="table-cell"><span class="{{ match($booking->payment_status) { 'paid' => 'badge-success', 'pending' => 'badge-warning', 'expired' => 'badge-gray', 'cancelled' => 'badge-danger', default => 'badge-info' } }} text-[10px]">{{ ucfirst($booking->payment_status) }}</span></td>
             <td class="table-cell">
                 <div class="flex flex-col gap-2">
-                    <div x-data="{ open: false }" class="relative">
-                        <button @click="open = !open" class="text-xs text-merah-600 hover:underline font-medium">Ubah Status</button>
-                        <div x-show="open" @click.away="open = false" class="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-gray-warm-100 py-2 z-50">
+                    <form method="POST" action="{{ route('admin.booking.status', $booking) }}">
+                        @csrf @method('PATCH')
+                        <select name="payment_status" onchange="this.form.submit()" class="text-xs border border-gray-300 rounded-lg px-2 py-1 focus:ring-merah-500 outline-none w-full min-w-[100px] cursor-pointer bg-white">
                             @foreach(['pending','paid','expired','cancelled','refunded'] as $status)
-                            <form method="POST" action="{{ route('admin.booking.status', $booking) }}">@csrf @method('PATCH')
-                                <input type="hidden" name="payment_status" value="{{ $status }}">
-                                <button type="submit" class="w-full text-left px-4 py-2 text-sm hover:bg-gray-warm-50 {{ $booking->payment_status === $status ? 'text-merah-600 font-bold' : 'text-gray-warm-700' }}">{{ ucfirst($status) }}</button>
-                            </form>
+                                <option value="{{ $status }}" {{ $booking->payment_status === $status ? 'selected' : '' }}>
+                                    {{ ucfirst($status) }}
+                                </option>
                             @endforeach
-                        </div>
-                    </div>
-
+                        </select>
+                    </form>
                 </div>
             </td>
         </tr>

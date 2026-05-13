@@ -1,69 +1,69 @@
 {{-- Footer --}}
-<footer class="bg-white border-t-[3px] border-merah-600 mt-auto">
-    <div class="max-w-7xl mx-auto px-4 sm:px-8 pt-10 pb-0">
+<footer style="background:#ffffff; border-top: 3px solid #cc0000; margin-top: auto;">
+    <div style="max-width:1280px; margin:0 auto; padding:2.5rem 2rem 0;">
 
         {{-- Baris utama: 3 kolom --}}
-        <div class="flex flex-col lg:flex-row items-start gap-8 lg:gap-0">
+        <div style="display:flex; flex-wrap:wrap; gap:2rem; align-items:flex-start;">
 
             {{-- Kolom 1: Kontak Kami --}}
-            <div class="w-full lg:w-[220px] flex-shrink-0 lg:pr-9">
-                <p class="text-[11px] font-extrabold text-dark uppercase tracking-widest mb-5">Kontak Kami</p>
-                <div class="flex flex-col gap-3.5">
-                    <div class="flex items-start gap-2.5">
-                        <img src="https://img.icons8.com/color/48/phone.png" class="w-[18px] h-[18px] mt-0.5 flex-shrink-0" alt="">
+            <div style="min-width:180px; flex-shrink:0; padding-right:2rem; border-right:1px solid #f0ece9;">
+                <p style="font-size:11px; font-weight:800; color:#1a0505; text-transform:uppercase; letter-spacing:0.15em; margin-bottom:1.25rem; margin-top:0;">Kontak Kami</p>
+                <div style="display:flex; flex-direction:column; gap:14px;">
+                    <div style="display:flex; align-items:flex-start; gap:10px;">
+                        <img src="https://img.icons8.com/color/48/phone.png" style="width:18px; height:18px; margin-top:2px; flex-shrink:0;" alt="">
                         <div>
-                            <p class="text-xs font-bold text-gray-warm-800 leading-tight mb-0.5">Telepon</p>
-                            <p class="text-xs text-gray-warm-500 leading-snug">(021) 1500 025</p>
+                            <p style="font-size:12px; font-weight:700; color:#3d2e29; margin:0 0 2px 0; line-height:1.25;">Telepon</p>
+                            <p style="font-size:12px; color:#9a8577; margin:0; line-height:1.4;">(021) 1500 025</p>
                         </div>
                     </div>
-                    <div class="flex items-start gap-2.5">
-                        <img src="https://img.icons8.com/color/48/gmail-new.png" class="w-[18px] h-[18px] mt-0.5 flex-shrink-0" alt="">
+                    <div style="display:flex; align-items:flex-start; gap:10px;">
+                        <img src="https://img.icons8.com/color/48/gmail-new.png" style="width:18px; height:18px; margin-top:2px; flex-shrink:0;" alt="">
                         <div>
-                            <p class="text-xs font-bold text-gray-warm-800 leading-tight mb-0.5">Email</p>
-                            <p class="text-xs text-gray-warm-500 leading-snug">cs@bus88.co.id</p>
+                            <p style="font-size:12px; font-weight:700; color:#3d2e29; margin:0 0 2px 0; line-height:1.25;">Email</p>
+                            <p style="font-size:12px; color:#9a8577; margin:0; line-height:1.4;">cs@bus88.co.id</p>
                         </div>
                     </div>
-                    <div class="flex items-start gap-2.5">
-                        <img src="https://img.icons8.com/color/48/whatsapp.png" class="w-[18px] h-[18px] mt-0.5 flex-shrink-0" alt="">
+                    <div style="display:flex; align-items:flex-start; gap:10px;">
+                        <img src="https://img.icons8.com/color/48/whatsapp.png" style="width:18px; height:18px; margin-top:2px; flex-shrink:0;" alt="">
                         <div>
-                            <p class="text-xs font-bold text-gray-warm-800 leading-tight mb-0.5">WhatsApp Business</p>
-                            <p class="text-xs text-gray-warm-500 leading-snug">(+62) 811-2110-0025</p>
+                            <p style="font-size:12px; font-weight:700; color:#3d2e29; margin:0 0 2px 0; line-height:1.25;">WhatsApp Business</p>
+                            <p style="font-size:12px; color:#9a8577; margin:0; line-height:1.4;">(+62) 811-2110-0025</p>
                         </div>
                     </div>
                 </div>
             </div>
 
             {{-- Kolom 2: Ikuti Kami --}}
-            <div class="w-full lg:w-[160px] flex-shrink-0 lg:px-9">
-                <p class="text-[11px] font-extrabold text-dark uppercase tracking-widest mb-5">Ikuti Kami</p>
-                <ul class="flex flex-col gap-2.5">
+            <div style="min-width:130px; flex-shrink:0; padding-right:2rem; border-right:1px solid #f0ece9;">
+                <p style="font-size:11px; font-weight:800; color:#1a0505; text-transform:uppercase; letter-spacing:0.15em; margin-bottom:1.25rem; margin-top:0;">Ikuti Kami</p>
+                <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:10px;">
                     <li>
-                        <a href="#" class="flex items-center gap-2 text-xs text-gray-warm-600 font-medium hover:text-merah-600 transition-colors duration-200">
-                            <svg class="w-[13px] h-[13px] flex-shrink-0 text-merah-600" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+                        <a href="#" style="display:flex; align-items:center; gap:8px; font-size:12px; color:#867167; font-weight:500; text-decoration:none;" onmouseover="this.style.color='#cc0000'" onmouseout="this.style.color='#867167'">
+                            <svg style="width:13px; height:13px; flex-shrink:0;" fill="#cc0000" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
                             Instagram
                         </a>
                     </li>
                     <li>
-                        <a href="#" class="flex items-center gap-2 text-xs text-gray-warm-600 font-medium hover:text-merah-600 transition-colors duration-200">
-                            <svg class="w-[13px] h-[13px] flex-shrink-0 text-merah-600" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+                        <a href="#" style="display:flex; align-items:center; gap:8px; font-size:12px; color:#867167; font-weight:500; text-decoration:none;" onmouseover="this.style.color='#cc0000'" onmouseout="this.style.color='#867167'">
+                            <svg style="width:13px; height:13px; flex-shrink:0;" fill="#cc0000" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
                             Facebook
                         </a>
                     </li>
                     <li>
-                        <a href="#" class="flex items-center gap-2 text-xs text-gray-warm-600 font-medium hover:text-merah-600 transition-colors duration-200">
-                            <svg class="w-[13px] h-[13px] flex-shrink-0 text-merah-600" fill="currentColor" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                        <a href="#" style="display:flex; align-items:center; gap:8px; font-size:12px; color:#867167; font-weight:500; text-decoration:none;" onmouseover="this.style.color='#cc0000'" onmouseout="this.style.color='#867167'">
+                            <svg style="width:13px; height:13px; flex-shrink:0;" fill="#cc0000" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
                             Twitter / X
                         </a>
                     </li>
                     <li>
-                        <a href="#" class="flex items-center gap-2 text-xs text-gray-warm-600 font-medium hover:text-merah-600 transition-colors duration-200">
-                            <svg class="w-[13px] h-[13px] flex-shrink-0 text-merah-600" fill="currentColor" viewBox="0 0 24 24"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.612 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg>
+                        <a href="#" style="display:flex; align-items:center; gap:8px; font-size:12px; color:#867167; font-weight:500; text-decoration:none;" onmouseover="this.style.color='#cc0000'" onmouseout="this.style.color='#867167'">
+                            <svg style="width:13px; height:13px; flex-shrink:0;" fill="#cc0000" viewBox="0 0 24 24"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.612 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg>
                             Youtube
                         </a>
                     </li>
                     <li>
-                        <a href="#" class="flex items-center gap-2 text-xs text-gray-warm-600 font-medium hover:text-merah-600 transition-colors duration-200">
-                            <svg class="w-[13px] h-[13px] flex-shrink-0 text-merah-600" fill="currentColor" viewBox="0 0 24 24"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.79 1.53V6.77a4.85 4.85 0 01-1.02-.08z"/></svg>
+                        <a href="#" style="display:flex; align-items:center; gap:8px; font-size:12px; color:#867167; font-weight:500; text-decoration:none;" onmouseover="this.style.color='#cc0000'" onmouseout="this.style.color='#867167'">
+                            <svg style="width:13px; height:13px; flex-shrink:0;" fill="#cc0000" viewBox="0 0 24 24"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.79 1.53V6.77a4.85 4.85 0 01-1.02-.08z"/></svg>
                             Tiktok
                         </a>
                     </li>
@@ -71,53 +71,53 @@
             </div>
 
             {{-- Kolom 3: Dukungan Pembayaran --}}
-            <div class="flex-1 min-w-0 lg:pl-9">
-                <p class="text-[11px] font-extrabold text-dark uppercase tracking-widest mb-5">Dukungan Pembayaran</p>
+            <div style="flex:1; min-width:300px;">
+                <p style="font-size:11px; font-weight:800; color:#1a0505; text-transform:uppercase; letter-spacing:0.15em; margin-bottom:1.25rem; margin-top:0;">Dukungan Pembayaran</p>
 
-                <div class="flex flex-wrap items-start gap-5 lg:justify-between">
+                <div style="display:flex; flex-wrap:wrap; align-items:flex-start; gap:1.25rem;">
 
                     {{-- Transfer Bank --}}
-                    <div class="pr-5">
-                        <p class="text-[10px] font-bold text-gray-warm-500 uppercase tracking-wider mb-2.5 whitespace-nowrap">Transfer Bank</p>
-                        <div class="grid grid-cols-3 gap-2 items-center">
-                            <img src="{{ asset('assets/img/footer/bri.png') }}" class="h-[22px] w-[52px] object-contain" alt="BRI">
-                            <img src="{{ asset('assets/img/footer/mandiri.png') }}" class="h-[22px] w-[52px] object-contain" alt="Mandiri">
-                            <img src="{{ asset('assets/img/footer/bca.png') }}" class="h-[26px] w-[60px] object-contain" alt="BCA">
-                            <img src="{{ asset('assets/img/footer/btn.png') }}" class="h-[26px] w-[60px] object-contain" alt="BTN">
-                            <img src="{{ asset('assets/img/footer/bni.png') }}" class="h-[26px] w-[60px] object-contain" alt="BNI">
+                    <div style="padding-right:1.25rem; border-right:1px solid #f0ece9;">
+                        <p style="font-size:10px; font-weight:700; color:#9a8577; text-transform:uppercase; letter-spacing:0.08em; margin:0 0 10px 0; white-space:nowrap;">Transfer Bank</p>
+                        <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:8px; align-items:center;">
+                            <img src="{{ asset('assets/img/footer/bri.png') }}" style="height:22px; width:52px; object-fit:contain;" alt="BRI">
+                            <img src="{{ asset('assets/img/footer/mandiri.png') }}" style="height:22px; width:52px; object-fit:contain;" alt="Mandiri">
+                            <img src="{{ asset('assets/img/footer/bca.png') }}" style="height:26px; width:60px; object-fit:contain;" alt="BCA">
+                            <img src="{{ asset('assets/img/footer/btn.png') }}" style="height:26px; width:60px; object-fit:contain;" alt="BTN">
+                            <img src="{{ asset('assets/img/footer/bni.png') }}" style="height:26px; width:60px; object-fit:contain;" alt="BNI">
                         </div>
                     </div>
 
                     {{-- E-wallet --}}
-                    <div class="px-5 border-r border-gray-warm-100">
-                        <p class="text-[10px] font-bold text-gray-warm-500 uppercase tracking-wider mb-2.5 whitespace-nowrap">E-wallet</p>
-                        <div class="grid grid-cols-2 gap-2 items-center">
-                            <img src="{{ asset('assets/img/footer/gopay.png') }}" class="h-[26px] w-[60px] object-contain" alt="Gopay">
-                            <img src="{{ asset('assets/img/footer/ovo.png') }}" class="h-[26px] w-[60px] object-contain" alt="OVO">
-                            <img src="{{ asset('assets/img/footer/shopeepay.png') }}" class="h-[26px] w-[60px] object-contain" alt="ShopeePay">
-                            <img src="{{ asset('assets/img/footer/qris.png') }}" class="h-[26px] w-[60px] object-contain" alt="QRIS">
+                    <div style="padding-right:1.25rem; border-right:1px solid #f0ece9;">
+                        <p style="font-size:10px; font-weight:700; color:#9a8577; text-transform:uppercase; letter-spacing:0.08em; margin:0 0 10px 0; white-space:nowrap;">E-wallet</p>
+                        <div style="display:grid; grid-template-columns:repeat(2, 1fr); gap:8px; align-items:center;">
+                            <img src="{{ asset('assets/img/footer/gopay.png') }}" style="height:26px; width:60px; object-fit:contain;" alt="Gopay">
+                            <img src="{{ asset('assets/img/footer/ovo.png') }}" style="height:26px; width:60px; object-fit:contain;" alt="OVO">
+                            <img src="{{ asset('assets/img/footer/shopeepay.png') }}" style="height:26px; width:60px; object-fit:contain;" alt="ShopeePay">
+                            <img src="{{ asset('assets/img/footer/qris.png') }}" style="height:26px; width:60px; object-fit:contain;" alt="QRIS">
                         </div>
                     </div>
 
                     {{-- Paylater --}}
-                    <div class="px-5">
-                        <p class="text-[10px] font-bold text-gray-warm-500 uppercase tracking-wider mb-2.5 whitespace-nowrap">Paylater</p>
-                        <img src="{{ asset('assets/img/footer/kredivo.png') }}" class="h-[26px] w-[70px] object-contain" alt="Kredivo">
+                    <div style="padding-right:1.25rem; border-right:1px solid #f0ece9;">
+                        <p style="font-size:10px; font-weight:700; color:#9a8577; text-transform:uppercase; letter-spacing:0.08em; margin:0 0 10px 0; white-space:nowrap;">Paylater</p>
+                        <img src="{{ asset('assets/img/footer/kredivo.png') }}" style="height:26px; width:70px; object-fit:contain;" alt="Kredivo">
                     </div>
 
                     {{-- Retail --}}
-                    <div class="px-5">
-                        <p class="text-[10px] font-bold text-gray-warm-500 uppercase tracking-wider mb-2.5 whitespace-nowrap">Retail</p>
-                        <img src="{{ asset('assets/img/footer/indomaret.png') }}" class="h-[26px] w-[70px] object-contain" alt="Indomaret">
+                    <div style="padding-right:1.25rem; border-right:1px solid #f0ece9;">
+                        <p style="font-size:10px; font-weight:700; color:#9a8577; text-transform:uppercase; letter-spacing:0.08em; margin:0 0 10px 0; white-space:nowrap;">Retail</p>
+                        <img src="{{ asset('assets/img/footer/indomaret.png') }}" style="height:26px; width:70px; object-fit:contain;" alt="Indomaret">
                     </div>
 
                     {{-- Kartu --}}
-                    <div class="pl-5">
-                        <p class="text-[10px] font-bold text-gray-warm-500 uppercase tracking-wider mb-2.5 whitespace-nowrap">Kartu</p>
-                        <div class="flex gap-2 items-center">
-                            <img src="{{ asset('assets/img/footer/mastercard.png') }}" class="h-[26px] w-[60px] object-contain" alt="Mastercard">
-                            <img src="{{ asset('assets/img/footer/gpn.png') }}" class="h-[26px] w-[60px] object-contain" alt="GPN">
-                            <img src="{{ asset('assets/img/footer/visa.png') }}" class="h-[26px] w-[60px] object-contain" alt="Visa">
+                    <div>
+                        <p style="font-size:10px; font-weight:700; color:#9a8577; text-transform:uppercase; letter-spacing:0.08em; margin:0 0 10px 0; white-space:nowrap;">Kartu</p>
+                        <div style="display:flex; gap:8px; align-items:center;">
+                            <img src="{{ asset('assets/img/footer/mastercard.png') }}" style="height:26px; width:60px; object-fit:contain;" alt="Mastercard">
+                            <img src="{{ asset('assets/img/footer/gpn.png') }}" style="height:26px; width:60px; object-fit:contain;" alt="GPN">
+                            <img src="{{ asset('assets/img/footer/visa.png') }}" style="height:26px; width:60px; object-fit:contain;" alt="Visa">
                         </div>
                     </div>
 
@@ -127,25 +127,25 @@
         </div>
 
         {{-- Bottom Bar --}}
-        <div class="border-t border-gray-warm-100 mt-8 py-3.5 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div style="border-top: 1px solid #f0ece9; margin-top: 2rem; padding: 14px 0; display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:1rem;">
 
             {{-- BUMN --}}
-            <div class="flex items-center gap-2.5">
-                <span class="text-lg font-black text-[#003580] tracking-wide">BUMN</span>
-                <div class="w-px h-[18px] bg-gray-warm-200"></div>
-                <span class="text-[10px] font-bold text-gray-warm-400 uppercase tracking-widest">Untuk Indonesia</span>
+            <div style="display:flex; align-items:center; gap:10px;">
+                <span style="font-size:18px; font-weight:900; color:#003580; letter-spacing:0.05em;">BUMN</span>
+                <div style="width:1px; height:18px; background:#e1d9d4;"></div>
+                <span style="font-size:10px; font-weight:700; color:#b3a194; text-transform:uppercase; letter-spacing:0.15em;">Untuk Indonesia</span>
             </div>
 
             {{-- Copyright --}}
-            <p class="text-[11px] text-gray-warm-400 font-medium">&copy; 2024 &ndash; {{ date('Y') }} BUS 88. All rights reserved.</p>
+            <p style="font-size:11px; color:#b3a194; font-weight:500; margin:0;">&copy; 2024 &ndash; {{ date('Y') }} BUS 88. All rights reserved.</p>
 
             {{-- Brand --}}
-            <a href="{{ route('home') }}" class="flex items-center gap-2 no-underline group">
-                <div class="gradient-merah w-[26px] h-[26px] rounded-md flex items-center justify-center flex-shrink-0 group-hover:shadow-lg group-hover:shadow-merah-600/30 transition-shadow duration-300">
-                    <span class="text-white font-black text-[9px]">88</span>
+            <a href="{{ route('home') }}" style="display:flex; align-items:center; gap:8px; text-decoration:none;">
+                <div class="gradient-merah" style="width:26px; height:26px; border-radius:6px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                    <span style="color:#ffffff; font-weight:900; font-size:9px;">88</span>
                 </div>
-                <span class="text-base font-black text-dark uppercase tracking-tight">
-                    BUS <span class="text-merah-600">88</span>
+                <span style="font-size:16px; font-weight:900; color:#1a0505; text-transform:uppercase; letter-spacing:-0.02em;">
+                    BUS <span style="color:#cc0000;">88</span>
                 </span>
             </a>
 

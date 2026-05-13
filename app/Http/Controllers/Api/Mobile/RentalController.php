@@ -19,8 +19,8 @@ class RentalController extends Controller
             'end_date' => 'required|date',
             'pickup_location' => 'required',
             'destination' => 'required',
-            'contact_name' => 'required',
-            'contact_phone' => 'required',
+            'contact_name' => 'required|string|max:255|regex:/^[a-zA-Z\s]+$/',
+            'contact_phone' => 'required|numeric|digits_between:10,15',
             'purpose' => 'required',
             'passenger_count' => 'required|integer|min:1',
             'bus_id' => 'nullable'

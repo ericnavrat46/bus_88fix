@@ -15,8 +15,9 @@ class HomeController extends Controller
         $destinations = $routes->pluck('destination')->unique()->sort()->values();
         $reviews = \App\Models\Review::with('user', 'reviewable')->where('is_visible', true)->latest()->take(6)->get();
         $promoBanners = \App\Models\PromoBanner::active()->get();
+        $popularRoutes = \App\Models\PopularRoute::with('route')->where('is_active', true)->orderBy('sort_order')->get();
 
-        return view('home', compact('routes', 'origins', 'destinations', 'reviews', 'promoBanners'));
+        return view('home', compact('routes', 'origins', 'destinations', 'reviews', 'promoBanners', 'popularRoutes'));
     }
 
     public function searchSchedules(Request $request)

@@ -194,34 +194,130 @@
 
 
 {{-- Popular Routes --}}
-<section class="py-20 bg-cream">
+<section class="py-16 bg-white">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="text-center mb-14">
-            <h2 class="text-3xl lg:text-4xl font-black text-dark mb-4">Rute <span class="text-gradient-merah">Populer</span></h2>
-            <p class="text-gray-warm-500 text-lg">Rute favorit pelanggan kami</p>
+        {{-- Header --}}
+        <div class="text-center mb-12">
+            <h2 class="text-3xl md:text-5xl font-black text-dark mb-4">Temukan Rute <span class="text-gradient-merah">Terbaik</span></h2>
+            <p class="text-gray-warm-500 text-lg">Perjalanan nyaman, aman, dan terjangkau ke berbagai destinasi pilihan</p>
         </div>
-        <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            @foreach($routes->take(8) as $route)
-            <div class="bg-white rounded-2xl p-6 group cursor-pointer route-card"
-                 onclick="window.location='{{ route('schedules.search') }}?origin={{ $route->origin }}&destination={{ $route->destination }}&date={{ date('Y-m-d') }}'">
-                <div class="flex items-center justify-between mb-4">
-                    <div class="w-10 h-10 bg-merah-100 rounded-xl flex items-center justify-center group-hover:bg-merah-600 transition-colors duration-300">
-                        <svg class="w-5 h-5 text-merah-600 group-hover:text-white transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-                    </div>
-                    <span class="text-xs font-semibold text-gray-warm-400 bg-gray-warm-50 px-2.5 py-1 rounded-full">{{ $route->formatted_duration }}</span>
+
+        {{-- Benefits Row --}}
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
+            <div class="flex items-center gap-4 p-4 rounded-2xl bg-gray-warm-50 border border-gray-warm-100">
+                <div class="w-10 h-10 bg-merah-50 rounded-xl flex items-center justify-center shrink-0">
+                    <svg class="w-5 h-5 text-merah-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                 </div>
-                <div class="flex items-center gap-2 mb-3">
-                    <span class="text-sm font-bold text-dark">{{ $route->origin }}</span>
-                    <svg class="w-4 h-4 text-merah-400 route-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
-                    <span class="text-sm font-bold text-dark">{{ $route->destination }}</span>
-                </div>
-                <p class="text-xs text-gray-warm-500 mb-3">{{ $route->distance ? $route->distance . ' km' : '' }}</p>
-                <div class="flex items-center justify-between pt-3 border-t border-gray-warm-100">
-                    <span class="text-lg font-black text-merah-600 route-price">Rp {{ number_format($route->base_price, 0, ',', '.') }}</span>
-                    <span class="text-xs text-gray-warm-500">mulai dari</span>
+                <div>
+                    <h4 class="text-xs font-black text-dark uppercase tracking-wider">Harga Terbaik</h4>
+                    <p class="text-[10px] text-gray-warm-500">Jaminan harga termurah</p>
                 </div>
             </div>
-            @endforeach
+            <div class="flex items-center gap-4 p-4 rounded-2xl bg-gray-warm-50 border border-gray-warm-100">
+                <div class="w-10 h-10 bg-merah-50 rounded-xl flex items-center justify-center shrink-0">
+                    <svg class="w-5 h-5 text-merah-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                </div>
+                <div>
+                    <h4 class="text-xs font-black text-dark uppercase tracking-wider">Aman & Nyaman</h4>
+                    <p class="text-[10px] text-gray-warm-500">Perjalanan aman dan nyaman</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-4 p-4 rounded-2xl bg-gray-warm-50 border border-gray-warm-100">
+                <div class="w-10 h-10 bg-merah-50 rounded-xl flex items-center justify-center shrink-0">
+                    <svg class="w-5 h-5 text-merah-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                </div>
+                <div>
+                    <h4 class="text-xs font-black text-dark uppercase tracking-wider">Berangkat Tiap Hari</h4>
+                    <p class="text-[10px] text-gray-warm-500">Banyak pilihan jadwal</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-4 p-4 rounded-2xl bg-gray-warm-50 border border-gray-warm-100">
+                <div class="w-10 h-10 bg-merah-50 rounded-xl flex items-center justify-center shrink-0">
+                    <svg class="w-5 h-5 text-merah-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+                </div>
+                <div>
+                    <h4 class="text-xs font-black text-dark uppercase tracking-wider">Customer Support</h4>
+                    <p class="text-[10px] text-gray-warm-500">Siap membantu 24/7</p>
+                </div>
+            </div>
+        </div>
+
+        {{-- Route Grid --}}
+        <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+            @forelse($popularRoutes->take(4) as $pr)
+            <div class="bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 group flex flex-col h-full border border-gray-warm-100">
+                {{-- Image Header --}}
+                <div class="relative h-48 md:h-52 overflow-hidden">
+                    <img src="{{ asset('storage/popular_routes/' . $pr->image) }}" 
+                         class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
+                         alt="{{ $pr->route->origin }}">
+                    
+                    @if($pr->badge_text)
+                    <div class="absolute top-4 right-4">
+                        <span class="bg-merah-600 text-white text-[8px] font-black px-2.5 py-1 rounded-lg shadow-lg uppercase tracking-wider">
+                            {{ $pr->badge_text }}
+                        </span>
+                    </div>
+                    @endif
+                </div>
+
+                {{-- Content --}}
+                <div class="p-5 flex flex-col flex-grow">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-sm font-extrabold text-dark line-clamp-1">
+                            {{ $pr->route->origin }} — {{ $pr->route->destination }}
+                        </h3>
+                        <span class="text-sm font-black text-merah-600 whitespace-nowrap ml-2">
+                            {{ $pr->price_display ?? 'IDR ' . number_format($pr->route->base_price / 1000, 0) . 'K' }}
+                        </span>
+                    </div>
+
+                    <div class="flex items-center gap-4 mb-6">
+                        <div class="flex items-center gap-1.5 text-gray-warm-400">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            <span class="text-[10px] font-bold">{{ $pr->duration_display ?? $pr->route->formatted_duration }}</span>
+                        </div>
+                        <div class="flex items-center gap-1.5 text-gray-warm-400">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
+                            <span class="text-[10px] font-bold">{{ $pr->class_display ?? 'Eksekutif' }}</span>
+                        </div>
+                    </div>
+
+                    <div class="mt-auto">
+                        <a href="{{ route('schedules.search') }}?origin={{ $pr->route->origin }}&destination={{ $pr->route->destination }}&date={{ date('Y-m-d') }}" 
+                           class="flex items-center justify-between w-full py-3 px-5 bg-merah-600 text-white font-black text-xs rounded-xl hover:bg-merah-700 transition-all duration-300 group/btn">
+                            Pilih Rute
+                            <svg class="w-4 h-4 transition-transform group-hover/btn:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            @empty
+                {{-- Fallback --}}
+                @foreach($routes->take(4) as $route)
+                    <div class="bg-white rounded-3xl p-5 border border-gray-warm-100 flex flex-col">
+                        <p class="font-bold text-sm mb-4">{{ $route->origin }} - {{ $route->destination }}</p>
+                        <a href="{{ route('schedules.search') }}?origin={{ $route->origin }}&destination={{ $route->destination }}&date={{ date('Y-m-d') }}" class="mt-auto py-2 text-center bg-merah-600 text-white rounded-xl text-xs font-bold">Cari Jadwal</a>
+                    </div>
+                @endforeach
+            @endforelse
+        </div>
+
+        {{-- Bottom Banner --}}
+        <div class="bg-merah-50 rounded-[2rem] p-4 md:p-6 flex flex-col md:flex-row items-center justify-between gap-4 border border-merah-100">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-merah-600 shadow-sm shrink-0">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 00-2 2z"/></svg>
+                </div>
+                <div>
+                    <h4 class="text-sm font-black text-dark">Jadwal Fleksibel</h4>
+                    <p class="text-[10px] text-gray-warm-500">Pilih jadwal keberangkatan yang sesuai dengan rencana perjalanan Anda.</p>
+                </div>
+            </div>
+            <a href="#search" class="px-6 py-3 bg-white border border-merah-100 text-merah-600 text-xs font-black rounded-xl hover:bg-merah-600 hover:text-white transition-all flex items-center gap-2" onclick="document.getElementById('search').scrollIntoView({behavior: 'smooth'}); return false;">
+                Lihat Semua Jadwal
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+            </a>
         </div>
     </div>
 </section>

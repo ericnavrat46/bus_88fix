@@ -29,6 +29,7 @@ use App\Http\Controllers\Admin\TransactionController;
 use App\Http\Controllers\Admin\TourPackageController;
 use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\PromoBannerController;
+use App\Http\Controllers\Admin\PopularRouteController;
 
 // ─────────────────────────────────────────────
 // PUBLIC ROUTES
@@ -170,6 +171,7 @@ Route::middleware(['auth', \App\Http\Middleware\AdminMiddleware::class])
         Route::resource('tour-packages', TourPackageController::class);
         Route::resource('promo-banners', PromoBannerController::class);
         Route::post('/promo-banners/{promo_banner}/toggle', [PromoBannerController::class, 'toggleStatus'])->name('promo-banners.toggle');
+        Route::resource('popular-routes', PopularRouteController::class);
 
 
         // Transactions

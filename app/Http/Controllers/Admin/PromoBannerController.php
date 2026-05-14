@@ -69,7 +69,7 @@ class PromoBannerController extends Controller
 
         if ($request->hasFile('image')) {
             $filename = time() . '_' . $request->file('image')->getClientOriginalName();
-            $request->file('image')->storeAs('public/promo_banners', $filename);
+            $request->file('image')->storeAs('promo_banners', $filename, 'public');
             $validated['image'] = $filename;
         }
 
@@ -109,11 +109,11 @@ class PromoBannerController extends Controller
         if ($request->hasFile('image')) {
             // Delete old image
             if ($promoBanner->image) {
-                Storage::delete('public/promo_banners/' . $promoBanner->image);
+                Storage::disk('public')->delete('promo_banners/' . $promoBanner->image);
             }
             
             $filename = time() . '_' . $request->file('image')->getClientOriginalName();
-            $request->file('image')->storeAs('public/promo_banners', $filename);
+            $request->file('image')->storeAs('promo_banners', $filename, 'public');
             $validated['image'] = $filename;
         }
 
@@ -128,7 +128,7 @@ class PromoBannerController extends Controller
     public function destroy(PromoBanner $promoBanner)
     {
         if ($promoBanner->image) {
-            Storage::delete('public/promo_banners/' . $promoBanner->image);
+            Storage::disk('public')->delete('promo_banners/' . $promoBanner->image);
         }
         $promoBanner->delete();
 

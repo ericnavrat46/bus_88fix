@@ -14,7 +14,7 @@
         
         <select name="status" class="px-3 py-2 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-merah-500 outline-none">
             <option value="">Semua Status</option>
-            @foreach(['pending', 'paid', 'canceled', 'refund'] as $s)
+            @foreach(['pending', 'paid', 'cancelled', 'refunded'] as $s)
                 <option value="{{ $s }}" {{ request('status') == $s ? 'selected' : '' }}>{{ ucfirst($s) }}</option>
             @endforeach
         </select>
@@ -40,7 +40,7 @@
                     <span class="text-sm font-bold text-merah-600 tracking-wider">{{ $rental->rental_code }}</span>
                     <span class="{{ match($rental->approval_status) { 'approved' => 'badge-success', 'pending' => 'badge-warning', default => 'badge-danger' } }}">{{ ucfirst($rental->approval_status) }}</span>
                     @if($rental->payment_status !== 'unpaid')
-                    <span class="{{ match($rental->payment_status) { 'paid' => 'badge-success', 'pending' => 'badge-warning', 'canceled' => 'badge-danger', 'refund' => 'badge-info', default => 'badge-gray' } }}">Bayar: {{ $rental->payment_status }}</span>
+                    <span class="{{ match($rental->payment_status) { 'paid' => 'badge-success', 'pending' => 'badge-warning', 'cancelled' => 'badge-danger', 'refunded' => 'badge-info', default => 'badge-gray' } }}">Bayar: {{ ucfirst(str_replace('_', ' ', $rental->payment_status)) }}</span>
                     @endif
                     @if($rental->payment_method)
                     <span class="badge-info text-[10px]">Via: {{ $rental->payment_method }}</span>

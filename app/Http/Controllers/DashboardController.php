@@ -71,8 +71,14 @@ class DashboardController extends Controller
             ->unique()
             ->count();
 
+        $refunds = \App\Models\Refund::with('booking.schedule.route')
+            ->where('user_id', $user->id)
+            ->latest()
+            ->take(10)
+            ->get();
+
         return view('dashboard.index', compact(
-            'bookings', 'rentals', 'tourBookings', 'promoBanners', 
+            'bookings', 'rentals', 'tourBookings', 'refunds', 'promoBanners', 
             'tripSelesaiCount', 'kotaDikunjungiCount'
         ));
     }
@@ -136,6 +142,12 @@ class DashboardController extends Controller
         } elseif ($type === 'tour') {
             $title .= 'Paket Wisata';
             $items = TourBooking::with('tourPackage')
+                ->where('user_id', $user->id)
+                ->latest()
+                ->paginate(12);
+        } elseif ($type === 'refund') {
+            $title .= 'Refund';
+            $items = \App\Models\Refund::with('booking.schedule.route')
                 ->where('user_id', $user->id)
                 ->latest()
                 ->paginate(12);

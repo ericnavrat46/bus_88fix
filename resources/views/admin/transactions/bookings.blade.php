@@ -14,7 +14,7 @@
         
         <select name="status" class="px-3 py-2 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-merah-500 outline-none">
             <option value="">Semua Status</option>
-            @foreach(['pending','paid','canceled','refund'] as $s)
+            @foreach(['pending','paid','cancelled','refunded'] as $s)
                 <option value="{{ $s }}" {{ request('status') == $s ? 'selected' : '' }}>{{ ucfirst($s) }}</option>
             @endforeach
         </select>
@@ -44,18 +44,24 @@
             <td class="table-cell font-semibold text-merah-600 text-xs">Rp {{ number_format($booking->total_price, 0, ',', '.') }}</td>
             <td class="table-cell text-xs text-gray-warm-600">{{ $booking->payment_method ?? '-' }}</td>
             <td class="table-cell text-[10px] text-gray-warm-400 font-mono">{{ $booking->latestPayment->midtrans_transaction_id ?? '-' }}</td>
-            <td class="table-cell"><span class="{{ match($booking->payment_status) { 'paid' => 'badge-success', 'pending' => 'badge-warning', 'canceled' => 'badge-danger', 'refund' => 'badge-info', default => 'badge-gray' } }} text-[10px]">{{ ucfirst($booking->payment_status) }}</span></td>
+            <td class="table-cell"><span class="{{ match($booking->payment_status) { 'paid' => 'badge-success', 'pending' => 'badge-warning', 'cancelled' => 'badge-danger', 'refunded' => 'badge-info', 'pending_refund' => 'badge-warning', default => 'badge-gray' } }} text-[10px]">{{ ucfirst(str_replace('_', ' ', $booking->payment_status)) }}</span></td>
             <td class="table-cell">
                 <div class="flex flex-col gap-2">
                     <form method="POST" action="{{ route('admin.booking.status', $booking) }}">
                         @csrf @method('PATCH')
-                        <select name="payment_status" onchange="this.form.submit()" class="text-xs border border-gray-300 rounded-lg px-2 py-1 focus:ring-merah-500 outline-none w-full min-w-[100px] cursor-pointer bg-white">
-                            @foreach(['pending','paid','canceled','refund'] as $status)
-                                <option value="{{ $status }}" {{ $booking->payment_status === $status ? 'selected' : '' }}>
-                                    {{ ucfirst($status) }}
-                                </option>
-                            @endforeach
-                        </select>
+                        @if(in_array($booking->payment_status, ['paid', 'cancelled', 'refunded', 'pending_refund']))
+                            <div class="text-[10px] font-bold text-gray-400 bg-gray-50 border border-gray-100 rounded px-2 py-1 text-center italic">
+                                Sesuai Sistem
+                            </div>
+                        @else
+                            <select name="payment_status" onchange="this.form.submit()" class="text-xs border border-gray-300 rounded-lg px-2 py-1 focus:ring-merah-500 outline-none w-full min-w-[100px] cursor-pointer bg-white">
+                                @foreach(['pending','cancelled'] as $status)
+                                    <option value="{{ $status }}" {{ $booking->payment_status === $status ? 'selected' : '' }}>
+                                        {{ ucfirst($status) }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        @endif
                     </form>
                 </div>
             </td>

@@ -121,18 +121,18 @@ class TransactionController extends Controller
                                 ]);
                             }
                         } elseif (in_array($rawStatus, ['deny', 'cancel', 'expire'])) {
-                             $item->update(['payment_status' => 'canceled']);
+                             $item->update(['payment_status' => 'cancelled']);
                              if ($payment) {
                                  $payment->update([
-                                     'status' => 'canceled',
+                                     'status' => 'cancelled',
                                      'raw_response' => $statusData
                                  ]);
                              }
                         } elseif (in_array($rawStatus, ['refund', 'partial_refund'])) {
-                             $item->update(['payment_status' => 'refund']);
+                             $item->update(['payment_status' => 'refunded']);
                              if ($payment) {
                                  $payment->update([
-                                     'status' => 'refund',
+                                     'status' => 'refunded',
                                      'raw_response' => $statusData
                                  ]);
                              }
@@ -212,8 +212,13 @@ class TransactionController extends Controller
 
     public function updateBookingStatus(Booking $booking, Request $request)
     {
+        // Enforce system locking for automated payments
+        if (in_array($booking->payment_status, ['paid', 'cancelled', 'refunded'])) {
+            return back()->with('error', 'Status pembayaran ini sudah terkunci oleh sistem dan tidak dapat diubah secara manual.');
+        }
+
         $validated = $request->validate([
-            'payment_status' => 'required|in:pending,paid,canceled,refund',
+            'payment_status' => 'required|in:pending,cancelled',
         ]);
 
         $booking->update([

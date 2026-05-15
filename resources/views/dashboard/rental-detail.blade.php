@@ -139,26 +139,6 @@
                     @else
                         <div class="space-y-6">
                             <a href="{{ route('rental.pay', $rental) }}" class="btn-primary w-full text-center py-4 text-lg font-bold shadow-lg block">BAYAR VIA MIDTRANS</a>
-
-                            <div class="flex items-center gap-4">
-                                <div class="h-px flex-1 bg-gray-warm-200"></div>
-                                <span class="text-xs font-bold text-gray-warm-400">ATAU TRANSFER MANUAL</span>
-                                <div class="h-px flex-1 bg-gray-warm-200"></div>
-                            </div>
-
-                            <div class="p-6 bg-gray-warm-50 rounded-2xl border border-gray-warm-100">
-                                <h4 class="font-bold text-dark mb-4 text-center">Formulir Bukti Transfer</h4>
-                                <div class="p-4 bg-white rounded-xl border border-gray-warm-200 text-sm mb-4">
-                                    <p class="text-gray-warm-500 mb-1">Transfer ke BRI:</p>
-                                    <p class="text-lg font-black text-merah-600">1234-5678-9012-345</p>
-                                    <p class="text-xs text-gray-warm-400">a.n. PT Bus 88 Merah Putih</p>
-                                </div>
-                                <form action="{{ route('rental.upload-proof', $rental) }}" method="POST" enctype="multipart/form-data" class="space-y-4">
-                                    @csrf
-                                    <input type="file" name="payment_proof" class="input-field py-2.5 text-xs bg-white" required accept="image/*">
-                                    <button type="submit" class="btn-secondary w-full py-3 font-bold">UNGGAH BUKTI MANUAL</button>
-                                </form>
-                            </div>
                         </div>
                     @endif
                 </div>

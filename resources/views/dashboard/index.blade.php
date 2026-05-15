@@ -76,10 +76,22 @@
         'download_url' => $t->payment_status === 'paid' ? route('ticket.tour.download', $t) : null,
     ]);
 
+    $refundActivities = $refunds->map(fn($ref) => [
+        'type' => 'Refund',
+        'icon' => '💰',
+        'id' => $ref->refund_code,
+        'date' => $ref->created_at,
+        'status' => $ref->status, // pending, approved, rejected, completed
+        'title' => 'Refund: ' . ($ref->booking->schedule->route->origin ?? '') . ' - ' . ($ref->booking->schedule->route->destination ?? ''),
+        'url' => route('dashboard.booking', $ref->booking_id),
+        'download_url' => null,
+    ]);
+
     $allActivities = collect()
         ->concat($busActivities)
         ->concat($rentalActivities)
         ->concat($tourActivities)
+        ->concat($refundActivities)
         ->sortByDesc('date')
         ->take(10);
 @endphp
@@ -279,6 +291,7 @@
                         <button @click="activeTab = 'bus'" :class="activeTab === 'bus' ? 'bg-white shadow-md text-red-600' : 'text-slate-500 hover:text-slate-700'" class="px-5 py-2 text-xs font-bold rounded-xl transition-all whitespace-nowrap">Tiket Bus</button>
                         <button @click="activeTab = 'rental'" :class="activeTab === 'rental' ? 'bg-white shadow-md text-red-600' : 'text-slate-500 hover:text-slate-700'" class="px-5 py-2 text-xs font-bold rounded-xl transition-all whitespace-nowrap">Sewa Bus</button>
                         <button @click="activeTab = 'tour'" :class="activeTab === 'tour' ? 'bg-white shadow-md text-red-600' : 'text-slate-500 hover:text-slate-700'" class="px-5 py-2 text-xs font-bold rounded-xl transition-all whitespace-nowrap">Paket Wisata</button>
+                        <button @click="activeTab = 'refund'" :class="activeTab === 'refund' ? 'bg-white shadow-md text-red-600' : 'text-slate-500 hover:text-slate-700'" class="px-5 py-2 text-xs font-bold rounded-xl transition-all whitespace-nowrap">Refund</button>
                     </div>
                 </div>
 
@@ -341,6 +354,22 @@
                     @if($tourActivities->count() >= 5)
                     <div class="pt-2">
                         <a href="{{ route('dashboard.history', 'tour') }}" class="block w-full py-3 text-center bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-50 transition-all">Lihat Semua Riwayat Paket Tur</a>
+                    </div>
+                    @endif
+                </div>
+                {{-- Refund Tab --}}
+                <div x-show="activeTab === 'refund'" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-y-2" x-transition:enter-end="opacity-100 translate-y-0" style="display:none" class="space-y-4">
+                    @forelse($refundActivities as $activity)
+                        @include('dashboard.partials.activity-item', ['activity' => $activity])
+                    @empty
+                        <div class="text-center py-8 bg-white rounded-3xl border border-dashed border-slate-200">
+                            <p class="text-3xl mb-2">💰</p>
+                            <p class="text-slate-400 italic text-sm">Belum ada riwayat refund.</p>
+                        </div>
+                    @endforelse
+                    @if($refundActivities->count() >= 5)
+                    <div class="pt-2">
+                        <a href="{{ route('dashboard.history', 'refund') }}" class="block w-full py-3 text-center bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-50 transition-all">Lihat Semua Riwayat Refund</a>
                     </div>
                     @endif
                 </div>

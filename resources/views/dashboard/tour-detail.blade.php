@@ -109,51 +109,9 @@
             {{-- Payment Section --}}
             @if($booking->payment_status === 'pending')
                 <div class="mt-8 pt-8 border-t border-gray-warm-100">
-                    @if($booking->payment_proof)
-                        <div class="p-6 bg-emerald-50 rounded-2xl border border-emerald-100 text-center">
-                            <div class="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                                <svg class="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-                            </div>
-                            <h4 class="font-bold text-emerald-800 mb-1">Bukti Sudah Diunggah</h4>
-                            <p class="text-sm text-emerald-600 mb-4">Mohon tunggu verifikasi admin.</p>
-                            <img src="{{ asset('storage/' . $booking->payment_proof) }}" class="max-w-xs mx-auto rounded-xl shadow-md border border-emerald-200 mb-6">
-
-                            <div class="mt-4">
-                                <p class="text-xs text-emerald-500 mb-2 font-medium italic">Ganti bukti pembayaran?</p>
-                                <form action="{{ route('tour.upload-proof', $booking) }}" method="POST" enctype="multipart/form-data" class="flex items-center gap-2 max-w-xs mx-auto">
-                                    @csrf
-                                    <input type="file" name="payment_proof" class="text-xs file:btn-secondary file:btn-xs" required accept="image/*">
-                                    <button type="submit" class="p-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
-                                    </button>
-                                </form>
-                            </div>
-                        </div>
-                    @else
                         <div class="space-y-6">
                             <a href="{{ route('tour.checkout', $booking) }}" class="btn-primary w-full text-center py-4 text-lg font-bold shadow-lg block">BAYAR SEKARANG</a>
-
-                            <div class="flex items-center gap-4">
-                                <div class="h-px flex-1 bg-gray-warm-200"></div>
-                                <span class="text-xs font-bold text-gray-warm-400">ATAU TRANSFER MANUAL</span>
-                                <div class="h-px flex-1 bg-gray-warm-200"></div>
-                            </div>
-
-                            <div class="p-6 bg-gray-warm-50 rounded-2xl border border-gray-warm-100">
-                                <h4 class="font-bold text-dark mb-4 text-center">Upload Bukti Transfer</h4>
-                                <div class="p-4 bg-white rounded-xl border border-gray-warm-200 text-sm mb-4">
-                                    <p class="text-gray-warm-500 mb-1">Transfer ke BRI:</p>
-                                    <p class="text-lg font-black text-merah-600">1234-5678-9012-345</p>
-                                    <p class="text-xs text-gray-warm-400">a.n. PT Bus 88 Merah Putih</p>
-                                </div>
-                                <form action="{{ route('tour.upload-proof', $booking) }}" method="POST" enctype="multipart/form-data" class="space-y-4">
-                                    @csrf
-                                    <input type="file" name="payment_proof" class="input-field py-2.5 text-xs bg-white" required accept="image/*">
-                                    <button type="submit" class="btn-secondary w-full py-3 font-bold">UNGGAH BUKTI MANUAL</button>
-                                </form>
-                            </div>
                         </div>
-                    @endif
                 </div>
 
             @elseif($booking->payment_status === 'paid')

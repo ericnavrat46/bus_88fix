@@ -21,7 +21,7 @@ class RefundController extends Controller
         }
 
         // Check if already refunded or requested
-        if ($booking->payment_status === 'refund' || $booking->payment_status === 'pending_refund') {
+        if ($booking->payment_status === 'refunded' || $booking->payment_status === 'pending_refund') {
             return redirect()->back()->with('error', 'Refund sudah diajukan atau sudah diproses.');
         }
 
@@ -29,8 +29,8 @@ class RefundController extends Controller
         $departure = Carbon::parse($booking->schedule->departure_date->format('Y-m-d') . ' ' . $booking->schedule->departure_time);
         $hoursDiff = now()->diffInHours($departure, false);
 
-        if ($hoursDiff < 6) {
-            return redirect()->back()->with('error', 'Refund tidak diizinkan kurang dari 6 jam sebelum keberangkatan.');
+        if ($hoursDiff < 24) {
+            return redirect()->back()->with('error', 'Refund hanya dapat dilakukan maksimal H-1 (24 jam) sebelum keberangkatan.');
         }
 
         if ($hoursDiff >= 24) {
@@ -65,8 +65,8 @@ class RefundController extends Controller
         $departure = Carbon::parse($booking->schedule->departure_date->format('Y-m-d') . ' ' . $booking->schedule->departure_time);
         $hoursDiff = now()->diffInHours($departure, false);
 
-        if ($hoursDiff < 6) {
-            return redirect()->back()->with('error', 'Batas waktu refund (minimal 6 jam sebelum berangkat) telah habis.');
+        if ($hoursDiff < 24) {
+            return redirect()->back()->with('error', 'Batas waktu pengajuan refund (minimal 24 jam/H-1 sebelum berangkat) telah habis.');
         }
 
         if ($hoursDiff >= 24) {
@@ -128,7 +128,7 @@ class RefundController extends Controller
         ]);
 
         if ($request->status === 'completed') {
-            $refund->booking->update(['payment_status' => 'refund']);
+            $refund->booking->update(['payment_status' => 'refunded']);
         }
 
         return redirect()->back()->with('success', 'Status refund berhasil diupdate.');

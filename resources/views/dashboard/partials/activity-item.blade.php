@@ -17,14 +17,17 @@
         @endif
 
         <span class="status-badge 
-            @if($activity['status'] == 'paid' || $activity['status'] == 'settlement') status-paid 
-            @elseif($activity['status'] == 'refunded') bg-blue-100 text-blue-600
+            @if($activity['status'] == 'paid' || $activity['status'] == 'settlement' || $activity['status'] == 'completed') status-paid 
+            @elseif($activity['status'] == 'refunded' || $activity['status'] == 'approved') bg-blue-100 text-blue-600
             @elseif($activity['status'] == 'pending' || $activity['status'] == 'unpaid') status-pending 
-            @elseif($activity['status'] == 'cancelled') status-cancelled 
+            @elseif($activity['status'] == 'rejected' || $activity['status'] == 'cancelled') status-cancelled 
             @else status-expired @endif">
             @if($activity['status'] == 'paid' || $activity['status'] == 'settlement') Telah Terbayar 
+            @elseif($activity['status'] == 'completed') Selesai
             @elseif($activity['status'] == 'refunded') Refunded
+            @elseif($activity['status'] == 'approved') Disetujui
             @elseif($activity['status'] == 'pending' || $activity['status'] == 'unpaid') Menunggu 
+            @elseif($activity['status'] == 'rejected') Ditolak
             @elseif($activity['status'] == 'cancelled') Dibatalkan 
             @else Kadaluarsa @endif
         </span>

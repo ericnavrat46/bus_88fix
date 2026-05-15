@@ -64,8 +64,13 @@ class RentalController extends Controller
             'payment_status' => 'unpaid',
         ]);
 
-        return redirect()->route('dashboard')
-            ->with('success', 'Permintaan sewa bus berhasil dikirim! Menunggu persetujuan admin.');
+        return back()->with('rental_success', [
+            'code' => $rental->rental_code,
+            'destination' => $rental->destination,
+            'start_date' => $startDate->translatedFormat('d F Y'),
+            'duration' => $durationDays,
+            'purpose' => $rental->purpose
+        ]);
     }
 
     /**

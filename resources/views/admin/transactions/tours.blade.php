@@ -14,7 +14,7 @@
         
         <select name="status" class="px-3 py-2 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-merah-500 outline-none">
             <option value="">Semua Status</option>
-            @foreach(['pending', 'paid', 'expired', 'cancelled'] as $s)
+            @foreach(['pending', 'paid', 'canceled', 'refund'] as $s)
                 <option value="{{ $s }}" {{ request('status') == $s ? 'selected' : '' }}>{{ ucfirst($s) }}</option>
             @endforeach
         </select>
@@ -71,7 +71,7 @@
                             {{ $booking->payments->last()->midtrans_transaction_id ?? '-' }}
                         </td>
                         <td class="px-6 py-4 text-sm text-gray-warm-600">
-                            <span class="{{ match($booking->payment_status) { 'paid' => 'badge-success', 'pending' => 'badge-warning', default => 'badge-gray' } }} text-[10px]">
+                            <span class="{{ match($booking->payment_status) { 'paid' => 'badge-success', 'pending' => 'badge-warning', 'canceled' => 'badge-danger', 'refund' => 'badge-info', default => 'badge-gray' } }} text-[10px]">
                                 {{ ucfirst($booking->payment_status) }}
                             </span>
                         </td>

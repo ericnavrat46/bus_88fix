@@ -114,12 +114,28 @@ class TransactionController extends Controller
                             // Update record payment
                             if ($payment) {
                                 $payment->update([
-                                    'status' => 'settlement',
+                                    'status' => 'paid',
                                     'payment_type' => $paymentType,
                                     'midtrans_transaction_id' => $transactionId,
                                     'raw_response' => $statusData
                                 ]);
                             }
+                        } elseif (in_array($rawStatus, ['deny', 'cancel', 'expire'])) {
+                             $item->update(['payment_status' => 'canceled']);
+                             if ($payment) {
+                                 $payment->update([
+                                     'status' => 'canceled',
+                                     'raw_response' => $statusData
+                                 ]);
+                             }
+                        } elseif (in_array($rawStatus, ['refund', 'partial_refund'])) {
+                             $item->update(['payment_status' => 'refund']);
+                             if ($payment) {
+                                 $payment->update([
+                                     'status' => 'refund',
+                                     'raw_response' => $statusData
+                                 ]);
+                             }
                         }
                     }
                 }
@@ -197,7 +213,7 @@ class TransactionController extends Controller
     public function updateBookingStatus(Booking $booking, Request $request)
     {
         $validated = $request->validate([
-            'payment_status' => 'required|in:pending,paid,expired,cancelled,refunded',
+            'payment_status' => 'required|in:pending,paid,canceled,refund',
         ]);
 
         $booking->update([

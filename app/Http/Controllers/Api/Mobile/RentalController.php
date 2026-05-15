@@ -82,8 +82,8 @@ class RentalController extends Controller
             } elseif ($r->approval_status == 'pending') {
                 $status = 'waiting_approval';
             } elseif ($r->approval_status == 'approved') {
-                if ($r->payment_status == 'cancelled') {
-                    $status = 'cancelled';
+                if (in_array($r->payment_status, ['cancelled', 'canceled'])) {
+                    $status = 'canceled';
                 } elseif ($r->payment_status == 'paid') {
                     if (now()->gt(\Carbon\Carbon::parse($r->end_date)->addDay())) {
                         $status = 'completed';
@@ -123,7 +123,7 @@ class RentalController extends Controller
             ]);
         }
 
-        $rental->payment_status = 'cancelled';
+        $rental->payment_status = 'canceled';
         $rental->cancel_reason  = $request->reason;
         $rental->cancelled_at   = now();
         $rental->save();
@@ -206,7 +206,7 @@ class RentalController extends Controller
     {
         $request->validate([
             'id'     => 'required',
-            'status' => 'required|in:paid,cancelled'
+            'status' => 'required|in:paid,canceled'
         ]);
 
         $rental = Rental::find($request->id);

@@ -50,10 +50,12 @@ class BookingController extends Controller
 
             $status = 'pending_payment';
 
-            if ($booking->payment_status == 'cancelled') {
-                $status = 'cancelled';
+            if (in_array($booking->payment_status, ['cancelled', 'canceled'])) {
+                $status = 'canceled';
             } elseif ($booking->payment_status == 'expired') {
-                $status = 'expired';
+                $status = 'canceled';
+            } elseif ($booking->payment_status == 'refund') {
+                $status = 'refund';
             } elseif ($booking->payment_status == 'paid') {
                 if (now()->gt(\Carbon\Carbon::parse($booking->departure_date)->addDay())) {
                     $status = 'completed';
@@ -65,7 +67,7 @@ class BookingController extends Controller
                     $status = 'waiting_confirmation';
                 } else {
                     if ($booking->expired_at && now()->gt(\Carbon\Carbon::parse($booking->expired_at))) {
-                        $status = 'expired';
+                        $status = 'canceled';
                     } else {
                         $status = 'pending_payment';
                     }
@@ -209,7 +211,7 @@ class BookingController extends Controller
         DB::table('bookings')
             ->where('id', $id)
             ->update([
-                'payment_status' => 'cancelled',
+                'payment_status' => 'canceled',
                 'cancel_reason'  => $request->reason,
                 'cancelled_at'   => now(),
                 'updated_at'     => now(),
@@ -242,7 +244,7 @@ class BookingController extends Controller
     {
         $request->validate([
             'id' => 'required',
-            'status' => 'required|in:paid,cancelled'
+            'status' => 'required|in:paid,canceled'
         ]);
 
         $booking = DB::table('bookings')->where('id', $request->id)->first();

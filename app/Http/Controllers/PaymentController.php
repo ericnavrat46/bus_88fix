@@ -153,11 +153,9 @@ class PaymentController extends Controller
         }
 
         return match ($transactionStatus) {
-            'settlement' => 'settlement',
+            'settlement', 'capture', 'success' => 'paid',
             'pending' => 'pending',
-            'deny' => 'deny',
-            'cancel' => 'cancel',
-            'expire' => 'expire',
+            'deny', 'cancel', 'expire' => 'canceled',
             'refund', 'partial_refund' => 'refund',
             default => $transactionStatus,
         };
@@ -176,10 +174,10 @@ class PaymentController extends Controller
 
         if ($payable instanceof Booking) {
             $bookingStatus = match ($status) {
-                'settlement', 'capture', 'success' => 'paid',
+                'paid' => 'paid',
                 'pending' => 'pending',
-                'expire' => 'expired',
-                'cancel', 'deny' => 'cancelled',
+                'canceled' => 'canceled',
+                'refund' => 'refund',
                 default => $payable->payment_status,
             };
 
@@ -192,17 +190,17 @@ class PaymentController extends Controller
             // Notification for Ticket Booking
             if ($bookingStatus === 'paid') {
                 \App\Models\Notification::send($payable->user_id, 'Pembayaran Tiket Berhasil!', "Tiket bus {$payable->booking_code} Anda telah lunas. Selamat menikmati perjalanan!", 'booking', ['booking_id' => $payable->id]);
-            } elseif (in_array($bookingStatus, ['expired', 'cancelled'])) {
-                \App\Models\Notification::send($payable->user_id, 'Status Tiket Bus', "Pemesanan tiket {$payable->booking_code} Anda telah " . ($bookingStatus === 'expired' ? 'kedaluwarsa.' : 'dibatalkan.'), 'booking', ['booking_id' => $payable->id]);
+            } elseif (in_array($bookingStatus, ['canceled'])) {
+                \App\Models\Notification::send($payable->user_id, 'Status Tiket Bus', "Pemesanan tiket {$payable->booking_code} Anda telah dibatalkan.", 'booking', ['booking_id' => $payable->id]);
             }
         }
 
         if ($payable instanceof Rental) {
             $rentalStatus = match ($status) {
-                'settlement', 'capture', 'success' => 'paid',
+                'paid' => 'paid',
                 'pending' => 'pending',
-                'expire' => 'expired',
-                'cancel', 'deny' => 'cancelled',
+                'canceled' => 'canceled',
+                'refund' => 'refund',
                 default => $payable->payment_status,
             };
 
@@ -215,17 +213,17 @@ class PaymentController extends Controller
             // Notification for Rental
             if ($rentalStatus === 'paid') {
                 \App\Models\Notification::send($payable->user_id, 'Pembayaran Sewa Berhasil!', "Pembayaran sewa bus {$payable->rental_code} telah lunas. Armada kami siap untuk Anda.", 'rental', ['rental_id' => $payable->id]);
-            } elseif (in_array($rentalStatus, ['expired', 'cancelled'])) {
-                \App\Models\Notification::send($payable->user_id, 'Status Sewa Bus', "Pemesanan sewa bus {$payable->rental_code} Anda telah " . ($rentalStatus === 'expired' ? 'kedaluwarsa.' : 'dibatalkan.'), 'rental', ['rental_id' => $payable->id]);
+            } elseif (in_array($rentalStatus, ['canceled'])) {
+                \App\Models\Notification::send($payable->user_id, 'Status Sewa Bus', "Pemesanan sewa bus {$payable->rental_code} Anda telah dibatalkan.", 'rental', ['rental_id' => $payable->id]);
             }
         }
 
         if ($payable instanceof \App\Models\TourBooking) {
             $tourStatus = match ($status) {
-                'settlement', 'capture', 'success' => 'paid',
+                'paid' => 'paid',
                 'pending' => 'pending',
-                'expire' => 'expired',
-                'cancel', 'deny' => 'cancelled',
+                'canceled' => 'canceled',
+                'refund' => 'refund',
                 default => $payable->payment_status,
             };
 
@@ -238,8 +236,8 @@ class PaymentController extends Controller
             // Notification for Tour
             if ($tourStatus === 'paid') {
                 \App\Models\Notification::send($payable->user_id, 'Pembayaran Paket Wisata Berhasil!', "Pembayaran paket wisata {$payable->booking_code} telah lunas. Sampai jumpa di destinasi tujuan!", 'tour', ['booking_id' => $payable->id]);
-            } elseif (in_array($tourStatus, ['expired', 'cancelled'])) {
-                \App\Models\Notification::send($payable->user_id, 'Status Paket Wisata', "Pemesanan tour {$payable->booking_code} Anda telah " . ($tourStatus === 'expired' ? 'kedaluwarsa.' : 'dibatalkan.'), 'tour', ['booking_id' => $payable->id]);
+            } elseif (in_array($tourStatus, ['canceled'])) {
+                \App\Models\Notification::send($payable->user_id, 'Status Paket Wisata', "Pemesanan tour {$payable->booking_code} Anda telah dibatalkan.", 'tour', ['booking_id' => $payable->id]);
             }
         }
     }

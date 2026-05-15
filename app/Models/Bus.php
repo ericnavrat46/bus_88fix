@@ -17,6 +17,7 @@ class Bus extends Model
         'plate_number',
         'image',
         'facilities',
+        'rating',
         'status',
     ];
 

@@ -198,48 +198,8 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {{-- Header --}}
         <div class="text-center mb-12">
-            <h2 class="text-3xl md:text-5xl font-black text-dark mb-4">Temukan Rute <span class="text-gradient-merah">Terbaik</span></h2>
+            <h2 class="text-3xl lg:text-4xl font-black text-dark mb-4">Temukan Rute Terbaik</h2>
             <p class="text-gray-warm-500 text-lg">Perjalanan nyaman, aman, dan terjangkau ke berbagai destinasi pilihan</p>
-        </div>
-
-        {{-- Benefits Row --}}
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
-            <div class="flex items-center gap-4 p-4 rounded-2xl bg-gray-warm-50 border border-gray-warm-100">
-                <div class="w-10 h-10 bg-merah-50 rounded-xl flex items-center justify-center shrink-0">
-                    <svg class="w-5 h-5 text-merah-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                </div>
-                <div>
-                    <h4 class="text-xs font-black text-dark uppercase tracking-wider">Harga Terbaik</h4>
-                    <p class="text-[10px] text-gray-warm-500">Jaminan harga termurah</p>
-                </div>
-            </div>
-            <div class="flex items-center gap-4 p-4 rounded-2xl bg-gray-warm-50 border border-gray-warm-100">
-                <div class="w-10 h-10 bg-merah-50 rounded-xl flex items-center justify-center shrink-0">
-                    <svg class="w-5 h-5 text-merah-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
-                </div>
-                <div>
-                    <h4 class="text-xs font-black text-dark uppercase tracking-wider">Aman & Nyaman</h4>
-                    <p class="text-[10px] text-gray-warm-500">Perjalanan aman dan nyaman</p>
-                </div>
-            </div>
-            <div class="flex items-center gap-4 p-4 rounded-2xl bg-gray-warm-50 border border-gray-warm-100">
-                <div class="w-10 h-10 bg-merah-50 rounded-xl flex items-center justify-center shrink-0">
-                    <svg class="w-5 h-5 text-merah-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                </div>
-                <div>
-                    <h4 class="text-xs font-black text-dark uppercase tracking-wider">Berangkat Tiap Hari</h4>
-                    <p class="text-[10px] text-gray-warm-500">Banyak pilihan jadwal</p>
-                </div>
-            </div>
-            <div class="flex items-center gap-4 p-4 rounded-2xl bg-gray-warm-50 border border-gray-warm-100">
-                <div class="w-10 h-10 bg-merah-50 rounded-xl flex items-center justify-center shrink-0">
-                    <svg class="w-5 h-5 text-merah-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
-                </div>
-                <div>
-                    <h4 class="text-xs font-black text-dark uppercase tracking-wider">Customer Support</h4>
-                    <p class="text-[10px] text-gray-warm-500">Siap membantu 24/7</p>
-                </div>
-            </div>
         </div>
 
         {{-- Route Grid --}}

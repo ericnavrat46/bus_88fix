@@ -79,7 +79,7 @@ class Booking extends Model
     public function isExpired(): bool
     {
         if ($this->isPaid()) return false;
-        if (in_array($this->payment_status, ['expired', 'cancelled'])) return true;
+        if (in_array($this->payment_status, ['expired', 'cancelled', 'canceled'])) return true;
         
         return $this->expired_at && now()->isAfter($this->expired_at);
     }
@@ -87,9 +87,9 @@ class Booking extends Model
     public function checkExpiration(): bool
     {
         if ($this->payment_status === 'pending' && $this->isExpired()) {
-            $this->update(['payment_status' => 'expired']);
+            $this->update(['payment_status' => 'canceled']);
             return true;
         }
-        return $this->payment_status === 'expired';
+        return in_array($this->payment_status, ['expired', 'cancelled', 'canceled']);
     }
 }

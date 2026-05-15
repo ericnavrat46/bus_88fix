@@ -42,7 +42,7 @@
 
                         <div>
                             <label class="label-field">Jumlah Peserta (Orang) *</label>
-                            <input type="number" name="passenger_count" class="input-field" required min="1" placeholder="Masukkan jumlah orang" x-model="pax" x-init="pax = 1">
+                            <input type="number" name="passenger_count" class="input-field" required min="1" onkeydown="if(['+', '-', 'e', 'E', '.'].includes(event.key)) event.preventDefault();" placeholder="Masukkan jumlah orang" x-model="pax" x-init="pax = 1">
                         </div>
 
                         <div class="space-y-4">

@@ -67,10 +67,12 @@ class TourBookingController extends Controller
 
             $status = 'pending_payment';
 
-            if ($t->payment_status == 'cancelled') {
-                $status = 'cancelled';
+            if (in_array($t->payment_status, ['cancelled', 'canceled'])) {
+                $status = 'canceled';
             } elseif ($t->payment_status == 'expired') {
-                $status = 'expired';
+                $status = 'canceled';
+            } elseif ($t->payment_status == 'refund') {
+                $status = 'refund';
             } elseif ($t->payment_status == 'paid') {
                 if (now()->gt(\Carbon\Carbon::parse($t->travel_date)->addDay())) {
                     $status = 'completed';
@@ -114,7 +116,7 @@ class TourBookingController extends Controller
             ]);
         }
 
-        $booking->payment_status = 'cancelled';
+        $booking->payment_status = 'canceled';
         $booking->cancel_reason  = $request->reason;  
         $booking->cancelled_at   = now();              
         $booking->save();
@@ -186,7 +188,7 @@ class TourBookingController extends Controller
     {
         $request->validate([
             'id' => 'required',
-            'status' => 'required|in:paid,cancelled'
+            'status' => 'required|in:paid,canceled'
         ]);
 
         $booking = TourBooking::find($request->id);
@@ -242,7 +244,7 @@ class TourBookingController extends Controller
             ], 404);
         }
 
-        if (in_array($booking->payment_status, ['paid', 'cancelled', 'expired'])) {
+        if (in_array($booking->payment_status, ['paid', 'cancelled', 'canceled', 'expired'])) {
             return response()->json([
                 'status'  => false,
                 'message' => 'Booking tidak bisa dibayar, status: ' . $booking->payment_status,

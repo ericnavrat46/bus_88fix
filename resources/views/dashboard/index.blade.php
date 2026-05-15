@@ -43,8 +43,7 @@
         ->sortBy('schedule.departure_date')
         ->first();
 
-    // Logic for activities grouped by category
-    $busActivities = $bookings->take(5)->map(fn($b) => [
+    $busActivities = $bookings->map(fn($b) => [
         'type' => 'Tiket Bus',
         'icon' => '🎫',
         'id' => $b->booking_code,
@@ -55,7 +54,7 @@
         'download_url' => $b->payment_status === 'paid' ? route('ticket.bus.download', $b) : null,
     ]);
 
-    $rentalActivities = $rentals->take(5)->map(fn($r) => [
+    $rentalActivities = $rentals->map(fn($r) => [
         'type' => 'Sewa Bus',
         'icon' => '🚌',
         'id' => $r->rental_code,
@@ -66,7 +65,7 @@
         'download_url' => $r->payment_status === 'paid' ? route('ticket.rental.download', $r) : null,
     ]);
 
-    $tourActivities = $tourBookings->take(5)->map(fn($t) => [
+    $tourActivities = $tourBookings->map(fn($t) => [
         'type' => 'Paket Tur',
         'icon' => '🗺️',
         'id' => $t->booking_code,
@@ -77,6 +76,12 @@
         'download_url' => $t->payment_status === 'paid' ? route('ticket.tour.download', $t) : null,
     ]);
 
+    $allActivities = collect()
+        ->concat($busActivities)
+        ->concat($rentalActivities)
+        ->concat($tourActivities)
+        ->sortByDesc('date')
+        ->take(10);
 @endphp
 
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
@@ -266,22 +271,38 @@
             </section>
 
             {{-- Recent Activities Grouped --}}
-            <section x-data="{ activeTab: 'bus' }">
-                <div class="flex items-center justify-between mb-6">
-                    <h2 class="text-xl font-bold text-slate-900">Aktivitas Terakhir</h2>
-                    <div class="flex bg-slate-100 p-1 rounded-xl">
-                        <button @click="activeTab = 'bus'" :class="activeTab === 'bus' ? 'bg-white shadow-sm text-red-600' : 'text-slate-500'" class="px-4 py-1.5 text-xs font-bold rounded-lg transition-all">Tiket Bus</button>
-                        <button @click="activeTab = 'rental'" :class="activeTab === 'rental' ? 'bg-white shadow-sm text-red-600' : 'text-slate-500'" class="px-4 py-1.5 text-xs font-bold rounded-lg transition-all">Sewa Bus</button>
-                        <button @click="activeTab = 'tour'" :class="activeTab === 'tour' ? 'bg-white shadow-sm text-red-600' : 'text-slate-500'" class="px-4 py-1.5 text-xs font-bold rounded-lg transition-all">Paket Wisata</button>
+            <section x-data="{ activeTab: 'all' }">
+                <div class="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
+                    <h2 class="text-2xl font-black text-slate-900">Aktivitas Terakhir</h2>
+                    <div class="flex bg-slate-100 p-1.5 rounded-2xl overflow-x-auto no-scrollbar">
+                        <button @click="activeTab = 'all'" :class="activeTab === 'all' ? 'bg-white shadow-md text-red-600' : 'text-slate-500 hover:text-slate-700'" class="px-5 py-2 text-xs font-bold rounded-xl transition-all whitespace-nowrap">Semua</button>
+                        <button @click="activeTab = 'bus'" :class="activeTab === 'bus' ? 'bg-white shadow-md text-red-600' : 'text-slate-500 hover:text-slate-700'" class="px-5 py-2 text-xs font-bold rounded-xl transition-all whitespace-nowrap">Tiket Bus</button>
+                        <button @click="activeTab = 'rental'" :class="activeTab === 'rental' ? 'bg-white shadow-md text-red-600' : 'text-slate-500 hover:text-slate-700'" class="px-5 py-2 text-xs font-bold rounded-xl transition-all whitespace-nowrap">Sewa Bus</button>
+                        <button @click="activeTab = 'tour'" :class="activeTab === 'tour' ? 'bg-white shadow-md text-red-600' : 'text-slate-500 hover:text-slate-700'" class="px-5 py-2 text-xs font-bold rounded-xl transition-all whitespace-nowrap">Paket Wisata</button>
                     </div>
                 </div>
 
+                {{-- All Tab --}}
+                <div x-show="activeTab === 'all'" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-y-2" x-transition:enter-end="opacity-100 translate-y-0" class="space-y-4">
+                    @forelse($allActivities as $activity)
+                        @include('dashboard.partials.activity-item', ['activity' => $activity])
+                    @empty
+                        <div class="text-center py-12 bg-white rounded-3xl border border-dashed border-slate-200">
+                            <p class="text-5xl mb-3">📭</p>
+                            <p class="text-slate-400 italic text-sm">Belum ada riwayat aktivitas.</p>
+                        </div>
+                    @endforelse
+                </div>
+
                 {{-- Bus Tab --}}
-                <div x-show="activeTab === 'bus'" x-transition class="space-y-4">
+                <div x-show="activeTab === 'bus'" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-y-2" x-transition:enter-end="opacity-100 translate-y-0" style="display:none" class="space-y-4">
                     @forelse($busActivities as $activity)
                         @include('dashboard.partials.activity-item', ['activity' => $activity])
                     @empty
-                        <p class="text-slate-400 text-center py-6 italic text-sm">Belum ada riwayat tiket bus.</p>
+                        <div class="text-center py-8 bg-white rounded-3xl border border-dashed border-slate-200">
+                            <p class="text-3xl mb-2">🎫</p>
+                            <p class="text-slate-400 italic text-sm">Belum ada riwayat tiket bus.</p>
+                        </div>
                     @endforelse
                     @if($busActivities->count() >= 5)
                     <div class="pt-2">
@@ -291,11 +312,14 @@
                 </div>
 
                 {{-- Rental Tab --}}
-                <div x-show="activeTab === 'rental'" x-transition class="space-y-4" x-cloak>
+                <div x-show="activeTab === 'rental'" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-y-2" x-transition:enter-end="opacity-100 translate-y-0" style="display:none" class="space-y-4">
                     @forelse($rentalActivities as $activity)
                         @include('dashboard.partials.activity-item', ['activity' => $activity])
                     @empty
-                        <p class="text-slate-400 text-center py-6 italic text-sm">Belum ada riwayat sewa bus.</p>
+                        <div class="text-center py-8 bg-white rounded-3xl border border-dashed border-slate-200">
+                            <p class="text-3xl mb-2">🚌</p>
+                            <p class="text-slate-400 italic text-sm">Belum ada riwayat sewa bus.</p>
+                        </div>
                     @endforelse
                     @if($rentalActivities->count() >= 5)
                     <div class="pt-2">
@@ -305,11 +329,14 @@
                 </div>
 
                 {{-- Tour Tab --}}
-                <div x-show="activeTab === 'tour'" x-transition class="space-y-4" x-cloak>
+                <div x-show="activeTab === 'tour'" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-y-2" x-transition:enter-end="opacity-100 translate-y-0" style="display:none" class="space-y-4">
                     @forelse($tourActivities as $activity)
                         @include('dashboard.partials.activity-item', ['activity' => $activity])
                     @empty
-                        <p class="text-slate-400 text-center py-6 italic text-sm">Belum ada riwayat paket wisata.</p>
+                        <div class="text-center py-8 bg-white rounded-3xl border border-dashed border-slate-200">
+                            <p class="text-3xl mb-2">🗺️</p>
+                            <p class="text-slate-400 italic text-sm">Belum ada riwayat paket wisata.</p>
+                        </div>
                     @endforelse
                     @if($tourActivities->count() >= 5)
                     <div class="pt-2">

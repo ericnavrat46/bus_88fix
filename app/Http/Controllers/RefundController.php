@@ -21,7 +21,7 @@ class RefundController extends Controller
         }
 
         // Check if already refunded or requested
-        if ($booking->payment_status === 'refunded' || $booking->payment_status === 'pending_refund') {
+        if ($booking->payment_status === 'refund' || $booking->payment_status === 'pending_refund') {
             return redirect()->back()->with('error', 'Refund sudah diajukan atau sudah diproses.');
         }
 
@@ -128,7 +128,7 @@ class RefundController extends Controller
         ]);
 
         if ($request->status === 'completed') {
-            $refund->booking->update(['payment_status' => 'refunded']);
+            $refund->booking->update(['payment_status' => 'refund']);
         }
 
         return redirect()->back()->with('success', 'Status refund berhasil diupdate.');

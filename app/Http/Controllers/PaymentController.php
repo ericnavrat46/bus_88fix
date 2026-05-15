@@ -105,61 +105,79 @@ class PaymentController extends Controller
      * CHECK STATUS DARI MIDTRANS LANGSUNG (UNTUK MOBILE TANPA WEBHOOK)
      * 🔥 FIX: pakai DB::table() langsung biar pasti update
      */
-    public function checkStatus(Request $request, Payment $payment)
-    {
-        $orderId = $payment->midtrans_order_id;
-        $statusData = $this->midtrans->getTransactionStatus($orderId);
+    public function checkStatus(Request $request, $bookingId)
+{
+    $payment = Payment::where('payable_id', $bookingId)
+        ->whereIn('payable_type', [
+            \App\Models\Booking::class,
+            \App\Models\Rental::class,
+            \App\Models\TourBooking::class,
+        ])
+        ->latest()
+        ->first();
 
-        if (!$statusData) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Gagal mengambil status dari Midtrans',
-            ], 500);
-        }
-
-        $transactionStatus = $statusData['transaction_status'] ?? 'pending';
-        $fraudStatus = $statusData['fraud_status'] ?? null;
-        $status = $this->mapTransactionStatus($transactionStatus, $fraudStatus);
-
-        // Update payment table
-        $payment->update([
-            'status' => $status,
-            'midtrans_transaction_id' => $statusData['transaction_id'] ?? $payment->midtrans_transaction_id,
-            'payment_type' => $statusData['payment_type'] ?? $payment->payment_type,
-            'raw_response' => $statusData,
-        ]);
-
-        // Update related payable
-        $this->updatePayableStatus($payment, $status);
-
-        // Broadcast perubahan status
-        broadcast(new \App\Events\PaymentStatusUpdated($payment, $status));
-
+    if (!$payment) {
         return response()->json([
-            'status' => true,
-            'payment_status' => $status,
-            'order_id' => $orderId,
+            'status' => false,
+            'message' => 'Payment tidak ditemukan',
+            'payment_status' => null,
         ]);
     }
+
+    if ($payment->status === 'paid') {
+        return response()->json([
+            'status' => true,
+            'payment_status' => 'paid',
+        ]);
+    }
+
+    $orderId = $payment->midtrans_order_id;
+    $statusData = $this->midtrans->getTransactionStatus($orderId);
+
+    if (!$statusData) {
+        return response()->json([
+            'status' => false,
+            'message' => 'Gagal cek ke Midtrans',
+            'payment_status' => null,
+        ]);
+    }
+
+    $transactionStatus = $statusData['transaction_status'] ?? 'pending';
+    $fraudStatus = $statusData['fraud_status'] ?? null;
+    $status = $this->mapTransactionStatus($transactionStatus, $fraudStatus);
+
+    $payment->update([
+        'status' => $status,
+        'midtrans_transaction_id' => $statusData['transaction_id'] ?? $payment->midtrans_transaction_id,
+        'payment_type' => $statusData['payment_type'] ?? $payment->payment_type,
+        'raw_response' => $statusData,
+    ]);
+
+    $this->updatePayableStatus($payment, $status);
+
+    return response()->json([
+        'status' => true,
+        'payment_status' => $status,
+        'order_id' => $orderId,
+    ]);
+}
 
     /**
      * Map Midtrans transaction status
      */
     protected function mapTransactionStatus(string $transactionStatus, ?string $fraudStatus): string
-    {
-        // For credit card / snap capture
-        if ($transactionStatus === 'capture') {
-            return ($fraudStatus === 'accept' || $fraudStatus === '' || $fraudStatus === null) ? 'settlement' : 'deny';
-        }
-
-        return match ($transactionStatus) {
-            'settlement', 'capture', 'success' => 'paid',
-            'pending' => 'pending',
-            'deny', 'cancel', 'expire' => 'canceled',
-            'refund', 'partial_refund' => 'refund',
-            default => $transactionStatus,
-        };
+{
+    if ($transactionStatus === 'capture') {
+        return ($fraudStatus === 'deny') ? 'canceled' : 'paid';
     }
+    return match ($transactionStatus) {
+        'settlement', 'success' => 'paid',
+        'pending' => 'pending',
+        'deny', 'cancel', 'expire' => 'canceled',
+        'refund', 'partial_refund' => 'refund',
+        default => $transactionStatus,
+    };
+}
 
     /**
      * Update the related booking or rental status

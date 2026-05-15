@@ -52,7 +52,8 @@ class MidtransService
         string $firstName,
         string $email,
         string $phone,
-        array $itemDetails = []
+        array $itemDetails = [],
+        bool $isMobile = false
     ): array {
         return [
             'transaction_details' => [
@@ -66,7 +67,9 @@ class MidtransService
             ],
             'item_details' => $itemDetails,
             'callbacks' => [
-                'finish' => url('/payment/finish'),
+                'finish' => $isMobile
+                ? 'app88trans://payment/finish'  
+                : url('/payment/finish'),        
             ],
         ];
     }
@@ -103,7 +106,8 @@ class MidtransService
             $firstName,
             $email,
             $phone,
-            $items
+            $items,
+            true
         );
 
         $snapToken = $this->createSnapToken($params);
@@ -156,7 +160,8 @@ class MidtransService
             $firstName,
             $email,
             $phone,
-            $items
+            $items,
+            true
         );
 
         $snapToken = $this->createSnapToken($params);

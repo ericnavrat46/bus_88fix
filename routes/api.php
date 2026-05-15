@@ -12,7 +12,7 @@ use App\Http\Controllers\Api\Mobile\BusController;
 use App\Http\Controllers\Api\Mobile\PromoController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\Api\Mobile\NotificationController;
-
+use App\Http\Controllers\Api\Mobile\RefundController;
 
 
 Route::post('/login', [AuthController::class, 'login']);
@@ -64,6 +64,9 @@ Route::post('/tour-bookings/confirm-payment', [TourBookingController::class, 'co
 Route::post('/tour-bookings/midtrans', [TourBookingController::class, 'createMidtrans']);
 Route::post('/confirm-rental-payment', [RentalController::class, 'confirmPayment']);
 Route::post('/payments/midtrans-tour', [PaymentController::class, 'createTour']);
+Route::get('/refund/check/{bookingId}', [RefundController::class, 'checkRefund']);
+Route::post('/refund/submit/{bookingId}', [RefundController::class, 'submitRefund']);
+
 
 // TEST EMAIL
 Route::get('/test-email', function () {

@@ -20,6 +20,7 @@ class MidtransService
         $this->baseUrl = config('midtrans.base_url');
         $this->isProduction = config('midtrans.is_production');
     }
+
     public function createSnapToken(array $params): ?string
     {
         $snapUrl = $this->isProduction
@@ -30,6 +31,17 @@ class MidtransService
             $response = Http::withBasicAuth($this->serverKey, '')
                 ->withHeaders(['Content-Type' => 'application/json'])
                 ->post($snapUrl, $params);
+
+                Log::info('Midtrans Snap REQUEST', $params);
+                    Log::info('Midtrans Snap Response', [
+                        'status' => $response->status(),
+                        'body' => $response->json(),
+                    ]);
+
+            Log::info('Midtrans Snap Response', [
+                'status' => $response->status(),
+                'body' => $response->json(),
+            ]);
 
             if ($response->successful()) {
                 return $response->json('token');
@@ -46,6 +58,7 @@ class MidtransService
             return null;
         }
     }
+
     public function buildTransactionParams(
         string $orderId,
         int $grossAmount,
@@ -68,41 +81,38 @@ class MidtransService
             'item_details' => $itemDetails,
             'callbacks' => [
                 'finish' => $isMobile
-                ? 'app88trans://payment/finish'  
-                : url('/payment/finish'),        
+                    ? 'app88trans://payment/finish'
+                    : url('/payment/finish'),
             ],
         ];
     }
+
     public function createTransaction(Booking $booking)
     {
-        $existing = Payment::where('payable_id', $booking->id)
+        Payment::where('payable_id', $booking->id)
             ->where('payable_type', Booking::class)
             ->where('status', 'pending')
-            ->latest()
-            ->first();
-
-        if ($existing && $existing->snap_token) {
-            Log::info('Pakai snap token lama untuk booking: ' . $booking->id);
-            return $existing;
-        }
+            ->delete();
 
         $orderId   = 'BOOK-' . $booking->id . '-' . time();
         $firstName = $booking->user->name  ?? 'User';
         $email     = $booking->user->email ?? 'test@mail.com';
         $phone     = $booking->user->phone ?? '08123456789';
 
+        $amount = (int) round($booking->total_price);
+
         $items = [
             [
-                'id'       => $booking->id,
-                'price'    => (int) $booking->total_price,
+                'id'       => (string) $booking->id,
+                'price'    => $amount,
                 'quantity' => 1,
-                'name'     => 'Booking Bus #' . $booking->booking_code,
+                'name'     => substr('Tiket Bus #' . $booking->booking_code, 0, 50),
             ]
         ];
 
         $params = $this->buildTransactionParams(
             $orderId,
-            (int) $booking->total_price,
+            $amount,
             $firstName,
             $email,
             $phone,
@@ -125,18 +135,13 @@ class MidtransService
             'status'             => 'pending',
         ]);
     }
+
     public function createTourTransaction(TourBooking $booking)
     {
-        $existing = Payment::where('payable_id', $booking->id)
+        Payment::where('payable_id', $booking->id)
             ->where('payable_type', TourBooking::class)
             ->where('status', 'pending')
-            ->latest()
-            ->first();
-
-        if ($existing && $existing->snap_token) {
-            Log::info('Pakai snap token lama untuk tour booking: ' . $booking->id);
-            return $existing;
-        }
+            ->delete();
 
         $orderId   = 'TOUR-' . $booking->id . '-' . time();
         $firstName = $booking->user->name  ?? 'User';
@@ -145,18 +150,20 @@ class MidtransService
 
         $packageName = $booking->tourPackage->name ?? 'Paket Wisata';
 
+        $amount = (int) round($booking->total_price);
+
         $items = [
             [
                 'id'       => 'TOUR-' . $booking->tour_package_id,
-                'price'    => (int) $booking->total_price,
+                'price'    => $amount,
                 'quantity' => 1,
-                'name'     => 'Paket Wisata - ' . $packageName,
+                'name'     => substr('Wisata ' . $packageName, 0, 50),
             ]
         ];
 
         $params = $this->buildTransactionParams(
             $orderId,
-            (int) $booking->total_price,
+            $amount,
             $firstName,
             $email,
             $phone,
@@ -179,6 +186,7 @@ class MidtransService
             'status'            => 'pending',
         ]);
     }
+
     public function verifySignature(array $notification): bool
     {
         $orderId     = $notification['order_id'];

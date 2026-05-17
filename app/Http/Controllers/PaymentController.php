@@ -124,10 +124,10 @@ class PaymentController extends Controller
         ]);
     }
 
-    if ($payment->status === 'paid') {
+    if ($payment->status === 'settlement') {
         return response()->json([
             'status' => true,
-            'payment_status' => 'paid',
+            'payment_status' => 'settlement',
         ]);
     }
 
@@ -168,10 +168,11 @@ class PaymentController extends Controller
     protected function mapTransactionStatus(string $transactionStatus, ?string $fraudStatus): string
 {
     if ($transactionStatus === 'capture') {
-        return ($fraudStatus === 'deny') ? 'canceled' : 'paid';
+        return ($fraudStatus === 'deny') ? 'canceled' : 'settlement';
     }
+
     return match ($transactionStatus) {
-        'settlement', 'success' => 'paid',
+        'settlement', 'success', 'capture' => 'settlement',
         'pending' => 'pending',
         'deny', 'cancel', 'expire' => 'canceled',
         'refund', 'partial_refund' => 'refund',
@@ -188,16 +189,16 @@ class PaymentController extends Controller
         if (!$payable) return;
 
         // Success statuses
-        $isSuccess = in_array($status, ['settlement', 'capture', 'success']);
+        $isSuccess = in_array($status, ['settlement']);
 
-        if ($payable instanceof Booking) {
-            $bookingStatus = match ($status) {
-                'paid' => 'paid',
-                'pending' => 'pending',
-                'canceled' => 'canceled',
-                'refund' => 'refund',
-                default => $payable->payment_status,
-            };
+            if ($payable instanceof Booking) {
+                $bookingStatus = match ($status) {
+                    'settlement' => 'paid',  
+                    'pending' => 'pending',
+                    'canceled' => 'canceled',
+                    'refund' => 'refund',
+                    default => $payable->payment_status,
+                };
 
             $payable->update([
                 'payment_status' => $bookingStatus,
@@ -215,7 +216,7 @@ class PaymentController extends Controller
 
         if ($payable instanceof Rental) {
             $rentalStatus = match ($status) {
-                'paid' => 'paid',
+                'settlement' => 'paid',
                 'pending' => 'pending',
                 'canceled' => 'canceled',
                 'refund' => 'refund',
@@ -238,7 +239,7 @@ class PaymentController extends Controller
 
         if ($payable instanceof \App\Models\TourBooking) {
             $tourStatus = match ($status) {
-                'paid' => 'paid',
+                'settlement' => 'paid',
                 'pending' => 'pending',
                 'canceled' => 'canceled',
                 'refund' => 'refund',

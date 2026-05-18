@@ -35,6 +35,7 @@ class TourBookingController extends Controller
             'payment_method' => null,
             'payment_proof' => null,
             'snap_token' => null,
+            'expired_at' => now()->addHours(1),
         ]);
 
         return response()->json([

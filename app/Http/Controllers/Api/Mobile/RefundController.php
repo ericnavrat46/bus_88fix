@@ -7,7 +7,6 @@ use App\Models\Booking;
 use App\Models\Refund;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 class RefundController extends Controller
 {
@@ -47,11 +46,8 @@ class RefundController extends Controller
         }
 
         // gabungkan tanggal + jam keberangkatan
-        $departure = Carbon::parse(
-            $booking->schedule->departure_date .
-            ' ' .
-            $booking->schedule->departure_time
-        );
+        $departureDate = Carbon::parse($booking->schedule->departure_date)->format('Y-m-d');
+        $departure     = Carbon::parse($departureDate . ' ' . $booking->schedule->departure_time);
 
         // hitung selisih jam
         $hoursDiff = now()->diffInHours($departure, false);
@@ -98,7 +94,7 @@ class RefundController extends Controller
         }
 
         // cek pemilik booking
-        if ($booking->user_id != Auth::id()) {
+        if ($booking->user_id != $request->user_id) {
             return response()->json([
                 'success' => false,
                 'message' => 'Unauthorized'
@@ -114,11 +110,8 @@ class RefundController extends Controller
         ]);
 
         // cek waktu keberangkatan
-        $departure = Carbon::parse(
-            $booking->schedule->departure_date .
-            ' ' .
-            $booking->schedule->departure_time
-        );
+        $departureDate = Carbon::parse($booking->schedule->departure_date)->format('Y-m-d');
+        $departure     = Carbon::parse($departureDate . ' ' . $booking->schedule->departure_time);
 
         $hoursDiff = now()->diffInHours($departure, false);
 
@@ -140,14 +133,14 @@ class RefundController extends Controller
 
         // simpan refund
         Refund::create([
-            'booking_id' => $booking->id,
-            'user_id' => Auth::id(),
-            'refund_amount' => $refundAmount,
-            'reason' => $request->reason,
-            'bank_name' => $request->bank_name,
+            'booking_id'     => $booking->id,
+            'user_id'        => $request->user_id,
+            'refund_amount'  => $refundAmount,
+            'reason'         => $request->reason,
+            'bank_name'      => $request->bank_name,
             'account_number' => $request->account_number,
-            'account_name' => $request->account_name,
-            'status' => 'pending',
+            'account_name'   => $request->account_name,
+            'status'         => 'pending',
         ]);
 
         // update booking
@@ -160,4 +153,4 @@ class RefundController extends Controller
             'message' => 'Refund berhasil diajukan'
         ]);
     }
-}
+}   

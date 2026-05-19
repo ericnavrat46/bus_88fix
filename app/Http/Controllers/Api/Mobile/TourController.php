@@ -9,12 +9,15 @@ use Illuminate\Http\Request;
 class TourController extends Controller
 {
     public function index()
-    {
-        $data = TourPackage::where('status', 'active')->get();
+{
+    $data = TourPackage::where('status', 'active')
+        ->withCount('reviews')
+        ->withAvg('reviews', 'rating')
+        ->get();
 
-        return response()->json([
-            'success' => true,
-            'data' => $data
-        ]);
-    }
+    return response()->json([
+        'success' => true,
+        'data' => $data
+    ]);
+}
 }

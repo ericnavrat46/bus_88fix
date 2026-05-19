@@ -8,6 +8,7 @@ use App\Models\Review;
 use App\Models\Booking;
 use App\Models\Rental;
 use App\Models\TourBooking;
+use App\Models\TourPackage; // ← tambah
 
 class ReviewController extends Controller
 {
@@ -25,7 +26,7 @@ class ReviewController extends Controller
         $typeMap = [
             'booking' => Booking::class,
             'rental'  => Rental::class,
-            'tour'    => TourBooking::class,
+            'tour'    => TourPackage::class, // ← ganti
         ];
 
         $modelClass = $typeMap[$validated['reviewable_type']] ?? null;
@@ -40,22 +41,24 @@ class ReviewController extends Controller
             return response()->json(['success' => false, 'message' => 'Data tidak ditemukan'], 404);
         }
 
-        if ($reviewable->user_id != $request->user_id) {
-            return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
-        }
+        // ── cek ownership & status per type ──
+        if ($modelClass === TourPackage::class) {
+            // cek user punya booking paid untuk paket ini
+            $hasBooking = TourBooking::where('tour_package_id', $reviewable->id)
+                ->where('user_id', $request->user_id)
+                ->where('payment_status', 'paid')
+                ->exists();
 
-        $statusField = match($modelClass) {
-            TourBooking::class => 'payment_status',
-            default            => 'status_final',
-        };
-
-        $statusValue = match($modelClass) {
-            TourBooking::class => 'paid',
-            default            => 'completed',
-        };
-
-        if ($reviewable->$statusField != $statusValue) {
-            return response()->json(['success' => false, 'message' => 'Pesanan belum selesai'], 400);
+            if (!$hasBooking) {
+                return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
+            }
+        } else {
+            if ($reviewable->user_id != $request->user_id) {
+                return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
+            }
+            if ($reviewable->status_final != 'completed') {
+                return response()->json(['success' => false, 'message' => 'Pesanan belum selesai'], 400);
+            }
         }
 
         $alreadyReviewed = Review::where([
@@ -96,7 +99,7 @@ class ReviewController extends Controller
         $typeMap = [
             'booking' => Booking::class,
             'rental'  => Rental::class,
-            'tour'    => TourBooking::class,
+            'tour'    => TourPackage::class, // ← ganti
         ];
 
         $modelClass = $typeMap[$request->reviewable_type] ?? null;

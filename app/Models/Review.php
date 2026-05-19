@@ -13,6 +13,7 @@ class Review extends Model
         'user_id',
         'reviewable_type',
         'reviewable_id',
+        'booking_reference_id',
         'rating',
         'comment',
         'image',

@@ -69,6 +69,7 @@ Route::get('/refund/check/{bookingId}', [RefundController::class, 'checkRefund']
 Route::post('/refund/submit/{bookingId}', [RefundController::class, 'submitRefund']);
 Route::post('/reviews', [ReviewController::class, 'store']);
 Route::get('/reviews/check', [ReviewController::class, 'checkReview']);
+Route::get('/tour-packages/{id}', [TourController::class, 'show']);
 
 // TEST EMAIL
 Route::get('/test-email', function () {

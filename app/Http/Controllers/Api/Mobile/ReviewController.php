@@ -8,25 +8,26 @@ use App\Models\Review;
 use App\Models\Booking;
 use App\Models\Rental;
 use App\Models\TourBooking;
-use App\Models\TourPackage; // ← tambah
+use App\Models\TourPackage;
 
 class ReviewController extends Controller
 {
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'user_id'         => 'required|integer',
-            'reviewable_type' => 'required|string',
-            'reviewable_id'   => 'required|integer',
-            'rating'          => 'required|integer|min:1|max:5',
-            'comment'         => 'nullable|string|max:1000',
-            'image'           => 'nullable|image|max:2048',
+            'user_id'              => 'required|integer',
+            'booking_reference_id' => 'required|integer', // ← tambah
+            'reviewable_type'      => 'required|string',
+            'reviewable_id'        => 'required|integer',
+            'rating'               => 'required|integer|min:1|max:5',
+            'comment'              => 'nullable|string|max:1000',
+            'image'                => 'nullable|image|max:2048',
         ]);
 
         $typeMap = [
             'booking' => Booking::class,
             'rental'  => Rental::class,
-            'tour'    => TourPackage::class, // ← ganti
+            'tour'    => TourPackage::class,
         ];
 
         $modelClass = $typeMap[$validated['reviewable_type']] ?? null;
@@ -43,8 +44,8 @@ class ReviewController extends Controller
 
         // ── cek ownership & status per type ──
         if ($modelClass === TourPackage::class) {
-            // cek user punya booking paid untuk paket ini
-            $hasBooking = TourBooking::where('tour_package_id', $reviewable->id)
+            $hasBooking = TourBooking::where('id', $request->booking_reference_id)
+                ->where('tour_package_id', $reviewable->id)
                 ->where('user_id', $request->user_id)
                 ->where('payment_status', 'paid')
                 ->exists();
@@ -61,14 +62,16 @@ class ReviewController extends Controller
             }
         }
 
+        // ── cek sudah review per transaksi ──
         $alreadyReviewed = Review::where([
-            'user_id'         => $request->user_id,
-            'reviewable_type' => $modelClass,
-            'reviewable_id'   => $reviewable->id,
+            'user_id'              => $request->user_id,
+            'reviewable_type'      => $modelClass,
+            'reviewable_id'        => $reviewable->id,
+            'booking_reference_id' => $request->booking_reference_id, // ← per transaksi
         ])->exists();
 
         if ($alreadyReviewed) {
-            return response()->json(['success' => false, 'message' => 'Anda sudah memberi review'], 400);
+            return response()->json(['success' => false, 'message' => 'Anda sudah memberi review untuk pesanan ini'], 400);
         }
 
         $imagePath = null;
@@ -77,12 +80,13 @@ class ReviewController extends Controller
         }
 
         $review = Review::create([
-            'user_id'         => $request->user_id,
-            'reviewable_type' => $modelClass,
-            'reviewable_id'   => $reviewable->id,
-            'rating'          => $validated['rating'],
-            'comment'         => $validated['comment'],
-            'image'           => $imagePath,
+            'user_id'              => $request->user_id,
+            'booking_reference_id' => $request->booking_reference_id, // ← tambah
+            'reviewable_type'      => $modelClass,
+            'reviewable_id'        => $reviewable->id,
+            'rating'               => $validated['rating'],
+            'comment'              => $validated['comment'],
+            'image'                => $imagePath,
         ]);
 
         return response()->json(['success' => true, 'message' => 'Review berhasil dikirim', 'data' => $review]);
@@ -91,15 +95,16 @@ class ReviewController extends Controller
     public function checkReview(Request $request)
     {
         $request->validate([
-            'user_id'         => 'required|integer',
-            'reviewable_type' => 'required|string',
-            'reviewable_id'   => 'required|integer',
+            'user_id'              => 'required|integer',
+            'booking_reference_id' => 'required|integer', // ← tambah
+            'reviewable_type'      => 'required|string',
+            'reviewable_id'        => 'required|integer',
         ]);
 
         $typeMap = [
             'booking' => Booking::class,
             'rental'  => Rental::class,
-            'tour'    => TourPackage::class, // ← ganti
+            'tour'    => TourPackage::class,
         ];
 
         $modelClass = $typeMap[$request->reviewable_type] ?? null;
@@ -109,9 +114,10 @@ class ReviewController extends Controller
         }
 
         $exists = Review::where([
-            'user_id'         => $request->user_id,
-            'reviewable_type' => $modelClass,
-            'reviewable_id'   => $request->reviewable_id,
+            'user_id'              => $request->user_id,
+            'reviewable_type'      => $modelClass,
+            'reviewable_id'        => $request->reviewable_id,
+            'booking_reference_id' => $request->booking_reference_id, // ← per transaksi
         ])->exists();
 
         return response()->json(['reviewed' => $exists]);

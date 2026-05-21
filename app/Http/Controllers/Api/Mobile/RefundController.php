@@ -94,8 +94,6 @@ class RefundController extends Controller
 
         return response()->json(['success' => true, 'message' => 'Refund berhasil diajukan']);
     }
-
-    // ── DIPANGGIL ADMIN SAAT UPDATE STATUS → NOTIF KE USER ──────
     public function updateStatus(Request $request, $refundId)
     {
         $request->validate([
@@ -111,8 +109,6 @@ class RefundController extends Controller
         } elseif ($request->status === 'rejected') {
             $refund->booking->update(['payment_status' => 'paid']);
         }
-
-        // ── NOTIF KE USER SAJA ───────────────────────────────────
         [$title, $body] = match ($request->status) {
             'approved'  => [
                 '✅ Refund Disetujui',
@@ -128,8 +124,6 @@ class RefundController extends Controller
             ],
             default => ['🔔 Status Refund', 'Status refund kamu telah diperbarui.'],
         };
-
-        // Simpan ke tabel notifications (in-app)
         \App\Helpers\NotificationHelper::send(
             $refund->user_id,
             $title,
@@ -152,11 +146,6 @@ class RefundController extends Controller
 
         return response()->json(['success' => true, 'message' => 'Status refund diperbarui']);
     }
-
-    // ══════════════════════════════════════════════════════════════
-    // PRIVATE HELPERS
-    // ══════════════════════════════════════════════════════════════
-
     private function sendFcmSingle(string $token, string $title, string $body, array $data = []): void
     {
         $projectId   = config('services.firebase.project_id');

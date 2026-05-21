@@ -65,7 +65,7 @@ class ProfileController extends Controller
     {
         $request->validate([
             'user_id' => 'required',
-            'avatar' => 'required|image|mimes:jpg,jpeg,png|max:2048'
+            'avatar' => 'required|image|mimes:jpg,jpeg,png|max:5120'
         ]);
 
         $user = User::find($request->user_id);

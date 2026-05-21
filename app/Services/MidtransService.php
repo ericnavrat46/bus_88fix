@@ -99,16 +99,21 @@ class MidtransService
         $email     = $booking->user->email ?? 'test@mail.com';
         $phone     = $booking->user->phone ?? '08123456789';
 
-        $amount = (int) round($booking->total_price);
+        $amount = (int) round(
+        ($booking->final_price && $booking->final_price > 0)
+            ? $booking->final_price
+            : $booking->total_price
+                );
 
-        $items = [
-            [
-                'id'       => (string) $booking->id,
-                'price'    => $amount,
-                'quantity' => 1,
-                'name'     => substr('Tiket Bus #' . $booking->booking_code, 0, 50),
-            ]
-        ];
+                $items = [
+                    [
+                        'id'       => (string) $booking->id,
+                        'price'    => $amount,
+                        'quantity' => 1,
+                        'name'     => substr('Tiket Bus #' . $booking->booking_code, 0, 50),
+                    ]
+                ];
+
 
         $params = $this->buildTransactionParams(
             $orderId,
@@ -131,7 +136,7 @@ class MidtransService
             'payable_type'       => Booking::class,
             'midtrans_order_id'  => $orderId,
             'snap_token'         => $snapToken,
-            'amount'             => $booking->total_price,
+            'amount'             => $amount,
             'status'             => 'pending',
         ]);
     }

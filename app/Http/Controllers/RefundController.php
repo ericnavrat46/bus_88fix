@@ -132,6 +132,9 @@ class RefundController extends Controller
         if ($request->status === 'completed') {
             $refund->booking->update(['payment_status' => 'refunded']);
         }
+        if ($request->status === 'rejected') {
+            $refund->booking->update(['payment_status' => 'paid']);
+        }
         [$title, $body] = match ($request->status) {
             'approved'  => [
                 '✅ Refund Disetujui',

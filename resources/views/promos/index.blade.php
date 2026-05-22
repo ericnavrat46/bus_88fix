@@ -16,7 +16,7 @@
             <div class="flex items-center gap-3">
                 {{-- Filter Button --}}
                 <div class="relative group cursor-pointer" x-data="{ open: false }">
-                    <button @click="open = !open" @click.away="open = false" class="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors shadow-sm">
+                    <button type="button" @click="open = !open" @click.outside="open = false" class="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors shadow-sm">
                         <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/></svg>
                         Filter: {{ request('filter') == 'bus' ? 'Tiket Bus' : (request('filter') == 'wisata' ? 'Paket Wisata' : 'Semua Kategori') }}
                         <svg class="w-4 h-4 ml-1 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
@@ -33,7 +33,7 @@
 
                 {{-- Sort Button --}}
                 <div class="relative group cursor-pointer" x-data="{ open: false }">
-                    <button @click="open = !open" @click.away="open = false" class="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors shadow-sm">
+                    <button type="button" @click="open = !open" @click.outside="open = false" class="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors shadow-sm">
                         <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12"/></svg>
                         Urutkan: {{ request('sort') == 'terbaru' ? 'Terbaru' : (request('sort') == 'segera_berakhir' ? 'Segera Berakhir' : 'Standar') }}
                         <svg class="w-4 h-4 ml-1 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>

@@ -30,8 +30,8 @@
                     <a href="{{ route('login') }}" class="text-sm font-semibold text-gray-warm-600 hover:text-merah-600 transition-colors px-4 py-2">Masuk</a>
                     <a href="{{ route('register') }}" class="btn-primary btn-sm">Daftar</a>
                 @else
-                    <div class="flex items-center gap-3" x-data="{ dropdown: false }">
-                        <button @click="dropdown = !dropdown" class="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-gray-warm-100 transition-colors">
+                    <div class="flex items-center gap-3 relative" id="user-dropdown-wrapper">
+                        <button type="button" onclick="document.getElementById('user-dropdown-panel').classList.toggle('hidden'); event.stopPropagation();" class="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-gray-warm-100 transition-colors">
                             <div class="w-8 h-8 rounded-full overflow-hidden border-2 border-merah-500">
     <img 
         src="{{ auth()->user()->avatar 
@@ -45,8 +45,7 @@
                             <span class="text-sm font-medium text-dark">{{ auth()->user()->name }}</span>
                             <svg class="w-4 h-4 text-gray-warm-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                         </button>
-                        <div x-show="dropdown" @click.away="dropdown = false" x-transition
-                             class="absolute top-14 right-4 w-48 bg-white rounded-xl shadow-xl border border-gray-warm-100 py-2">
+                        <div id="user-dropdown-panel" class="hidden absolute top-14 right-0 w-48 bg-white rounded-xl shadow-xl border border-gray-warm-100 py-2 z-50">
                             <a href="{{ route('dashboard') }}" class="block px-4 py-2 text-sm text-gray-warm-700 hover:bg-gray-warm-50 hover:text-merah-600">Dashboard Saya</a>
                             @if(auth()->user()->isAdmin())
                             <a href="{{ route('admin.dashboard') }}" class="block px-4 py-2 text-sm text-gray-warm-700 hover:bg-gray-warm-50 hover:text-merah-600">Admin Panel</a>
@@ -58,6 +57,15 @@
                             </form>
                         </div>
                     </div>
+                    <script>
+                        document.addEventListener('click', function(event) {
+                            var wrapper = document.getElementById('user-dropdown-wrapper');
+                            var panel = document.getElementById('user-dropdown-panel');
+                            if (wrapper && panel && !wrapper.contains(event.target)) {
+                                panel.classList.add('hidden');
+                            }
+                        });
+                    </script>
                 @endguest
             </div>
 

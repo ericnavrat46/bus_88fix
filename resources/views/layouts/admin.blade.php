@@ -145,12 +145,12 @@
                     </div>
                     <div class="flex items-center gap-3">
                         {{-- Notification Bell --}}
-                        <div x-data="{ notifOpen: false }" class="relative">
+                        <div class="relative" id="notif-dropdown-wrapper">
                             @php
                                 $adminNotifications = \App\Models\Notification::where('user_id', auth()->id())->latest()->take(10)->get();
                                 $unreadNotifs = $adminNotifications->where('is_read', false)->count();
                             @endphp
-                            <button @click="notifOpen = !notifOpen" class="p-2 relative rounded-full hover:bg-gray-warm-100 transition-colors">
+                            <button type="button" onclick="document.getElementById('notif-dropdown-panel').classList.toggle('hidden'); event.stopPropagation();" class="p-2 relative rounded-full hover:bg-gray-warm-100 transition-colors">
                                 <svg class="w-6 h-6 text-gray-warm-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
                                 @if($unreadNotifs > 0)
                                 <span class="absolute top-1 right-2 w-2.5 h-2.5 bg-merah-600 rounded-full border-2 border-white"></span>
@@ -158,8 +158,7 @@
                             </button>
 
                             {{-- Dropdown --}}
-                            <div x-show="notifOpen" @click.away="notifOpen = false" style="display: none;" x-transition
-                                 class="absolute right-0 mt-2 w-80 bg-white rounded-2xl shadow-xl border border-gray-warm-100 overflow-hidden z-50">
+                            <div id="notif-dropdown-panel" class="hidden absolute right-0 mt-2 w-80 bg-white rounded-2xl shadow-xl border border-gray-warm-100 overflow-hidden z-50">
                                 <div class="p-4 border-b border-gray-warm-100 flex items-center justify-between bg-gray-warm-50">
                                     <h3 class="font-bold text-dark">Notifikasi Sistem</h3>
                                     @if($unreadNotifs > 0)
@@ -202,16 +201,48 @@
 
                         <div class="w-px h-8 bg-gray-warm-200 mx-2 hidden md:block"></div>
 
-                        <div class="text-right hidden md:block">
-                            <p class="text-sm font-semibold text-dark">{{ auth()->user()->name }}</p>
-                            <p class="text-xs text-gray-warm-500">Administrator</p>
-                        </div>
-                        <div class="w-9 h-9 bg-merah-100 rounded-full flex items-center justify-center">
-                            <span class="text-merah-600 font-bold text-sm">{{ substr(auth()->user()->name, 0, 1) }}</span>
+                        {{-- User Profile Dropdown --}}
+                        <div class="relative" id="profile-dropdown-wrapper">
+                            <button type="button" onclick="document.getElementById('profile-dropdown-panel').classList.toggle('hidden'); event.stopPropagation();" class="flex items-center gap-3 p-1 rounded-xl hover:bg-gray-warm-100 transition-colors text-left">
+                                <div class="text-right hidden md:block">
+                                    <p class="text-sm font-semibold text-dark">{{ auth()->user()->name }}</p>
+                                    <p class="text-xs text-gray-warm-500">Administrator</p>
+                                </div>
+                                <div class="w-9 h-9 bg-merah-100 rounded-full flex items-center justify-center border-2 border-merah-500/20">
+                                    <span class="text-merah-600 font-bold text-sm">{{ substr(auth()->user()->name, 0, 1) }}</span>
+                                </div>
+                                <svg class="w-4 h-4 text-gray-warm-400 hidden md:block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                            </button>
+
+                            {{-- Dropdown Menu --}}
+                            <div id="profile-dropdown-panel" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-gray-warm-100 py-2 z-50">
+                                <a href="{{ route('home') }}" class="block px-4 py-2 text-sm text-gray-warm-700 hover:bg-gray-warm-50 hover:text-merah-600">Ke Website</a>
+                                <hr class="my-1 border-gray-warm-100">
+                                <form method="POST" action="{{ route('logout') }}">
+                                    @csrf
+                                    <button type="submit" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-red-600">Keluar</button>
+                                </form>
+                            </div>
                         </div>
                     </div>
                 </div>
             </header>
+            
+            <script>
+                document.addEventListener('click', function(event) {
+                    var notifWrapper = document.getElementById('notif-dropdown-wrapper');
+                    var notifPanel = document.getElementById('notif-dropdown-panel');
+                    if (notifWrapper && notifPanel && !notifWrapper.contains(event.target)) {
+                        notifPanel.classList.add('hidden');
+                    }
+                    
+                    var profileWrapper = document.getElementById('profile-dropdown-wrapper');
+                    var profilePanel = document.getElementById('profile-dropdown-panel');
+                    if (profileWrapper && profilePanel && !profileWrapper.contains(event.target)) {
+                        profilePanel.classList.add('hidden');
+                    }
+                });
+            </script>
 
             {{-- Flash Messages with SweetAlert2 --}}
             @if(session('success'))

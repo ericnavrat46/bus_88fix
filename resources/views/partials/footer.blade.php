@@ -141,12 +141,7 @@
 
             {{-- Brand --}}
             <a href="{{ route('home') }}" style="display:flex; align-items:center; gap:8px; text-decoration:none;">
-                <div class="gradient-merah" style="width:26px; height:26px; border-radius:6px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
-                    <span style="color:#ffffff; font-weight:900; font-size:9px;">88</span>
-                </div>
-                <span style="font-size:16px; font-weight:900; color:#1a0505; text-transform:uppercase; letter-spacing:-0.02em;">
-                    BUS <span style="color:#cc0000;">88</span>
-                </span>
+                <img src="{{ asset('images/logo.png') }}" alt="Bus 88 Logo" style="height:32px; width:auto; object-fit:contain;">
             </a>
 
         </div>

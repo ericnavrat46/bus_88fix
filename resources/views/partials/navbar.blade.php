@@ -4,12 +4,7 @@
         <div class="flex items-center justify-between h-16">
             {{-- Logo --}}
             <a href="{{ route('home') }}" class="flex items-center gap-3 group">
-                <div class="w-10 h-10 gradient-merah rounded-xl flex items-center justify-center shadow-lg shadow-merah-600/20 group-hover:shadow-merah-600/40 transition-shadow">
-                    <span class="text-white font-black text-lg">88</span>
-                </div>
-                <div>
-                    <h1 class="text-xl font-bold text-dark">Bus <span class="text-gradient-merah">88</span></h1>
-                </div>
+                <img src="{{ asset('images/logo.png') }}" alt="Bus 88 Logo" class="h-12 w-auto object-contain">
             </a>
 
             {{-- Desktop Menu --}}

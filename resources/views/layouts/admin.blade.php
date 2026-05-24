@@ -31,10 +31,15 @@
         <aside class="fixed lg:sticky left-0 top-0 h-screen w-64 bg-gradient-to-b from-merah-800 via-merah-900 to-merah-950 text-white z-40 transition-all duration-300 shadow-2xl shadow-merah-950/50 flex-shrink-0"
                :class="sidebarOpen ? 'translate-x-0 ml-0' : '-translate-x-full lg:-ml-64'">
             <div class="flex flex-col h-full overflow-hidden">
+<<<<<<< HEAD
                 <div class="flex items-center gap-3 px-6 py-3 border-b border-white/10 flex-shrink-0">
                     <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-lg shadow-white/10">
                         <span class="text-merah-600 font-black text-lg">88</span>
                     </div>
+=======
+                <div class="flex items-center gap-3 px-6 py-5 border-b border-white/10 flex-shrink-0">
+                    <img src="{{ asset('images/logo.png') }}" alt="Logo" class="h-10 w-auto object-contain">
+>>>>>>> 6ca967ae8078889a34046a85939f4f81b5c3fe84
                     <div>
                         <h1 class="text-lg font-bold tracking-tight">Bus 88</h1>
                         <p class="text-[10px] text-merah-200 uppercase tracking-widest font-semibold">Admin Panel</p>

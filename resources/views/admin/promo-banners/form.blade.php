@@ -93,8 +93,8 @@
 
                 {{-- Discount Value --}}
                 <div>
-                    <label class="label-field">Nilai Diskon</label>
-                    <input type="number" name="discount_value" value="{{ old('discount_value', isset($banner->discount_value) ? (float)$banner->discount_value : '') }}" class="input-field" min="0" step="0.01">
+                    <label class="label-field" id="discountValueLabel">Nilai Diskon</label>
+                    <input type="number" name="discount_value" id="discountValueInput" value="{{ old('discount_value', isset($banner->discount_value) ? (float)$banner->discount_value : '') }}" class="input-field" min="0" step="0.01">
                 </div>
 
                 {{-- Max Discount --}}
@@ -128,7 +128,13 @@
                 {{-- Link --}}
                 <div class="col-span-2">
                     <label class="label-field">Link Tujuan (Opsional)</label>
-                    <input type="url" name="link" value="{{ old('link', $banner->link ?? '') }}" class="input-field" placeholder="https://example.com/promo-page">
+                    <select name="link" class="select-field">
+                        <option value="" {{ old('link', $banner->link ?? '') == '' ? 'selected' : '' }}>Tidak Ada (Kosong)</option>
+                        <option value="{{ route('home') }}" {{ old('link', $banner->link ?? '') == route('home') ? 'selected' : '' }}>Halaman Utama / Booking Tiket Bus</option>
+                        <option value="{{ route('rental.index') }}" {{ old('link', $banner->link ?? '') == route('rental.index') ? 'selected' : '' }}>Halaman Sewa / Charter Bus</option>
+                        <option value="{{ route('tour.index') }}" {{ old('link', $banner->link ?? '') == route('tour.index') ? 'selected' : '' }}>Halaman Paket Wisata</option>
+                        <option value="{{ route('promos.index') }}" {{ old('link', $banner->link ?? '') == route('promos.index') ? 'selected' : '' }}>Halaman Daftar Promo</option>
+                    </select>
                 </div>
 
                 {{-- Description --}}
@@ -164,7 +170,28 @@
     </div>
 </div>
 
+{{-- Cropper Modal --}}
+<div id="cropperModal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+    <div class="bg-white rounded-2xl w-full max-w-4xl p-6 shadow-2xl flex flex-col max-h-[90vh]">
+        <div class="flex items-center justify-between mb-4 flex-shrink-0">
+            <h3 class="text-xl font-bold text-dark">Sesuaikan Gambar Banner</h3>
+            <button type="button" id="btnCancelCropIcon" class="text-gray-warm-400 hover:text-red-500 transition-colors">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+        </div>
+        <div class="w-full flex-1 bg-gray-warm-100 rounded-xl overflow-hidden mb-6 min-h-[300px] relative">
+            <img id="cropperImage" src="" alt="Crop Preview" class="max-w-full block">
+        </div>
+        <div class="flex justify-end gap-3 flex-shrink-0">
+            <button type="button" id="btnCancelCrop" class="btn-secondary px-6 py-2.5">Batal</button>
+            <button type="button" id="btnApplyCrop" class="btn-primary px-8 py-2.5 shadow-lg shadow-merah-600/30">Terapkan & Simpan</button>
+        </div>
+    </div>
+</div>
+
 @push('scripts')
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const imageInput = document.getElementById('imageInput');
@@ -177,38 +204,86 @@
         const charCount = document.getElementById('charCount');
         const description = document.querySelector('textarea[name="description"]');
 
-        // Image Preview & Validation
+        // Cropper Logic
+        let cropper;
+        const cropperModal = document.getElementById('cropperModal');
+        const cropperImage = document.getElementById('cropperImage');
+        const btnCancelCrop = document.getElementById('btnCancelCrop');
+        const btnCancelCropIcon = document.getElementById('btnCancelCropIcon');
+        const btnApplyCrop = document.getElementById('btnApplyCrop');
+        let originalFileName = 'banner.jpg';
+
         imageInput.addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (file) {
-                // Size validation
-                if (file.size > 2 * 1024 * 1024) {
-                    showImageError('Ukuran gambar maksimal 2MB.');
-                    imageInput.value = '';
-                    return;
-                }
-
+                originalFileName = file.name;
                 const reader = new FileReader();
                 reader.onload = function(event) {
-                    const img = new Image();
-                    img.onload = function() {
-                        const ratio = img.width / img.height;
-                        // Ratio validation (accept between 1.5 and 2.5 for landscape)
-                        if (ratio < 1.5) {
-                            showImageError('Gambar harus landscape (rekomendasi 16:9 atau 21:9).');
-                            imageInput.value = '';
-                            return;
-                        }
-
-                        hideImageError();
-                        imagePreview.src = event.target.result;
-                        imagePreview.classList.remove('hidden');
-                        if(placeholder) placeholder.classList.add('hidden');
-                    };
-                    img.src = event.target.result;
+                    cropperImage.src = event.target.result;
+                    cropperModal.classList.remove('hidden');
+                    cropperModal.classList.add('flex');
+                    
+                    if (cropper) { cropper.destroy(); }
+                    
+                    cropper = new Cropper(cropperImage, {
+                        aspectRatio: 21 / 9, // Banner ratio
+                        viewMode: 2,
+                        autoCropArea: 1,
+                        responsive: true,
+                        background: false
+                    });
                 };
                 reader.readAsDataURL(file);
             }
+            // Reset input so selecting the same file again triggers change event
+            this.value = '';
+        });
+
+        function closeCropper() {
+            cropperModal.classList.add('hidden');
+            cropperModal.classList.remove('flex');
+            if (cropper) { cropper.destroy(); cropper = null; }
+        }
+
+        btnCancelCrop.addEventListener('click', closeCropper);
+        btnCancelCropIcon.addEventListener('click', closeCropper);
+
+        btnApplyCrop.addEventListener('click', function() {
+            if (!cropper) return;
+            
+            // Get cropped canvas
+            const canvas = cropper.getCroppedCanvas({
+                width: 1920,
+                height: Math.round(1920 / (21/9)),
+                imageSmoothingEnabled: true,
+                imageSmoothingQuality: 'high'
+            });
+
+            canvas.toBlob(function(blob) {
+                // Size validation after crop
+                if (blob.size > 2 * 1024 * 1024) {
+                    showImageError('Ukuran gambar hasil crop melebihi 2MB. Silakan pilih gambar yang lebih kecil.');
+                    closeCropper();
+                    return;
+                }
+
+                // Create a new File object
+                const croppedFile = new File([blob], originalFileName, { type: 'image/jpeg', lastModified: new Date().getTime() });
+                
+                // Assign to file input using DataTransfer
+                const dataTransfer = new DataTransfer();
+                dataTransfer.items.add(croppedFile);
+                imageInput.files = dataTransfer.files;
+
+                // Update Preview
+                hideImageError();
+                const previewUrl = URL.createObjectURL(blob);
+                imagePreview.src = previewUrl;
+                imagePreview.classList.remove('hidden');
+                if(placeholder) placeholder.classList.add('hidden');
+
+                closeCropper();
+            }, 'image/jpeg', 0.9);
         });
 
         function showImageError(msg) {
@@ -248,15 +323,29 @@
         // Initial char count
         charCount.textContent = `${description.value.length}/200`;
 
-        // Max discount toggle
+        // Max discount toggle & dynamic label
         const discountType = document.getElementById('discountType');
         const maxDiscountContainer = document.getElementById('maxDiscountContainer');
+        const discountValueLabel = document.getElementById('discountValueLabel');
+        const discountValueInput = document.getElementById('discountValueInput');
+        
         function toggleMaxDiscount() {
+            const maxInput = document.querySelector('input[name="max_discount"]');
             if (discountType.value === 'percent') {
-                maxDiscountContainer.style.display = 'block';
+                maxDiscountContainer.style.display = '';
+                maxDiscountContainer.classList.remove('opacity-40', 'pointer-events-none');
+                maxInput.disabled = false;
+                discountValueLabel.innerHTML = 'Persentase Diskon (%)';
+                discountValueInput.placeholder = 'Contoh: 15';
+                discountValueInput.max = '100';
             } else {
-                maxDiscountContainer.style.display = 'none';
-                document.querySelector('input[name="max_discount"]').value = '';
+                maxDiscountContainer.style.display = '';
+                maxDiscountContainer.classList.add('opacity-40', 'pointer-events-none');
+                maxInput.disabled = true;
+                maxInput.value = '';
+                discountValueLabel.innerHTML = 'Nominal Diskon (Rp)';
+                discountValueInput.placeholder = 'Contoh: 50000';
+                discountValueInput.removeAttribute('max');
             }
         }
         discountType.addEventListener('change', toggleMaxDiscount);

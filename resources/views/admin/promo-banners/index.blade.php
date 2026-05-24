@@ -61,9 +61,22 @@
                     <div class="flex flex-col gap-0.5">
                         <span class="text-xs font-bold text-gray-warm-700">{{ $banner->start_date->format('d M') }} - {{ $banner->end_date->format('d M Y') }}</span>
                         @if($banner->is_active && !$banner->is_expired && now()->diffInDays($banner->end_date) <= 7)
-                            <span class="text-[10px] font-bold text-amber-600 flex items-center gap-1">
+                            <span class="text-[10px] font-bold text-amber-600 flex items-center gap-1"
+                                  x-data="{
+                                    end: new Date('{{ $banner->end_date->endOfDay()->toIso8601String() }}').getTime(),
+                                    timeLeft: 'Menghitung...',
+                                    updateTime() {
+                                        let diff = this.end - new Date().getTime();
+                                        if (diff < 0) { this.timeLeft = 'Kedaluwarsa'; return; }
+                                        let d = Math.floor(diff / (1000 * 60 * 60 * 24));
+                                        let h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                                        let m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                                        this.timeLeft = `Berakhir dlm ${d}h ${h}j ${m}m`;
+                                    }
+                                  }"
+                                  x-init="updateTime(); setInterval(() => updateTime(), 1000)">
                                 <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                                Berakhir dlm {{ now()->diffInDays($banner->end_date) }} hari
+                                <span x-text="timeLeft">Berakhir dlm {{ floor(now()->diffInDays($banner->end_date)) }} hari</span>
                             </span>
                         @endif
                     </div>

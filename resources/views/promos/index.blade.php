@@ -58,8 +58,23 @@
                 <div class="relative overflow-hidden bg-gray-100" style="aspect-ratio: 16/9;">
                     <img src="{{ $promo->image_url }}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" alt="{{ $promo->title }}">
                     @if(now()->diffInDays($promo->end_date) <= 7)
-                    <div class="absolute top-2 right-2 bg-red-600 text-white text-[10px] font-bold px-2 py-1 rounded-md shadow-sm">
-                        Sisa {{ now()->diffInDays($promo->end_date) }} Hari
+                    <div class="absolute top-2 right-2 bg-red-600 text-white text-[10px] font-bold px-2 py-1 rounded-md shadow-sm"
+                         x-data="{
+                            end: new Date('{{ $promo->end_date->endOfDay()->toIso8601String() }}').getTime(),
+                            timeLeft: 'Menghitung...',
+                            updateTime() {
+                                let now = new Date().getTime();
+                                let diff = this.end - now;
+                                if (diff < 0) { this.timeLeft = 'Kedaluwarsa'; return; }
+                                let d = Math.floor(diff / (1000 * 60 * 60 * 24));
+                                let h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                                let m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                                this.timeLeft = `Sisa ${d}h ${h}j ${m}m`;
+                            }
+                         }" 
+                         x-init="updateTime(); setInterval(() => updateTime(), 1000)" 
+                         x-text="timeLeft">
+                        Sisa {{ floor(now()->diffInDays($promo->end_date)) }} Hari
                     </div>
                     @endif
                 </div>

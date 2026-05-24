@@ -18,10 +18,6 @@ class PaymentController extends Controller
     {
         $this->midtrans = $midtrans;
     }
-
-    /**
-     * CREATE MIDTRANS TRANSACTION (UNTUK MOBILE)
-     */
     public function create(Request $request)
     {
         $bookingId = $request->booking_id;
@@ -30,37 +26,40 @@ class PaymentController extends Controller
             return response()->json(['status' => false, 'message' => 'booking_id wajib diisi'], 422);
         }
 
-        // Cari di semua tabel
-        $booking = Booking::find($bookingId)
-            ?? Rental::find($bookingId)
-            ?? \App\Models\TourBooking::find($bookingId);
-
-        if (!$booking) {
-            return response()->json(['status' => false, 'message' => 'Booking tidak ditemukan'], 404);
-        }
-
         try {
-            $payment = $this->midtrans->createTransaction($booking);
+            if ($rental = Rental::find($bookingId)) {
+                if (!$rental->total_price || $rental->total_price <= 0) {
+                    return response()->json([
+                        'status'  => false,
+                        'message' => 'Harga belum ditentukan oleh admin',
+                    ], 422);
+                }
+                $payment = $this->midtrans->createRentalTransaction($rental);
+            } elseif ($tour = \App\Models\TourBooking::find($bookingId)) {
+                $payment = $this->midtrans->createTourTransaction($tour);
+            } elseif ($booking = Booking::find($bookingId)) {
+                $payment = $this->midtrans->createTransaction($booking);
+
+            } else {
+                return response()->json(['status' => false, 'message' => 'Booking tidak ditemukan'], 404);
+            }
 
             return response()->json([
-                'status' => true,
-                'message' => 'Snap token berhasil dibuat',
+                'status'     => true,
+                'message'    => 'Snap token berhasil dibuat',
                 'snap_token' => $payment->snap_token,
-                'order_id' => $payment->midtrans_order_id,
+                'order_id'   => $payment->midtrans_order_id,
             ]);
+
         } catch (\Exception $e) {
             Log::error('Midtrans Create Error: ' . $e->getMessage());
 
             return response()->json([
-                'status' => false,
+                'status'  => false,
                 'message' => 'Gagal membuat transaksi: ' . $e->getMessage(),
             ], 500);
         }
     }
-
-    /**
-     * Midtrans Notification Handler (Webhook)
-     */
     public function notification(Request $request)
     {
         $payload = $request->all();
@@ -100,89 +99,76 @@ class PaymentController extends Controller
 
         return response()->json(['message' => 'OK']);
     }
-
-    /**
-     * CHECK STATUS DARI MIDTRANS LANGSUNG (UNTUK MOBILE TANPA WEBHOOK)
-     * 🔥 FIX: pakai DB::table() langsung biar pasti update
-     */
     public function checkStatus(Request $request, $bookingId)
-{
-    $payment = Payment::where('payable_id', $bookingId)
-        ->whereIn('payable_type', [
-            \App\Models\Booking::class,
-            \App\Models\Rental::class,
-            \App\Models\TourBooking::class,
-        ])
-        ->latest()
-        ->first();
+    {
+        $payment = Payment::where('payable_id', $bookingId)
+            ->whereIn('payable_type', [
+                \App\Models\Booking::class,
+                \App\Models\Rental::class,
+                \App\Models\TourBooking::class,
+            ])
+            ->latest()
+            ->first();
 
-    if (!$payment) {
-        return response()->json([
-            'status' => false,
-            'message' => 'Payment tidak ditemukan',
-            'payment_status' => null,
+        if (!$payment) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Payment tidak ditemukan',
+                'payment_status' => null,
+            ]);
+        }
+
+        if ($payment->status === 'settlement') {
+            return response()->json([
+                'status' => true,
+                'payment_status' => 'settlement',
+            ]);
+        }
+
+        $orderId = $payment->midtrans_order_id;
+        $statusData = $this->midtrans->getTransactionStatus($orderId);
+
+        if (!$statusData) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Gagal cek ke Midtrans',
+                'payment_status' => null,
+            ]);
+        }
+
+        $transactionStatus = $statusData['transaction_status'] ?? 'pending';
+        $fraudStatus = $statusData['fraud_status'] ?? null;
+        $status = $this->mapTransactionStatus($transactionStatus, $fraudStatus);
+
+        $payment->update([
+            'status' => $status,
+            'midtrans_transaction_id' => $statusData['transaction_id'] ?? $payment->midtrans_transaction_id,
+            'payment_type' => $statusData['payment_type'] ?? $payment->payment_type,
+            'raw_response' => $statusData,
         ]);
-    }
 
-    if ($payment->status === 'settlement') {
+        $this->updatePayableStatus($payment, $status);
+
         return response()->json([
             'status' => true,
-            'payment_status' => 'settlement',
+            'payment_status' => $status,
+            'order_id' => $orderId,
         ]);
     }
-
-    $orderId = $payment->midtrans_order_id;
-    $statusData = $this->midtrans->getTransactionStatus($orderId);
-
-    if (!$statusData) {
-        return response()->json([
-            'status' => false,
-            'message' => 'Gagal cek ke Midtrans',
-            'payment_status' => null,
-        ]);
-    }
-
-    $transactionStatus = $statusData['transaction_status'] ?? 'pending';
-    $fraudStatus = $statusData['fraud_status'] ?? null;
-    $status = $this->mapTransactionStatus($transactionStatus, $fraudStatus);
-
-    $payment->update([
-        'status' => $status,
-        'midtrans_transaction_id' => $statusData['transaction_id'] ?? $payment->midtrans_transaction_id,
-        'payment_type' => $statusData['payment_type'] ?? $payment->payment_type,
-        'raw_response' => $statusData,
-    ]);
-
-    $this->updatePayableStatus($payment, $status);
-
-    return response()->json([
-        'status' => true,
-        'payment_status' => $status,
-        'order_id' => $orderId,
-    ]);
-}
-
-    /**
-     * Map Midtrans transaction status
-     */
     protected function mapTransactionStatus(string $transactionStatus, ?string $fraudStatus): string
-{
-    if ($transactionStatus === 'capture') {
-        return ($fraudStatus === 'deny') ? 'canceled' : 'settlement';
+    {
+        if ($transactionStatus === 'capture') {
+            return ($fraudStatus === 'deny') ? 'canceled' : 'settlement';
+        }
+
+        return match ($transactionStatus) {
+            'settlement', 'success', 'capture' => 'settlement',
+            'pending' => 'pending',
+            'deny', 'cancel', 'expire' => 'canceled',
+            'refund', 'partial_refund' => 'refund',
+            default => $transactionStatus,
+        };
     }
-
-    return match ($transactionStatus) {
-        'settlement', 'success', 'capture' => 'settlement',
-        'pending' => 'pending',
-        'deny', 'cancel', 'expire' => 'canceled',
-        'refund', 'partial_refund' => 'refund',
-        default => $transactionStatus,
-    };
-}
-
-    /**
-     * Update the related booking or rental status
-     */
     protected function updatePayableStatus(Payment $payment, string $status): void
     {
         $payable = $payment->payable;
@@ -260,10 +246,6 @@ class PaymentController extends Controller
             }
         }
     }
-
-    /**
-     * Payment finish callback page
-     */
     public function finish(Request $request)
     {
         $orderId = $request->get('order_id');
@@ -271,7 +253,6 @@ class PaymentController extends Controller
 
         $payment = Payment::where('midtrans_order_id', $orderId)->first();
 
-        // Jika tidak ketemu di tabel payment, coba cari dari tabel utama dan ambil/buat record payment-nya
         if (!$payment && $orderId) {
             $payable = Rental::where('rental_code', $orderId)->first() 
                       ?? Booking::where('booking_code', $orderId)->first() 
@@ -327,8 +308,6 @@ class PaymentController extends Controller
                 'payment' => $payment
             ]);
         }
-
-        // --- FALLBACK: Jika benar-benar buntu ---
         return view('payment.finish', [
             'orderId' => $orderId, 
             'status' => $status,

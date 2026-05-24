@@ -141,6 +141,67 @@ class MidtransService
         ]);
     }
 
+    // ─── BARU: khusus Rental ───────────────────────────────────
+    public function createRentalTransaction(\App\Models\Rental $rental)
+    {
+        Payment::where('payable_id', $rental->id)
+            ->where('payable_type', \App\Models\Rental::class)
+            ->where('status', 'pending')
+            ->delete();
+
+        $orderId   = 'RNT-' . $rental->id . '-' . time();
+        $firstName = $rental->user->name  ?? 'User';
+        $email     = $rental->user->email ?? 'test@mail.com';
+        $phone     = $rental->user->phone ?? '08123456789';
+
+        $discount = (int) ($rental->discount_amount ?? 0);
+        $amount   = (int) round($rental->total_price - $discount);
+
+        $items = [
+            [
+                'id'       => 'RNT-' . $rental->id,
+                'price'    => (int) $rental->total_price,
+                'quantity' => 1,
+                'name'     => substr('Sewa Bus - ' . $rental->destination, 0, 50),
+            ]
+        ];
+
+        if ($discount > 0) {
+            $items[] = [
+                'id'       => 'DISC-RNT-' . $rental->id,
+                'price'    => -$discount,
+                'quantity' => 1,
+                'name'     => 'Diskon Promo',
+            ];
+        }
+
+        $params = $this->buildTransactionParams(
+            $orderId,
+            $amount,
+            $firstName,
+            $email,
+            $phone,
+            $items,
+            true
+        );
+
+        $snapToken = $this->createSnapToken($params);
+
+        if (!$snapToken) {
+            throw new \Exception('Gagal mendapatkan Snap Token dari Midtrans');
+        }
+
+        return Payment::create([
+            'payable_id'        => $rental->id,
+            'payable_type'      => \App\Models\Rental::class,
+            'midtrans_order_id' => $orderId,
+            'snap_token'        => $snapToken,
+            'amount'            => $amount,
+            'status'            => 'pending',
+        ]);
+    }
+    // ──────────────────────────────────────────────────────────
+
     public function createTourTransaction(TourBooking $booking)
     {
         Payment::where('payable_id', $booking->id)

@@ -10,7 +10,7 @@
             {{-- Desktop Menu --}}
             <div class="hidden md:flex items-center gap-8">
                 <a href="{{ route('home') }}" class="text-sm font-medium {{ request()->routeIs('home') ? 'text-merah-600' : 'text-gray-warm-600 hover:text-merah-600' }} transition-colors">Beranda</a>
-                <a href="{{ route('schedules.search') }}?origin=Jakarta&destination=Bandung&date={{ date('Y-m-d') }}" class="text-sm font-medium text-gray-warm-600 hover:text-merah-600 transition-colors">Jadwal</a>
+                <a href="{{ route('schedules.search') }}?origin=Jakarta&destination=Bandung&date={{ date('Y-m-d') }}" class="text-sm font-medium {{ request()->routeIs('schedules.search') ? 'text-merah-600' : 'text-gray-warm-600 hover:text-merah-600' }} transition-colors">Jadwal</a>
                 <a href="{{ route('rental.index') }}" class="text-sm font-medium {{ request()->routeIs('rental.*') ? 'text-merah-600' : 'text-gray-warm-600 hover:text-merah-600' }} transition-colors">Sewa Bus</a>
                 <a href="{{ route('tour.index') }}" class="text-sm font-medium {{ request()->routeIs('tour.*') ? 'text-merah-600' : 'text-gray-warm-600 hover:text-merah-600' }} transition-colors">Paket Wisata</a>
                 <a href="{{ route('promos.index') }}" class="text-sm font-medium {{ request()->routeIs('promos.*') ? 'text-merah-600' : 'text-gray-warm-600 hover:text-merah-600' }} transition-colors">Promo</a>
@@ -73,10 +73,11 @@
         {{-- Mobile Menu --}}
         <div x-show="mobileMenu" x-transition class="md:hidden pb-4 border-t border-gray-warm-100 mt-2 pt-4">
             <div class="space-y-2">
-                <a href="{{ route('home') }}" class="block px-4 py-2 text-sm font-medium text-gray-warm-700 rounded-lg hover:bg-gray-warm-100">Beranda</a>
-                <a href="{{ route('rental.index') }}" class="block px-4 py-2 text-sm font-medium text-gray-warm-700 rounded-lg hover:bg-gray-warm-100">Sewa Bus</a>
-                <a href="{{ route('tour.index') }}" class="block px-4 py-2 text-sm font-medium text-gray-warm-700 rounded-lg hover:bg-gray-warm-100">Paket Wisata</a>
-                <a href="{{ route('promos.index') }}" class="block px-4 py-2 text-sm font-medium text-gray-warm-700 rounded-lg hover:bg-gray-warm-100">Promo</a>
+                <a href="{{ route('home') }}" class="block px-4 py-2 text-sm font-medium {{ request()->routeIs('home') ? 'text-merah-600 bg-merah-50' : 'text-gray-warm-700 hover:bg-gray-warm-100' }} rounded-lg">Beranda</a>
+                <a href="{{ route('schedules.search') }}?origin=Jakarta&destination=Bandung&date={{ date('Y-m-d') }}" class="block px-4 py-2 text-sm font-medium {{ request()->routeIs('schedules.search') ? 'text-merah-600 bg-merah-50' : 'text-gray-warm-700 hover:bg-gray-warm-100' }} rounded-lg">Jadwal</a>
+                <a href="{{ route('rental.index') }}" class="block px-4 py-2 text-sm font-medium {{ request()->routeIs('rental.*') ? 'text-merah-600 bg-merah-50' : 'text-gray-warm-700 hover:bg-gray-warm-100' }} rounded-lg">Sewa Bus</a>
+                <a href="{{ route('tour.index') }}" class="block px-4 py-2 text-sm font-medium {{ request()->routeIs('tour.*') ? 'text-merah-600 bg-merah-50' : 'text-gray-warm-700 hover:bg-gray-warm-100' }} rounded-lg">Paket Wisata</a>
+                <a href="{{ route('promos.index') }}" class="block px-4 py-2 text-sm font-medium {{ request()->routeIs('promos.*') ? 'text-merah-600 bg-merah-50' : 'text-gray-warm-700 hover:bg-gray-warm-100' }} rounded-lg">Promo</a>
 
                 @auth
                 <a href="{{ route('dashboard') }}" class="block px-4 py-2 text-sm font-medium text-gray-warm-700 rounded-lg hover:bg-gray-warm-100">Dashboard</a>

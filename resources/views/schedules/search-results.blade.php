@@ -156,16 +156,7 @@
                     </form>
                 </div>
 
-                {{-- Promo Banner --}}
-                <div class="rounded-2xl overflow-hidden relative shadow-lg group cursor-pointer h-64">
-                    <div class="absolute inset-0 bg-gradient-to-t from-dark/90 via-dark/40 to-transparent z-10"></div>
-                    <img src="{{ asset('assets/img/bus/bus-1.jpg') }}" alt="Lounge" class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" onerror="this.src='https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?q=80&w=800&auto=format&fit=crop'">
-                    <div class="absolute bottom-0 left-0 right-0 p-5 z-20">
-                        <p class="text-[10px] font-bold text-white/80 uppercase tracking-widest mb-1">Tingkatkan Sekarang</p>
-                        <h4 class="text-white font-bold text-lg leading-tight mb-2">Akses Lounge Kelas Utama</h4>
-                        <p class="text-white/80 text-xs">Nikmati minuman gratis dan kursi malas ultra lebar.</p>
-                    </div>
-                </div>
+
             </div>
 
             {{-- ══════════════════════════════════════ --}}

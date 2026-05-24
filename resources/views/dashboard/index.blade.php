@@ -116,8 +116,8 @@
     </div>
 
     {{-- Hidden Forms (integrated from old design) --}}
-    <div id="editProfileContainer" class="mb-8">
-        <form id="editProfileForm" method="POST" action="{{ route('profile.update') }}" enctype="multipart/form-data" class="form-section p-8 bg-white rounded-3xl shadow-xl border border-slate-100">
+    <div id="editProfileContainer">
+        <form id="editProfileForm" method="POST" action="{{ route('profile.update') }}" enctype="multipart/form-data" class="form-section mb-12 p-8 bg-white rounded-3xl shadow-xl border border-slate-100 relative z-10">
             @csrf
             <div class="flex items-center justify-between mb-6">
                 <h3 class="text-xl font-bold text-slate-900">Update Profil</h3>
@@ -153,7 +153,7 @@
             </div>
         </form>
 
-        <div id="otpSection" class="form-section p-8 bg-white rounded-3xl shadow-xl border border-slate-100">
+        <div id="otpSection" class="form-section mb-12 p-8 bg-white rounded-3xl shadow-xl border border-slate-100 relative z-10">
              {{-- Step 1 --}}
              <div id="step1SendOtp">
                 <div class="flex items-center justify-between mb-6">

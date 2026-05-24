@@ -30,7 +30,7 @@
                             <div class="w-8 h-8 rounded-full overflow-hidden border-2 border-merah-500">
     <img 
         src="{{ auth()->user()->avatar 
-            ? asset('avatar/' . auth()->user()->avatar) 
+            ? (Str::startsWith(auth()->user()->avatar, ['http://', 'https://']) ? auth()->user()->avatar : asset('avatar/' . auth()->user()->avatar))
             : 'https://ui-avatars.com/api/?name=' . urlencode(auth()->user()->name) . '&background=cc0000&color=fff' 
         }}"
         alt="avatar"

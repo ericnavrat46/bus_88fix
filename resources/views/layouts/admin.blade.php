@@ -208,8 +208,15 @@
                                     <p class="text-sm font-semibold text-dark">{{ auth()->user()->name }}</p>
                                     <p class="text-xs text-gray-warm-500">Administrator</p>
                                 </div>
-                                <div class="w-9 h-9 bg-merah-100 rounded-full flex items-center justify-center border-2 border-merah-500/20">
-                                    <span class="text-merah-600 font-bold text-sm">{{ substr(auth()->user()->name, 0, 1) }}</span>
+                                <div class="w-9 h-9 bg-merah-100 rounded-full flex items-center justify-center border-2 border-merah-500/20 overflow-hidden">
+                                    <img 
+                                        src="{{ auth()->user()->avatar 
+                                            ? (Str::startsWith(auth()->user()->avatar, ['http://', 'https://']) ? auth()->user()->avatar : asset('avatar/' . auth()->user()->avatar))
+                                            : 'https://ui-avatars.com/api/?name=' . urlencode(auth()->user()->name) . '&background=cc0000&color=fff' 
+                                        }}"
+                                        alt="avatar"
+                                        class="w-full h-full object-cover"
+                                    >
                                 </div>
                                 <svg class="w-4 h-4 text-gray-warm-400 hidden md:block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                             </button>

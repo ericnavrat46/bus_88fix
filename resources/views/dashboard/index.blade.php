@@ -192,8 +192,18 @@
                 <h3 class="text-xl font-bold text-green-600 mb-4">✅ Verifikasi Berhasil</h3>
                 <p class="text-slate-500 mb-6 text-sm">Silakan masukkan password baru Anda.</p>
                 <div class="grid gap-4 mb-6">
-                    <input type="password" id="newPassword" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-red-500 outline-none" placeholder="Password Baru">
-                    <input type="password" id="confirmPassword" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-red-500 outline-none" placeholder="Konfirmasi Password Baru">
+                    <div class="relative">
+                        <input type="password" id="newPassword" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-red-500 outline-none pr-12" placeholder="Password Baru">
+                        <button type="button" onclick="togglePasswordVisibility('newPassword', this)" class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors">
+                            <svg class="w-5 h-5 eye-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                        </button>
+                    </div>
+                    <div class="relative">
+                        <input type="password" id="confirmPassword" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-red-500 outline-none pr-12" placeholder="Konfirmasi Password Baru">
+                        <button type="button" onclick="togglePasswordVisibility('confirmPassword', this)" class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors">
+                            <svg class="w-5 h-5 eye-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                        </button>
+                    </div>
                 </div>
                 <button type="button" id="changePasswordBtn" class="px-8 py-3 bg-red-600 text-white font-bold rounded-xl hover:bg-red-700 shadow-lg shadow-red-600/20 transition-all">Simpan Password</button>
             </div>
@@ -456,6 +466,18 @@ function toggleChangePassword() {
     if(otpSection.classList.contains('show')) otpSection.scrollIntoView({behavior: 'smooth', block: 'center'});
 }
 
+function togglePasswordVisibility(inputId, btn) {
+    const input = document.getElementById(inputId);
+    const svg = btn.querySelector('svg');
+    if (input.type === 'password') {
+        input.type = 'text';
+        svg.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/>';
+    } else {
+        input.type = 'password';
+        svg.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>';
+    }
+}
+
 // Logic placeholder for OTP scripts (re-using the logic from the old file)
 let countdownInterval = null;
 function startCooldown(seconds) {
@@ -492,7 +514,7 @@ document.getElementById('sendOtpBtn')?.addEventListener('click', async function(
             document.getElementById('step2VerifyOtp').style.display = 'block';
             startCooldown(60);
         } else {
-            alert(data.message);
+            Swal.fire({ icon: 'error', title: 'Oops...', text: data.message, borderRadius: '1rem' });
             this.disabled = false;
             this.innerHTML = '<div class="bg-white p-1 rounded-lg flex items-center justify-center mr-2"><svg class="w-5 h-5" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><path fill="#EA4335" d="M502.3 190.8L327.4 338.7V512h112.4c31 0 56.2-25.1 56.2-56.2V190.8z"/><path fill="#34A853" d="M0 190.8v265c0 31 25.1 56.2 56.2 56.2h112.4V338.7L0 190.8z"/><path fill="#FBBC04" d="M168.6 338.7l87.4 65.6 87.4-65.6V190.8L256 256 168.6 190.8z"/><path fill="#4285F4" d="M502.3 112.4c-4.2-15.8-18.5-28-35.3-28H45c-16.8 0-31.1 12.2-35.3 28L256 300.6 502.3 112.4z"/></svg></div> Kirim OTP';
         }
@@ -514,14 +536,27 @@ document.getElementById('verifyOtpBtn')?.addEventListener('click', async functio
             document.getElementById('step2VerifyOtp').style.display = 'none';
             document.getElementById('step3ChangePassword').style.display = 'block';
         } else {
-            alert(data.message);
+            Swal.fire({ icon: 'error', title: 'Oops...', text: data.message, borderRadius: '1rem' });
         }
-    } catch(e) {}
+    } catch(e) {
+        Swal.fire({ icon: 'error', title: 'Error', text: 'Terjadi kesalahan koneksi.', borderRadius: '1rem' });
+    }
 });
 
 document.getElementById('changePasswordBtn')?.addEventListener('click', async function() {
     const password = document.getElementById('newPassword').value;
     const password_confirmation = document.getElementById('confirmPassword').value;
+
+    if (!password || !password_confirmation) {
+        Swal.fire({ icon: 'warning', title: 'Perhatian', text: 'Semua field password harus diisi!', borderRadius: '1rem' });
+        return;
+    }
+    
+    if (password !== password_confirmation) {
+        Swal.fire({ icon: 'error', title: 'Oops...', text: 'Konfirmasi password tidak cocok dengan password baru!', borderRadius: '1rem' });
+        return;
+    }
+
     try {
         const res = await fetch('{{ route("password.change") }}', {
             method: 'POST',
@@ -530,12 +565,26 @@ document.getElementById('changePasswordBtn')?.addEventListener('click', async fu
         });
         const data = await res.json();
         if(data.success) {
-            alert('Password berhasil diubah. Silakan login kembali.');
-            window.location.reload();
+            Swal.fire({
+                icon: 'success',
+                title: 'Berhasil!',
+                text: 'Password berhasil diubah. Silakan login kembali.',
+                confirmButtonColor: '#cc0000',
+                borderRadius: '1rem'
+            }).then(() => {
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '{{ route("logout") }}';
+                form.innerHTML = '@csrf';
+                document.body.appendChild(form);
+                form.submit();
+            });
         } else {
-            alert(data.message);
+            Swal.fire({ icon: 'error', title: 'Oops...', text: data.message, borderRadius: '1rem' });
         }
-    } catch(e) {}
+    } catch(e) {
+        Swal.fire({ icon: 'error', title: 'Error', text: 'Terjadi kesalahan sistem.', borderRadius: '1rem' });
+    }
 });
 </script>
 @endpush

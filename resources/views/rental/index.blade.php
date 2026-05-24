@@ -222,7 +222,7 @@ input[type=number] { -moz-appearance: textfield; }
     </section>
 
     {{-- Content --}}
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-28 md:-mt-36 pb-20 relative z-10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-28 md:-mt-36 pb-32 md:pb-48 relative z-10">
         <div class="grid lg:grid-cols-12 gap-8 items-start">
 
             {{-- ── FORM ── --}}

@@ -5,8 +5,11 @@
 <title>E-Ticket Sewa Bus - {{ $rental->rental_code }}</title>
 <style>
     @page { margin: 0; }
+    * {
+        font-family: Arial, Helvetica, sans-serif;
+    }
     body { 
-        font-family: Arial, sans-serif; 
+        font-family: Arial, Helvetica, sans-serif; 
         margin: 0; 
         padding: 20px; 
         background: #f4f6f8; 
@@ -147,8 +150,17 @@
     <table class="header">
         <tr>
             <td>
-                <div class="brand-name">BUS 88</div>
-                <div class="brand-tagline">E-Ticket Sewa Bus &bull; Bus Charter Ticket</div>
+                <table style="border-collapse:collapse;">
+                    <tr>
+                        <td style="vertical-align:middle;padding-right:10px;">
+                            <img src="{{ public_path('images/logo.png') }}" style="height:40px; width:auto;" alt="Logo">
+                        </td>
+                        <td style="vertical-align:middle;">
+                            <div class="brand-name">IND'S 88 TRANS</div>
+                            <div class="brand-tagline">E-Ticket Sewa Bus &bull; Bus Charter Ticket</div>
+                        </td>
+                    </tr>
+                </table>
             </td>
             <td style="text-align:right;">
                 <div class="booking-label">Kode Sewa</div>
@@ -166,7 +178,7 @@
                 <div class="city-sub">Lokasi Penjemputan</div>
             </td>
             <td width="20%" class="route-arrow">
-                &rarr;
+                <span style="font-family: 'DejaVu Sans', sans-serif !important;">&#8594;</span>
                 <div style="font-size:10px; color:#aaa; font-weight:normal;">{{ $rental->duration_days ?? '-' }} Hari</div>
             </td>
             <td width="40%" style="text-align:right;">

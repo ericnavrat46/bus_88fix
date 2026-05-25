@@ -9,11 +9,10 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: Arial, Helvetica, sans-serif;
         }
 
         body {
-            font-family: Arial, Helvetica, sans-serif;
+            font-family: Arial, sans-serif;
             font-size: 12px;
             color: #1a1a1a;
             background: #fff;
@@ -260,13 +259,35 @@
         .section-wrapper {
             border: 1px solid #e8e8e8;
             margin: 10px 24px 0;
-            border-radius: 6px;
+        }
+
+        .section-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .section-left {
+            width: 170px;
+            background: #fafafa;
+            border-right: 1px solid #e8e8e8;
+            padding: 16px;
+            vertical-align: top;
+        }
+
+        .section-icon {
+            font-size: 20px;
+            margin-bottom: 6px;
         }
 
         .section-label {
-            font-size: 14px;
+            font-size: 11px;
             font-weight: 700;
             color: #333;
+        }
+
+        .section-right {
+            padding: 16px;
+            vertical-align: top;
         }
 
         /* Journey detail rows */
@@ -399,7 +420,24 @@
         .contact-section {
             border: 1px solid #e8e8e8;
             margin: 10px 24px 0;
-            border-radius: 6px;
+        }
+
+        .contact-section-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .contact-section-left {
+            width: 170px;
+            background: #fafafa;
+            border-right: 1px solid #e8e8e8;
+            padding: 14px 16px;
+            vertical-align: middle;
+        }
+
+        .contact-section-right {
+            padding: 14px 16px;
+            vertical-align: middle;
         }
 
         .contact-detail-table {
@@ -439,10 +477,14 @@
                         <table style="border-collapse:collapse;">
                             <tr>
                                 <td style="vertical-align:middle;padding-right:10px;">
-                                    <img src="{{ public_path('images/logo.png') }}" style="height:40px; width:auto;" alt="Logo">
+                                    <div
+                                        style="width:36px;height:36px;background:#CC0000;border-radius:6px;text-align:center;line-height:36px;">
+                                        <span style="color:#fff;font-size:14px;font-weight: bold;">88</span>
+                                    </div>
                                 </td>
                                 <td style="vertical-align:middle;">
-                                    <div class="logo-name">IND'S 88 <span>TRANS</span></div>
+                                    <div class="logo-name">BUS <span>88</span></div>
+                                    <div class="logo-sub">Perusahaan Otobus &amp; Travel</div>
                                 </td>
                             </tr>
                         </table>
@@ -504,7 +546,7 @@
                     </td>
                     <td class="route-arrow">
                         <div class="route-arrow-img"
-                            style="font-size:20px;font-weight: bold;color:#CC0000;text-align:center; font-family: 'DejaVu Sans', sans-serif !important;">&#8594;</div>
+                            style="font-size:20px;font-weight: bold;color:#CC0000;text-align:center;">-&gt;</div>
                     </td>
                     <td class="route-destination">
                         <div class="route-city">{{ $booking->schedule->route->destination }}</div>
@@ -539,137 +581,151 @@
 
         {{-- ── Rincian Perjalanan ── --}}
         <div class="section-wrapper">
-            <div style="background: #fafafa; border-bottom: 1px solid #e8e8e8; padding: 12px 16px; border-top-left-radius: 6px; border-top-right-radius: 6px;">
-                <div class="section-label">Rincian Perjalanan</div>
-            </div>
-            <div style="padding: 16px;">
-                <table class="journey-table">
-                    <tr>
-                        <td class="journey-bus" colspan="2">
-                            {{ $booking->schedule->bus->name ?? 'Bus 88' }}
-                            @if($booking->schedule->bus->bus_class ?? false)
-                                - {{ $booking->schedule->bus->bus_class }}
-                            @endif
-                        </td>
-                    </tr>
-                    {{-- Berangkat --}}
-                    <tr class="journey-point-row">
-                        <td class="journey-dot-cell">
-                            <div class="journey-dot"></div>
-                        </td>
-                        <td class="journey-content">
-                            <div class="journey-dir-label">Berangkat Dari</div>
-                            <div class="journey-place">{{ $booking->schedule->route->origin }}</div>
-                            @if($booking->schedule->route->origin_detail ?? false)
-                                <div class="journey-address">{{ $booking->schedule->route->origin_detail }}</div>
-                            @endif
-                        </td>
-                    </tr>
-                    {{-- Garis --}}
-                    <tr>
-                        <td class="journey-line-cell">
-                            <div class="journey-line"></div>
-                        </td>
-                        <td></td>
-                    </tr>
-                    {{-- Tiba --}}
-                    <tr class="journey-point-row">
-                        <td class="journey-dot-cell">
-                            <div class="journey-dot" style="background:#CC0000;"></div>
-                        </td>
-                        <td class="journey-content">
-                            <div class="journey-dir-label">Menuju ke</div>
-                            <div class="journey-place">{{ $booking->schedule->route->destination }}</div>
-                            @if($booking->schedule->route->destination_detail ?? false)
-                                <div class="journey-address">{{ $booking->schedule->route->destination_detail }}
-                                </div>
-                            @endif
-                        </td>
-                    </tr>
-                </table>
-            </div>
+            <table class="section-table">
+                <tr>
+                    <td class="section-left">
+                        <div class="section-icon">&#128652;</div>
+                        <div class="section-label">Rincian Perjalanan</div>
+                    </td>
+                    <td class="section-right">
+                        <table class="journey-table">
+                            <tr>
+                                <td class="journey-bus" colspan="2">
+                                    {{ $booking->schedule->bus->name ?? 'Bus 88' }}
+                                    @if($booking->schedule->bus->bus_class ?? false)
+                                        - {{ $booking->schedule->bus->bus_class }}
+                                    @endif
+                                </td>
+                            </tr>
+                            {{-- Berangkat --}}
+                            <tr class="journey-point-row">
+                                <td class="journey-dot-cell">
+                                    <div class="journey-dot"></div>
+                                </td>
+                                <td class="journey-content">
+                                    <div class="journey-dir-label">Berangkat Dari</div>
+                                    <div class="journey-place">{{ $booking->schedule->route->origin }}</div>
+                                    @if($booking->schedule->route->origin_detail ?? false)
+                                        <div class="journey-address">{{ $booking->schedule->route->origin_detail }}</div>
+                                    @endif
+                                </td>
+                            </tr>
+                            {{-- Garis --}}
+                            <tr>
+                                <td class="journey-line-cell">
+                                    <div class="journey-line"></div>
+                                </td>
+                                <td></td>
+                            </tr>
+                            {{-- Tiba --}}
+                            <tr class="journey-point-row">
+                                <td class="journey-dot-cell">
+                                    <div class="journey-dot" style="background:#CC0000;"></div>
+                                </td>
+                                <td class="journey-content">
+                                    <div class="journey-dir-label">Menuju ke</div>
+                                    <div class="journey-place">{{ $booking->schedule->route->destination }}</div>
+                                    @if($booking->schedule->route->destination_detail ?? false)
+                                        <div class="journey-address">{{ $booking->schedule->route->destination_detail }}
+                                        </div>
+                                    @endif
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
         </div>
 
         {{-- ── Rincian Penumpang ── --}}
         @php $firstPassenger = $booking->passengers->first(); @endphp
         <div class="section-wrapper">
-            <div style="background: #fafafa; border-bottom: 1px solid #e8e8e8; padding: 12px 16px; border-top-left-radius: 6px; border-top-right-radius: 6px;">
-                <div class="section-label">Rincian Penumpang</div>
-            </div>
-            <div style="padding: 16px;">
-                <table class="pass-table">
-                    <tr>
-                        <td class="pass-info-cell">
-                            {{-- Loop semua penumpang --}}
-                            @foreach($booking->passengers as $index => $p)
-                                <div
-                                    style="margin-bottom: 10px; {{ !$loop->last ? 'border-bottom: 1px dashed #eee; padding-bottom: 8px;' : '' }}">
-                                    <div class="pass-row">
-                                        <div class="pass-label">Nama Penumpang
-                                            {{ $booking->passengers->count() > 1 ? ($index + 1) : '' }}</div>
-                                        <div class="pass-value">{{ $p->passenger_name }}</div>
-                                    </div>
-                                    <div class="pass-row">
-                                        <div class="pass-label">Nomor Kursi</div>
-                                        <div class="pass-value">Kursi #{{ $p->seat_number }}</div>
-                                    </div>
-                                </div>
-                            @endforeach
+            <table class="section-table">
+                <tr>
+                    <td class="section-left">
+                        <div class="section-icon">&#128101;</div>
+                        <div class="section-label">Rincian Penumpang</div>
+                    </td>
+                    <td class="section-right">
+                        <table class="pass-table">
+                            <tr>
+                                <td class="pass-info-cell">
+                                    {{-- Loop semua penumpang --}}
+                                    @foreach($booking->passengers as $index => $p)
+                                        <div
+                                            style="margin-bottom: 10px; {{ !$loop->last ? 'border-bottom: 1px dashed #eee; padding-bottom: 8px;' : '' }}">
+                                            <div class="pass-row">
+                                                <div class="pass-label">Nama Penumpang
+                                                    {{ $booking->passengers->count() > 1 ? ($index + 1) : '' }}</div>
+                                                <div class="pass-value">{{ $p->passenger_name }}</div>
+                                            </div>
+                                            <div class="pass-row">
+                                                <div class="pass-label">Nomor Kursi</div>
+                                                <div class="pass-value">Kursi #{{ $p->seat_number }}</div>
+                                            </div>
+                                        </div>
+                                    @endforeach
 
-                            <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #eee;">
-                                <div class="pass-row">
-                                    <div class="pass-label">No. Telepon</div>
-                                    <div class="pass-value">{{ $booking->user->phone ?? '-' }}</div>
-                                </div>
-                                <div class="pass-row">
-                                    <div class="pass-label">Kode Tiket</div>
-                                    <div class="pass-code">{{ $booking->booking_code }}</div>
-                                </div>
-                                <div class="pass-row">
-                                    <div class="pass-label">Waktu Keberangkatan</div>
-                                    <div class="pass-value">
-                                        {{ \Carbon\Carbon::parse($booking->schedule->departure_date)->translatedFormat('l, d F Y') }}<br>
-                                        Pukul
-                                        {{ \Carbon\Carbon::parse($booking->schedule->departure_time)->format('H:i') }}
-                                        WIB
+                                    <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #eee;">
+                                        <div class="pass-row">
+                                            <div class="pass-label">No. Telepon</div>
+                                            <div class="pass-value">{{ $booking->user->phone ?? '-' }}</div>
+                                        </div>
+                                        <div class="pass-row">
+                                            <div class="pass-label">Kode Tiket</div>
+                                            <div class="pass-code">{{ $booking->booking_code }}</div>
+                                        </div>
+                                        <div class="pass-row">
+                                            <div class="pass-label">Waktu Keberangkatan</div>
+                                            <div class="pass-value">
+                                                {{ \Carbon\Carbon::parse($booking->schedule->departure_date)->translatedFormat('l, d F Y') }}<br>
+                                                Pukul
+                                                {{ \Carbon\Carbon::parse($booking->schedule->departure_time)->format('H:i') }}
+                                                WIB
+                                            </div>
+                                        </div>
                                     </div>
-                                </div>
-                            </div>
-                        </td>
-                        <td class="pass-qr-cell">
-                            @if(!empty($qrCode))
-                                <img src="data:image/png;base64,{{ $qrCode }}" class="qr-img" alt="QR Code">
-                                <div class="qr-price">Rp {{ number_format($booking->total_price, 0, ',', '.') }}
-                                </div>
-                                <div class="qr-timestamp">Dicetak: {{ now()->format('Y-m-d H:i:s') }}</div>
-                            @else
-                                <div style="font-size:9px;color:#999;">QR tidak tersedia</div>
-                            @endif
-                        </td>
-                    </tr>
-                </table>
-            </div>
+                                </td>
+                                <td class="pass-qr-cell">
+                                    @if(!empty($qrCode))
+                                        <img src="data:image/png;base64,{{ $qrCode }}" class="qr-img" alt="QR Code">
+                                        <div class="qr-price">Rp {{ number_format($booking->total_price, 0, ',', '.') }}
+                                        </div>
+                                        <div class="qr-timestamp">Dicetak: {{ now()->format('Y-m-d H:i:s') }}</div>
+                                    @else
+                                        <div style="font-size:9px;color:#999;">QR tidak tersedia</div>
+                                    @endif
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
         </div>
 
         {{-- ── Kontak ── --}}
         <div class="contact-section">
-            <div style="background: #fafafa; border-bottom: 1px solid #e8e8e8; padding: 12px 16px; border-top-left-radius: 6px; border-top-right-radius: 6px;">
-                <div class="section-label">Kontak</div>
-            </div>
-            <div style="padding: 16px;">
-                <table class="contact-detail-table">
-                    <tr>
-                        <td class="contact-detail-col">
-                            <div class="contact-label">No. Telepon</div>
-                            <div class="contact-value">(0331) 3058888</div>
-                        </td>
-                        <td class="contact-detail-col">
-                            <div class="contact-label">Email</div>
-                            <div class="contact-value">cs@bus88.co.id</div>
-                        </td>
-                    </tr>
-                </table>
-            </div>
+            <table class="contact-section-table">
+                <tr>
+                    <td class="contact-section-left">
+                        <div class="section-label">Kontak</div>
+                    </td>
+                    <td class="contact-section-right">
+                        <table class="contact-detail-table">
+                            <tr>
+                                <td class="contact-detail-col">
+                                    <div class="contact-label">No. Telepon</div>
+                                    <div class="contact-value">(0331) 3058888</div>
+                                </td>
+                                <td class="contact-detail-col">
+                                    <div class="contact-label">Email</div>
+                                    <div class="contact-value">cs@bus88.co.id</div>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
         </div>
 
         {{-- ── Footer ── --}}

@@ -5,8 +5,11 @@
 <title>E-Ticket Wisata - {{ $booking->booking_code }}</title>
 <style>
     @page { margin: 0; }
+    * {
+        font-family: Arial, Helvetica, sans-serif;
+    }
     body { 
-        font-family: Arial, sans-serif; 
+        font-family: Arial, Helvetica, sans-serif; 
         margin: 0; 
         padding: 20px; 
         background: #f4f6f8; 
@@ -136,8 +139,17 @@
     <table class="header">
         <tr>
             <td>
-                <div class="brand-name">BUS 88 WISATA</div>
-                <div class="brand-tagline">E-Ticket Paket Wisata &bull; Tour Package Ticket</div>
+                <table style="border-collapse:collapse;">
+                    <tr>
+                        <td style="vertical-align:middle;padding-right:10px;">
+                            <img src="{{ public_path('images/logo.png') }}" style="height:40px; width:auto;" alt="Logo">
+                        </td>
+                        <td style="vertical-align:middle;">
+                            <div class="brand-name">IND'S 88 TRANS</div>
+                            <div class="brand-tagline">E-Ticket Paket Wisata &bull; Tour Package Ticket</div>
+                        </td>
+                    </tr>
+                </table>
             </td>
             <td style="text-align:right;">
                 <div class="booking-label">Kode Booking</div>

@@ -20,7 +20,7 @@ body {
 
 /* BRAND */
 .brand { text-align:center; margin-bottom:24px; }
-.brand-logo { font-size:28px; font-weight:900; color:#cc0000; letter-spacing:-1px; }
+.brand-logo { font-size:28px; font-weight: bold; color:#cc0000; letter-spacing:-1px; }
 .brand-sub  { font-size:12px; color:#888; margin-top:4px; }
 
 /* CARD */
@@ -48,7 +48,7 @@ body {
 
 .status-title {
     font-size: 20px;
-    font-weight: 900;
+    font-weight: bold;
     color: #fff;
     margin-bottom: 4px;
 }

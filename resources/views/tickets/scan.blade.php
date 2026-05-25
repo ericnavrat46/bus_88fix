@@ -6,7 +6,7 @@
 .scan-page { max-width: 560px; margin: 32px auto; padding: 0 16px; }
 
 /* ── PAGE TITLE ── */
-.page-title   { font-size: 24px; font-weight: 900; color: #1a1a1a; letter-spacing: -0.5px; }
+.page-title   { font-size: 24px; font-weight: bold; color: #1a1a1a; letter-spacing: -0.5px; }
 .page-subtitle{ font-size: 13px; color: #757575; margin-top: 4px; }
 
 /* ── CARDS ── */
@@ -162,7 +162,7 @@
 .result-status-icon.err { background: #ffebee; color: #b71c1c; }
 
 .result-title {
-    font-size: 17px; font-weight: 900;
+    font-size: 17px; font-weight: bold;
     margin-bottom: 3px;
 }
 .result-title.ok  { color: #2e7d32; }

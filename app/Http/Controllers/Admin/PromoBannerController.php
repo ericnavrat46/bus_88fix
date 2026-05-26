@@ -17,11 +17,11 @@ class PromoBannerController extends Controller
 
         if ($request->has('status') && $request->status !== '') {
             if ($request->status === 'active') {
-                $query->where('is_active', true)->where('end_date', '>=', now());
+                $query->where('is_active', true)->whereDate('end_date', '>=', now());
             } elseif ($request->status === 'inactive') {
                 $query->where('is_active', false);
             } elseif ($request->status === 'expired') {
-                $query->where('end_date', '<', now());
+                $query->whereDate('end_date', '<', now());
             }
         }
 
@@ -171,7 +171,7 @@ class PromoBannerController extends Controller
         return;
     }
 
-    $discountLabel = $promo->discount_type === 'percentage'
+    $discountLabel = $promo->discount_type === 'percent'
         ? "{$promo->discount_value}% OFF"
         : 'Diskon Rp ' . number_format($promo->discount_value, 0, ',', '.');
 
@@ -186,8 +186,12 @@ class PromoBannerController extends Controller
     }
 
     $tokens = $users->pluck('fcm_token')->toArray();
-    foreach (array_chunk($tokens, 500) as $chunk) {
-        $this->sendFcm($chunk, $title, $body, $promo->id);
+    try {
+        foreach (array_chunk($tokens, 500) as $chunk) {
+            $this->sendFcm($chunk, $title, $body, $promo->id);
+        }
+    } catch (\Exception $e) {
+        \Log::error('GAGAL KIRIM FCM PROMO: ' . $e->getMessage());
     }
 }
 
@@ -237,8 +241,17 @@ private function sendFcm(array $tokens, string $title, string $body, int $promoI
 
     private function getFirebaseAccessToken(): string
     {
-        $path           = storage_path('app/firebase-service-account.json');
+        $path = storage_path('app/firebase-service-account.json');
+        
+        if (!file_exists($path)) {
+            throw new \Exception("Firebase service account file not found at: {$path}");
+        }
+
         $serviceAccount = json_decode(file_get_contents($path), true);
+        
+        if (!$serviceAccount) {
+            throw new \Exception("Invalid Firebase service account JSON");
+        }
 
         $now = time();
 

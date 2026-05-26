@@ -69,8 +69,8 @@ class PromoBanner extends Model
     public function scopeActive($query)
     {
         return $query->where('is_active', true)
-                     ->where('start_date', '<=', now())
-                     ->where('end_date', '>=', now())
+                     ->whereDate('start_date', '<=', now())
+                     ->whereDate('end_date', '>=', now())
                      ->where(function ($q) {
                          $q->where('quota', 0)->orWhereColumn('used_quota', '<', 'quota');
                      })

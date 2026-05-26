@@ -513,8 +513,7 @@
                             @endphp
                             <div class="swiper-slide relative group cursor-pointer aspect-promo"
                                  onclick="if('{{ $promoUrl }}' === '#search') { document.getElementById('search').scrollIntoView({behavior: 'smooth'}); } else { window.open('{{ $promoUrl }}', '{{ $target }}'); }">
-                                {{-- Backgro
-                                           und Image --}}
+                                {{-- Background Image --}}
                                 <img src="{{ $banner->image_url }}" class="absolute inset-0 w-full h-full object-cover transition-transform duration-[5000ms] group-hover:scale-110" alt="{{ $banner->title }}" loading="lazy">
 
 
@@ -546,8 +545,7 @@
                                                items-center gap-4" onclick="event.stopPropagation()">
                                                 <div class="flex flex-col">
 
-                                                                                           <
-                                                   span class="text-[10px] uppercase font-bold text-white/60 tracking-widest">Kode Promo</span>
+                                                    <span class="text-[10px] uppercase font-bold text-white/60 tracking-widest">Kode Promo</span>
                                                     <span class="text-lg font-black tracking-tighter">{{ $banner->promo_code }}</span>
                                                 </div>
                                                 <button onclick="copyPromoCode('{{ $banner->promo_code }}')" class="bg-white text-dark hover:bg-merah-600 hover:text-white transition-all px-4 py-2 rounded-lg text-xs font-black uppercase">
@@ -588,10 +586,8 @@
                     <div class="swiper-pagination !bottom-8 !left-16 !w-auto !justify-start"></div>
 
                     {{-- Navigation Buttons --}}
-                    <button class="promo-prev absolute top-1/2 left-4 -translate-y-1/2 z-10 w
-                               -12 h-12 bg-white/30 hover:bg-white text-white hover:text-red-600 rounded-full flex items-center justify-center backdrop-blur-md transition-all border border-white/40 shadow-lg">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="roun
-                           d" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
+                    <button class="promo-prev absolute top-1/2 left-4 -translate-y-1/2 z-10 w-12 h-12 bg-white/30 hover:bg-white text-white hover:text-red-600 rounded-full flex items-center justify-center backdrop-blur-md transition-all border border-white/40 shadow-lg">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
                     </button>
                     <button class="promo-next absolute top-1/2 right-4 -translate-y-1/2 z-10 w-12 h-12 bg-white/30 hover:bg-white text-white hover:text-red-600 rounded-full flex items-center justify-center backdrop-blur-md transition-all border border-white/40 shadow-lg">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
@@ -633,8 +629,7 @@
 
                                        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
                     @foreach($reviews as $review)
-                        <div class="bg-white rounded-3xl p-8 review-card relative flex flex-col h-full shadow-sm hover:shadow-
-                                            xl transition-all duration-300 border-gray-100">
+                        <div class="bg-white rounded-3xl p-8 review-card relative flex flex-col h-full shadow-sm hover:shadow-xl transition-all duration-300 border-gray-100">
 
 
                                                         <div class="flex items-center gap-1 mb-4">

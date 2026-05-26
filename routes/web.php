@@ -151,6 +151,12 @@ Route::middleware('auth')->group(function () {
 
     // Review
     Route::post('/review/store', [ReviewController::class, 'store'])->name('review.store');
+
+    // Notifications
+    Route::post('/notifications/read', function() {
+        \App\Models\Notification::where('user_id', auth()->id())->update(['is_read' => true]);
+        return back();
+    })->name('notifications.read');
 });
 
 // ─────────────────────────────────────────────

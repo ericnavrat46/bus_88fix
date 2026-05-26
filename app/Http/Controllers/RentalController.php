@@ -64,6 +64,18 @@ class RentalController extends Controller
             'payment_status' => 'unpaid',
         ]);
 
+        // Kirim notifikasi ke semua admin
+        $adminUsers = \App\Models\User::where('role', 'admin')->get();
+        foreach ($adminUsers as $admin) {
+            \App\Models\Notification::create([
+                'user_id' => $admin->id,
+                'title' => 'Pengajuan Sewa Bus Baru',
+                'message' => "Ada pengajuan sewa bus baru dari {$user->name} untuk tujuan {$rental->destination}.",
+                'type' => 'rental',
+                'data' => json_encode(['rental_id' => $rental->id, 'rental_code' => $rental->rental_code])
+            ]);
+        }
+
         return back()->with('rental_success', [
             'code' => $rental->rental_code,
             'destination' => $rental->destination,

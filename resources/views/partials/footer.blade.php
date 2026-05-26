@@ -129,9 +129,9 @@
         {{-- Bottom Bar --}}
         <div style="border-top: 1px solid #f0ece9; margin-top: 2rem; padding: 14px 0; display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:1rem;">
 
-            {{-- BUMN --}}
+            {{-- IND'S 88 --}}
             <div style="display:flex; align-items:center; gap:10px;">
-                <span style="font-size:18px; font-weight:900; color:#003580; letter-spacing:0.05em;">BUMN</span>
+                <span style="font-size:18px; font-weight:900; color:#1a0505; letter-spacing:0.05em;">IND'S <span style="color:#cc0000;">88</span></span>
                 <div style="width:1px; height:18px; background:#e1d9d4;"></div>
                 <span style="font-size:10px; font-weight:700; color:#b3a194; text-transform:uppercase; letter-spacing:0.15em;">Untuk Indonesia</span>
             </div>
@@ -141,7 +141,7 @@
 
             {{-- Brand --}}
             <a href="{{ route('home') }}" style="display:flex; align-items:center; gap:8px; text-decoration:none;">
-                <img src="{{ asset('images/logo.png') }}" alt="Bus 88 Logo" style="height:32px; width:auto; object-fit:contain;">
+                <img src="{{ asset('images/logo.png') }}" alt="Bus 88 Logo" style="height:64px; width:auto; object-fit:contain;">
             </a>
 
         </div>

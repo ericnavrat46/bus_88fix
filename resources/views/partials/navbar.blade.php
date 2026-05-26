@@ -1,10 +1,11 @@
 {{-- Navbar --}}
 <nav class="sticky top-0 z-50 bg-white/80 backdrop-blur-xl border-b border-gray-warm-100 transition-all duration-300">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex items-center justify-between h-16">
+        <div class="flex items-center justify-between h-20">
             {{-- Logo --}}
             <a href="{{ route('home') }}" class="flex items-center gap-3 group">
-                <img src="{{ asset('images/logo.png') }}" alt="Bus 88 Logo" class="h-12 w-auto object-contain">
+                <img src="{{ asset('images/logo.png') }}" alt="Bus 88 Logo" class="h-16 w-auto object-contain transition-transform group-hover:scale-105">
+                <span class="text-xl md:text-2xl font-black text-dark tracking-tight">IND'S <span class="text-merah-600">88</span></span>
             </a>
 
             {{-- Desktop Menu --}}

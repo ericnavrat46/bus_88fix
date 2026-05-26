@@ -208,7 +208,7 @@ class BookingController extends Controller
         if ($booking->payment_status === 'pending') {
             $payment = $booking->payments()->latest()->first();
             if ($payment) {
-                app(\App\Http\Controllers\PaymentController::class)->checkStatus(request(), $payment);
+                app(\App\Http\Controllers\PaymentController::class)->checkStatus(request(), $payment->payable_id);
                 $booking->refresh();
                 if ($booking->payment_status === 'paid') {
                     return redirect()->route('dashboard')->with('success', 'Pembayaran berhasil dikonfirmasi!');

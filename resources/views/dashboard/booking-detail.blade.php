@@ -228,7 +228,7 @@
     }
 
     function syncStatus() {
-        const orderId = "{{ $booking->midtrans_order_id ?? $booking->booking_code }}";
+        const orderId = "{{ $booking->id }}";
         const checkingDiv = document.getElementById('payment-status-checking');
         const syncBtn = document.getElementById('syncBtn');
 

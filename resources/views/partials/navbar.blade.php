@@ -1,3 +1,26 @@
+{{-- Splash Screen Preloader --}}
+<div x-data="{ showSplash: !sessionStorage.getItem('splashShown'), animateIn: false, animateOut: false }" 
+     x-init="
+        if (showSplash) {
+            sessionStorage.setItem('splashShown', 'true');
+            setTimeout(() => animateIn = true, 100);
+            setTimeout(() => animateOut = true, 1500);
+            setTimeout(() => showSplash = false, 2000);
+        }
+     "
+     x-show="showSplash" 
+     x-transition:leave="transition-opacity ease-in-out duration-500"
+     x-transition:leave-start="opacity-100"
+     x-transition:leave-end="opacity-0"
+     class="fixed inset-0 z-[100] flex items-center justify-center bg-white/95 backdrop-blur-md">
+    
+    <div class="flex items-center gap-4 transition-all duration-700 transform"
+         :class="{ 'opacity-0 scale-50 translate-y-10': !animateIn, 'opacity-100 scale-100 translate-y-0': animateIn && !animateOut, 'opacity-0 scale-110 -translate-y-10': animateOut }">
+        <img src="{{ asset('images/logo.png') }}" alt="Bus 88 Logo" class="h-20 md:h-24 w-auto object-contain drop-shadow-2xl">
+        <span class="text-4xl md:text-5xl font-black text-dark tracking-tight drop-shadow-xl">IND'S <span class="text-merah-600">88</span></span>
+    </div>
+</div>
+
 {{-- Navbar --}}
 <nav class="sticky top-0 z-50 bg-white/80 backdrop-blur-xl border-b border-gray-warm-100 transition-all duration-300">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

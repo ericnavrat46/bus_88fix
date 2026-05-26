@@ -92,8 +92,12 @@ class PaymentController extends Controller
             'raw_response' => $payload,
         ]);
 
-        // Broadcast perubahan status
-        broadcast(new \App\Events\PaymentStatusUpdated($payment, $status));
+        // Broadcast perubahan status (non-blocking)
+        try {
+            broadcast(new \App\Events\PaymentStatusUpdated($payment, $status));
+        } catch (\Exception $e) {
+            Log::warning('Broadcast failed (Reverb mungkin tidak aktif): ' . $e->getMessage());
+        }
 
         $this->updatePayableStatus($payment, $status);
 
@@ -266,6 +270,17 @@ class PaymentController extends Controller
         if ($payment) {
             $statusData = $this->midtrans->getTransactionStatus($orderId);
             
+            // Fix Race Condition (Midtrans Sandbox / Local Env)
+            // Kadang Midtrans API lambat memperbarui status menjadi 'settlement' setelah Snap popup tertutup.
+            // Jika request membawa status settlement (dari onSuccess JS), namun API masih bilang pending, kita tunggu sebentar.
+            $expectedStatus = $request->get('transaction_status');
+            $retryCount = 0;
+            while (in_array($expectedStatus, ['settlement', 'capture']) && isset($statusData['transaction_status']) && $statusData['transaction_status'] === 'pending' && $retryCount < 3) {
+                sleep(2); // Tunggu 2 detik
+                $statusData = $this->midtrans->getTransactionStatus($orderId);
+                $retryCount++;
+            }
+            
             $isValidResponse = $statusData && isset($statusData['status_code']) && in_array($statusData['status_code'], ['200', '201', '202']);
             
             if ($isValidResponse) {
@@ -288,7 +303,11 @@ class PaymentController extends Controller
             }
             
             $this->updatePayableStatus($payment, $status);
-            broadcast(new \App\Events\PaymentStatusUpdated($payment, $status));
+            try {
+                broadcast(new \App\Events\PaymentStatusUpdated($payment, $status));
+            } catch (\Exception $e) {
+                Log::warning('Broadcast failed (Reverb mungkin tidak aktif): ' . $e->getMessage());
+            }
 
             $redirectRoute = 'dashboard';
             $id = $payment->payable_id;

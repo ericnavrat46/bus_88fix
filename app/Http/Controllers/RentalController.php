@@ -102,7 +102,7 @@ class RentalController extends Controller
         if ($rental->payment_status === 'pending') {
             $payment = $rental->payments()->latest()->first();
             if ($payment) {
-                app(\App\Http\Controllers\PaymentController::class)->checkStatus(request(), $payment);
+                app(\App\Http\Controllers\PaymentController::class)->checkStatus(request(), $payment->payable_id);
                 $rental->refresh();
                 if ($rental->payment_status === 'paid') {
                     return redirect()->route('dashboard')->with('success', 'Pembayaran berhasil dikonfirmasi!');

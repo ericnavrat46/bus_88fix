@@ -58,7 +58,7 @@
                 return;
             }
 
-            fetch('{{ route("payment.check-status", $payment->id) }}')
+            fetch('{{ route("payment.check-status", $payment->payable_id) }}')
                 .then(response => response.json())
                 .then(data => {
                     if (data.status && (data.payment_status === 'settlement' || data.payment_status === 'capture' || data.payment_status === 'paid')) {

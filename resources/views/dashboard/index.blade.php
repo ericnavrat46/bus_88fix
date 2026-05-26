@@ -76,14 +76,14 @@
         'download_url' => $t->payment_status === 'paid' ? route('ticket.tour.download', $t) : null,
     ]);
 
-    $refundActivities = $refunds->map(fn($ref) => [
+    $refundActivities = $refunds->take(5)->map(fn($r) => [
         'type' => 'Refund',
         'icon' => '💰',
-        'id' => $ref->refund_code,
-        'date' => $ref->created_at,
-        'status' => $ref->status, // pending, approved, rejected, completed
-        'title' => 'Refund: ' . ($ref->booking->schedule->route->origin ?? '') . ' - ' . ($ref->booking->schedule->route->destination ?? ''),
-        'url' => route('dashboard.booking', $ref->booking_id),
+        'id' => $r->booking->booking_code,
+        'date' => $r->created_at,
+        'status' => $r->status,
+        'title' => 'Refund: ' . ($r->booking->schedule->route->origin ?? '') . ' - ' . ($r->booking->schedule->route->destination ?? ''),
+        'url' => route('dashboard.booking', $r->booking),
         'download_url' => null,
     ]);
 

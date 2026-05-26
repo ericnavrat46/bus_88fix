@@ -32,6 +32,11 @@ class DashboardController extends Controller
             ->latest()
             ->paginate(10);
 
+        $refunds = \App\Models\Refund::with('booking.schedule.route')
+            ->where('user_id', $user->id)
+            ->latest()
+            ->paginate(10);
+
         // Optional: Sync pending payments in background or just for few
         // For better UX, we sync pending ones
         $this->syncPendingPayments($bookings, $midtrans, $paymentController);

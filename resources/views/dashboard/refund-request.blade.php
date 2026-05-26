@@ -18,9 +18,8 @@
                     Kebijakan Refund
                 </h4>
                 <ul class="list-disc list-inside space-y-1 opacity-80">
-                    <li>> 24 jam sebelum berangkat: Refund 90%</li>
-                    <li>6 - 24 jam sebelum berangkat: Refund 70%</li>
-                    <li>< 6 jam sebelum berangkat: Tidak bisa refund</li>
+                    <li>Dapat diajukan maksimal H-1 (24 jam) sebelum keberangkatan.</li>
+                    <li>Estimasi dana kembali adalah 100% (Full Refund).</li>
                 </ul>
             </div>
 

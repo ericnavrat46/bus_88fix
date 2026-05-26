@@ -82,6 +82,12 @@
                         $activity['url'] = route('dashboard.tour', $item);
                         $activity['icon'] = '🗺️';
                         $activity['download_url'] = $item->payment_status === 'paid' ? route('ticket.tour.download', $item) : null;
+                    } elseif ($type === 'refund') {
+                        $activity['title'] = 'Refund: ' . ($item->booking->schedule->route->origin ?? '') . ' - ' . ($item->booking->schedule->route->destination ?? '');
+                        $activity['url'] = route('dashboard.booking', $item->booking_id);
+                        $activity['icon'] = '💰';
+                        $activity['status'] = $item->status;
+                        $activity['id'] = $item->refund_code ?? $item->id;
                     }
                 @endphp
 
@@ -91,9 +97,7 @@
                     <div class="text-5xl mb-4">📭</div>
                     <h3 class="text-xl font-bold text-slate-900 mb-2">Belum ada riwayat</h3>
                     <p class="text-slate-500">Anda belum memiliki pesanan di kategori ini.</p>
-                    <a href="{{ route('home') }}"
-                        class="inline-block mt-6 px-8 py-3 bg-red-600 text-white font-bold rounded-xl hover:bg-red-700 transition-all">Cari
-                        Sekarang</a>
+                    <a href="{{ route('home') }}" class="inline-block mt-6 px-8 py-3 bg-red-600 text-white font-bold rounded-xl hover:bg-red-700 transition-all">Cari Sekarang</a>
                 </div>
             @endforelse
         </div>

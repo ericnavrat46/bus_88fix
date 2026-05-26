@@ -98,19 +98,38 @@
                         </p>
                     </div>
 
-                            <div class="p-6 bg-amber-50 rounded-2xl border border-amber-100 text-center">
-                                <h4 class="font-bold text-dark mb-2">Selesaikan Pembayaran</h4>
-                                <p class="text-sm text-gray-warm-500 mb-6">Gunakan metode pembayaran otomatis (Midtrans) untuk memproses tiket Anda.</p>
-                                
-                                <div class="flex flex-col sm:flex-row gap-3 justify-center">
-                                    <button onclick="payNow()" class="btn-primary px-8 py-3">
-                                        BAYAR SEKARANG
-                                    </button>
-                                    <button onclick="syncStatus()" id="syncBtn" class="btn-secondary px-8 py-3 flex items-center justify-center gap-2">
-                                        CEK STATUS
-                                    </button>
-                                </div>
+                    @if($booking->snap_token)
+                        <div class="p-6 bg-amber-50 rounded-2xl border border-amber-100 text-center">
+                            <h4 class="font-bold text-dark mb-2">Selesaikan Pembayaran</h4>
+                            <p class="text-sm text-gray-warm-500 mb-6">Gunakan metode pembayaran yang telah Anda pilih sebelumnya.</p>
+                            
+                            <div class="flex flex-col sm:flex-row gap-3 justify-center">
+                                <button onclick="payNow()" class="btn-primary px-8 py-3">
+                                    BAYAR SEKARANG
+                                </button>
+                                <button onclick="syncStatus()" id="syncBtn" class="btn-secondary px-8 py-3 flex items-center justify-center gap-2">
+                                    CEK STATUS
+                                </button>
                             </div>
+                        </div>
+                    @elseif($booking->payment_proof)
+                        <div class="p-6 bg-emerald-50 rounded-2xl border border-emerald-100 text-center">
+                            <div class="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                                <svg class="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                            </div>
+                            <h4 class="font-bold text-emerald-800 mb-1">Bukti Sudah Diunggah</h4>
+                            <p class="text-sm text-emerald-600 mb-4">Mohon tunggu verifikasi admin.</p>
+                            <img src="{{ asset('storage/' . $booking->payment_proof) }}" class="max-w-xs mx-auto rounded-xl shadow-sm border border-emerald-200">
+                        </div>
+                    @else
+                        <div class="p-6 bg-amber-50 rounded-2xl border border-amber-100 text-center">
+                            <h4 class="font-bold text-dark mb-2">Belum Bayar?</h4>
+                            <p class="text-sm text-gray-warm-500 mb-6">Silakan selesaikan pembayaran melalui sistem pembayaran otomatis kami.</p>
+                            <button onclick="payNow()" class="btn-primary px-8 py-3 w-full">
+                                BAYAR SEKARANG (MIDTRANS)
+                            </button>
+                        </div>
+                    @endif
                 </div>
             @elseif($booking->payment_status === 'refunded')
                 <div class="mt-8 pt-8 border-t border-gray-warm-100">
@@ -174,8 +193,8 @@
                                 <h4 class="font-bold text-dark mb-2">Punya Rencana Lain?</h4>
                                 <p class="text-sm text-gray-warm-500 mb-4">Anda dapat mengajukan refund dengan aturan berikut:</p>
                                 <ul class="text-[11px] text-gray-400 space-y-1 mb-6 list-disc list-inside">
-                                    <li>Maksimal H-1 sebelum berangkat: <strong>Refund Tersedia</strong></li>
-                                    <li>Kurang dari 24 jam sebelum berangkat: <strong>Refund Tidak Tersedia</strong></li>
+                                    <li>Refund dapat dilakukan maksimal <strong>H-1 (24 jam)</strong> sebelum keberangkatan.</li>
+                                    <li>Dana akan dikembalikan 100% ke rekening Anda (dipotong biaya admin bank jika ada).</li>
                                 </ul>
                                 <a href="{{ route('booking.refund', $booking) }}" class="btn-secondary w-full py-3 text-sm font-bold text-center">
                                     AJUKAN REFUND
@@ -183,7 +202,7 @@
                             </div>
                         @else
                             <div class="p-4 bg-gray-100 rounded-xl text-center">
-                                <p class="text-xs text-gray-400 italic font-medium">Batas waktu refund habis (minimal 24 jam/H-1 sebelum berangkat).</p>
+                                <p class="text-xs text-gray-400 italic font-medium">Batas waktu refund habis (maksimal H-1 sebelum berangkat).</p>
                             </div>
                         @endif
                     @endif

@@ -31,17 +31,13 @@ class RefundController extends Controller
         $departure = Carbon::parse($booking->schedule->departure_date->format('Y-m-d') . ' ' . $booking->schedule->departure_time);
         $hoursDiff = now()->diffInHours($departure, false);
 
+        // H-1 means at least 24 hours before departure
         if ($hoursDiff < 24) {
             return redirect()->back()->with('error', 'Refund hanya dapat dilakukan maksimal H-1 (24 jam) sebelum keberangkatan.');
         }
 
-        if ($hoursDiff >= 24) {
-            $refundPercentage = 90;
-        } else {
-            $refundPercentage = 70;
-        }
-
-        $refundAmount = ($booking->total_price * $refundPercentage) / 100;
+        $refundPercentage = 100; // Full refund as it is "real"
+        $refundAmount = $booking->total_price;
 
         return view('dashboard.refund-request', compact('booking', 'refundAmount', 'refundPercentage'));
     }
@@ -71,13 +67,7 @@ class RefundController extends Controller
             return redirect()->back()->with('error', 'Batas waktu pengajuan refund (minimal 24 jam/H-1 sebelum berangkat) telah habis.');
         }
 
-        if ($hoursDiff >= 24) {
-            $refundPercentage = 90;
-        } else {
-            $refundPercentage = 70;
-        }
-
-        $refundAmount = ($booking->total_price * $refundPercentage) / 100;
+        $refundAmount = $booking->total_price;
 
         Refund::create([
             'booking_id' => $booking->id,
@@ -164,12 +154,16 @@ class RefundController extends Controller
 
         $user = User::find($refund->user_id);
         if ($user && $user->fcm_token) {
-            $this->sendFcmSingle(
-                $user->fcm_token,
-                $title,
-                $body,
-                ['type' => 'refund_status', 'refund_id' => (string) $refund->id]
-            );
+            try {
+                $this->sendFcmSingle(
+                    $user->fcm_token,
+                    $title,
+                    $body,
+                    ['type' => 'refund_status', 'refund_id' => (string) $refund->id]
+                );
+            } catch (\Exception $e) {
+                \Log::error('GAGAL KIRIM FCM REFUND: ' . $e->getMessage());
+            }
         }
         return redirect()->back()->with('success', 'Status refund berhasil diupdate.');
     }
@@ -200,7 +194,13 @@ class RefundController extends Controller
     private function getFirebaseAccessToken(): string
     {
         $path = storage_path('app/firebase-service-account.json');
+        if (!file_exists($path)) {
+            throw new \Exception("Firebase service account file not found.");
+        }
         $serviceAccount = json_decode(file_get_contents($path), true);
+        if (!$serviceAccount) {
+            throw new \Exception("Invalid Firebase service account JSON");
+        }
 
         $now     = time();
         $header  = rtrim(strtr(base64_encode(json_encode(['alg' => 'RS256', 'typ' => 'JWT'])), '+/', '-_'), '=');

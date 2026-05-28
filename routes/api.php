@@ -47,6 +47,7 @@ Route::post('/cancel-rental/{id}', [RentalController::class, 'cancel']);
 Route::post('/finish-booking/{id}', [BookingController::class, 'finish']);
 Route::post('/finish-tour/{id}', [TourBookingController::class, 'finish']);
 Route::post('/finish-rental/{id}', [RentalController::class, 'finish']);
+Route::get('/buses/available', [BusController::class, 'available']);
 Route::get('/buses', [BusController::class, 'index']);
 Route::get('/buses/{id}', [BusController::class, 'show']);
 Route::post('/rentals/store', [RentalController::class, 'store']);

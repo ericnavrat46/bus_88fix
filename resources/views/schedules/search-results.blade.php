@@ -101,6 +101,7 @@
                         @if($returnDate)
                             <input type="hidden" name="return_date" value="{{ $returnDate }}">
                         @endif
+                        <input type="hidden" name="sort" value="{{ $sort ?? 'departure_asc' }}">
 
                         <div class="flex items-center justify-between mb-6">
                             <h3 class="text-xl font-bold text-dark">Filter</h3>
@@ -169,10 +170,12 @@
                     <h2 class="text-2xl font-black text-dark">{{ $schedules->count() + ($tripType === 'round_trip' && isset($returnSchedules) ? $returnSchedules->count() : 0) }} Jadwal Tersedia</h2>
                     <div class="flex items-center gap-2 text-sm">
                         <span class="text-gray-warm-500">Urutkan berdasarkan:</span>
-                        <button class="font-bold text-merah-600 flex items-center gap-1 hover:text-merah-700">
-                            Keberangkatan Terawal
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-                        </button>
+                        <select id="sortDropdown" class="font-bold text-merah-600 bg-transparent border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-merah-500 outline-none cursor-pointer" onchange="applySort(this.value)">
+                            <option value="departure_asc" {{ ($sort ?? 'departure_asc') == 'departure_asc' ? 'selected' : '' }}>Keberangkatan Terawal</option>
+                            <option value="departure_desc" {{ ($sort ?? '') == 'departure_desc' ? 'selected' : '' }}>Keberangkatan Terakhir</option>
+                            <option value="price_asc" {{ ($sort ?? '') == 'price_asc' ? 'selected' : '' }}>Harga Terendah</option>
+                            <option value="price_desc" {{ ($sort ?? '') == 'price_desc' ? 'selected' : '' }}>Harga Tertinggi</option>
+                        </select>
                     </div>
                 </div>
 
@@ -362,4 +365,12 @@
         </div>
     </div>
 </div>
+
+<script>
+    function applySort(value) {
+        const url = new URL(window.location.href);
+        url.searchParams.set('sort', value);
+        window.location.href = url.toString();
+    }
+</script>
 @endsection

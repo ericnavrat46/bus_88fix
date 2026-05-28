@@ -71,8 +71,25 @@ class HomeController extends Controller
             }
         }
 
+        // Sorting
+        $sort = $request->input('sort', 'departure_asc');
+        switch ($sort) {
+            case 'departure_desc':
+                $query->orderBy('departure_date', 'desc')->orderBy('departure_time', 'desc');
+                break;
+            case 'price_asc':
+                $query->orderBy('price', 'asc');
+                break;
+            case 'price_desc':
+                $query->orderBy('price', 'desc');
+                break;
+            default: // departure_asc
+                $query->orderBy('departure_date')->orderBy('departure_time');
+                break;
+        }
+
         // Outbound schedules
-        $schedules = $query->orderBy('departure_date')->orderBy('departure_time')->get();
+        $schedules = $query->get();
 
         $routes = \App\Models\Route::where('status', 'active')->get();
         $origins = $routes->pluck('origin')->unique()->sort()->values();
@@ -90,6 +107,7 @@ class HomeController extends Controller
             'origins' => $origins,
             'destinations' => $destinations,
             'availableBuses' => $availableBuses,
+            'sort' => $sort,
         ];
 
         // Return schedules (swapped origin <-> destination)
@@ -127,7 +145,22 @@ class HomeController extends Controller
                 }
             }
 
-            $returnSchedules = $returnQuery->orderBy('departure_date')->orderBy('departure_time')->get();
+            switch ($sort) {
+                case 'departure_desc':
+                    $returnQuery->orderBy('departure_date', 'desc')->orderBy('departure_time', 'desc');
+                    break;
+                case 'price_asc':
+                    $returnQuery->orderBy('price', 'asc');
+                    break;
+                case 'price_desc':
+                    $returnQuery->orderBy('price', 'desc');
+                    break;
+                default:
+                    $returnQuery->orderBy('departure_date')->orderBy('departure_time');
+                    break;
+            }
+
+            $returnSchedules = $returnQuery->get();
 
             $viewData['returnDate'] = $validated['return_date'];
             $viewData['returnSchedules'] = $returnSchedules;

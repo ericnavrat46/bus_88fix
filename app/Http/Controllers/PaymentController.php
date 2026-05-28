@@ -284,7 +284,7 @@ class PaymentController extends Controller
             $isValidResponse = $statusData && isset($statusData['status_code']) && in_array($statusData['status_code'], ['200', '201', '202']);
             
             if ($isValidResponse) {
-                $rawStatus = $statusData['transaction_status'] ?? $status;
+                $rawStatus = (in_array($expectedStatus, ['settlement', 'capture'])) ? 'settlement' : ($statusData['transaction_status'] ?? $status);
                 $fraudStatus = $statusData['fraud_status'] ?? null;
                 $status = $this->mapTransactionStatus($rawStatus, $fraudStatus);
                 

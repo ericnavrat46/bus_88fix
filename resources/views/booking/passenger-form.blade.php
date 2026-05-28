@@ -165,6 +165,8 @@
                 applyPromoBtn.disabled = false;
                 applyPromoBtn.innerHTML = 'Gunakan';
             });
+        }
+
         // Confirmation before payment
         const bookingForm = document.getElementById('bookingForm');
         bookingForm.addEventListener('submit', function(e) {

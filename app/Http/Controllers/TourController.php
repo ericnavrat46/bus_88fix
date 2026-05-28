@@ -102,8 +102,7 @@ class TourController extends Controller
             return back()->withInput()->with('error', 'Bus ini sudah dipesan untuk paket wisata lain pada rentang tanggal tersebut.');
         }
 
-        $finalPricePerPerson = $package->final_price;
-        $subtotal = $finalPricePerPerson * $validated['passenger_count'];
+        $subtotal = $package->final_price; // Flat package price (Private Tour)
         $user = auth()->user();
 
         $booking = DB::transaction(function () use ($package, $validated, $subtotal, $user) {

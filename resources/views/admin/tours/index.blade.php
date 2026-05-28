@@ -17,7 +17,7 @@
                     <tr class="bg-gray-warm-100 text-xs font-bold text-gray-warm-600 uppercase tracking-widest">
                         <th class="px-6 py-4">Nama Paket</th>
                         <th class="px-6 py-4">Durasi</th>
-                        <th class="px-6 py-4">Harga/Pax</th>
+                        <th class="px-6 py-4">Harga Paket</th>
                         <th class="px-6 py-4">Status</th>
                         <th class="px-6 py-4 text-right">Aksi</th>
                     </tr>

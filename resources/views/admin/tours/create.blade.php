@@ -25,7 +25,7 @@
 
             <div class="grid md:grid-cols-2 gap-6">
                 <div>
-                    <label class="label-field">Harga per Orang *</label>
+                    <label class="label-field">Harga Paket (Flat / Bus) *</label>
                     <div class="relative">
                         <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-warm-400 font-bold">Rp</span>
                         <input type="number" name="price_per_person" class="input-field pl-12" required placeholder="0">

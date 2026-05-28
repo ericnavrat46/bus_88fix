@@ -100,7 +100,7 @@
 
                     <div class="space-y-3 pt-6 border-t border-gray-warm-100">
                         <div class="flex justify-between text-sm">
-                            <span class="text-gray-warm-500">Subtotal</span>
+                            <span class="text-gray-warm-500">Harga Paket (Flat)</span>
                             <span class="font-semibold" id="display-subtotal" data-amount="{{ $package->price_per_person }}">Rp {{ number_format($package->price_per_person, 0, ',', '.') }}</span>
                         </div>
                         <div id="discountRow" class="flex justify-between text-sm text-green-600 hidden">
@@ -150,7 +150,7 @@
     const discountAmountSpan = document.getElementById('discountAmount');
 
     function updatePrices() {
-        currentSubtotal = basePrice * (parseInt(paxInput.value) || 0);
+        currentSubtotal = basePrice;
         displaySubtotal.innerText = 'Rp ' + currentSubtotal.toLocaleString('id-ID');
         displaySubtotal.dataset.amount = currentSubtotal;
         
@@ -162,6 +162,7 @@
         }
     }
 
+    // Still listen to input to update other dynamic items if needed (but no price change)
     paxInput.addEventListener('input', updatePrices);
 
     if(promoCodeInput.value.trim() !== '') {

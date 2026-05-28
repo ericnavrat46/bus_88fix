@@ -53,6 +53,11 @@ class TourBooking extends Model
         return $this->belongsTo(TourPackage::class);
     }
 
+    public function bus()
+    {
+        return $this->belongsTo(Bus::class);
+    }
+
     public function payments()
     {
         return $this->morphMany(Payment::class, 'payable');

@@ -61,7 +61,7 @@ class TransactionController extends Controller
 
     public function tours(Request $request)
     {
-        $query = TourBooking::with(['user', 'tourPackage']);
+        $query = TourBooking::with(['user', 'tourPackage', 'bus']);
 
         if ($request->filled('search')) {
             $search = $request->search;
@@ -145,7 +145,7 @@ class TransactionController extends Controller
 
     public function tourShow(TourBooking $booking)
     {
-        $booking->load(['user', 'tourPackage', 'payments']);
+        $booking->load(['user', 'tourPackage', 'bus', 'payments']);
 
         return view('admin.transactions.tour-detail', compact('booking'));
     }
@@ -157,6 +157,35 @@ class TransactionController extends Controller
             'bus_id' => 'required|exists:buses,id',
             'admin_notes' => 'nullable|string',
         ]);
+
+        // Cek bentrok dengan Jadwal Reguler (Schedule)
+        $conflictSchedule = \App\Models\Schedule::where('bus_id', $validated['bus_id'])
+            ->where('status', '!=', 'cancelled')
+            ->whereDate('departure_date', '>=', $rental->start_date)
+            ->whereDate('departure_date', '<=', $rental->end_date)
+            ->exists();
+
+        if ($conflictSchedule) {
+            return back()->with('error', 'Bus ini sudah memiliki jadwal reguler pada tanggal tersebut.');
+        }
+
+        // Cek bentrok dengan Rental lain
+        $conflictRental = \App\Models\Rental::where('bus_id', $validated['bus_id'])
+            ->where('id', '!=', $rental->id)
+            ->where('approval_status', '!=', 'rejected')
+            ->where(function ($query) use ($rental) {
+                $query->whereBetween('start_date', [$rental->start_date, $rental->end_date])
+                      ->orWhereBetween('end_date', [$rental->start_date, $rental->end_date])
+                      ->orWhere(function ($q) use ($rental) {
+                          $q->where('start_date', '<=', $rental->start_date)
+                            ->where('end_date', '>=', $rental->end_date);
+                      });
+            })
+            ->exists();
+
+        if ($conflictRental) {
+            return back()->with('error', 'Bus ini sudah disewa (Rental) oleh pelanggan lain pada rentang tanggal tersebut.');
+        }
 
         $rental->update([
             'approval_status' => 'approved',

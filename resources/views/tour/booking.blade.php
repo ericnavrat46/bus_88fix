@@ -45,6 +45,16 @@
                             <input type="number" name="passenger_count" class="input-field" required min="1" onkeydown="if(['+', '-', 'e', 'E', '.'].includes(event.key)) event.preventDefault();" placeholder="Masukkan jumlah orang" x-model="pax" x-init="pax = 1">
                         </div>
 
+                        <div>
+                            <label class="label-field">Pilih Bus *</label>
+                            <select name="bus_id" class="input-field" required>
+                                <option value="">-- Pilih Bus --</option>
+                                @foreach($buses as $bus)
+                                    <option value="{{ $bus->id }}">{{ $bus->name }} (Kapasitas: {{ $bus->capacity }} kursi)</option>
+                                @endforeach
+                            </select>
+                        </div>
+
                         <div class="space-y-4">
                             <label class="label-field">Lokasi Penjemputan / Titik Kumpul *</label>
                             <div class="flex gap-2">

@@ -52,7 +52,7 @@
                     <tr class="hover:bg-gray-warm-50/50 transition-colors">
                         <td class="px-6 py-4 text-sm">
                             <span class="font-bold text-merah-600 block">{{ $booking->booking_code }}</span>
-                            <span class="text-gray-warm-500 text-xs">{{ $booking->tourPackage->name }}</span>
+                            <span class="text-gray-warm-500 text-xs">{{ $booking->tourPackage->name }} <br> Bus: {{ $booking->bus->name ?? '-' }}</span>
                         </td>
                         <td class="px-6 py-4 text-sm">
                             <span class="font-medium text-dark block">{{ $booking->user->name }}</span>

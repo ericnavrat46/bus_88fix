@@ -43,7 +43,8 @@ class TourController extends Controller
         if ($package->status !== 'active') {
             abort(404);
         }
-        return view('tour.booking', compact('package'));
+        $buses = \App\Models\Bus::where('status', 'active')->get();
+        return view('tour.booking', compact('package', 'buses'));
     }
 
     public function storeBooking(Request $request, TourPackage $package)
@@ -51,11 +52,55 @@ class TourController extends Controller
         $validated = $request->validate([
             'travel_date' => 'required|date|after:today',
             'passenger_count' => 'required|integer|min:1',
+            'bus_id' => 'required|exists:buses,id',
             'latitude' => 'nullable|numeric',
             'longitude' => 'nullable|numeric',
             'notes' => 'nullable|string',
             'applied_promo_id' => 'nullable|exists:promo_banners,id',
         ]);
+
+        // Validasi Ketersediaan Bus
+        $startDate = \Carbon\Carbon::parse($validated['travel_date']);
+        $endDate = $startDate->copy()->addDays($package->duration_days - 1);
+
+        // Cek bentrok dengan Jadwal Reguler (Schedule)
+        $conflictSchedule = \App\Models\Schedule::where('bus_id', $validated['bus_id'])
+            ->where('status', '!=', 'cancelled')
+            ->whereDate('departure_date', '>=', $startDate)
+            ->whereDate('departure_date', '<=', $endDate)
+            ->exists();
+
+        if ($conflictSchedule) {
+            return back()->withInput()->with('error', 'Bus ini sudah memiliki jadwal reguler pada rentang tanggal tersebut.');
+        }
+
+        // Cek bentrok dengan Rental lain
+        $conflictRental = \App\Models\Rental::where('bus_id', $validated['bus_id'])
+            ->where('approval_status', '!=', 'rejected')
+            ->where(function ($query) use ($startDate, $endDate) {
+                $query->whereBetween('start_date', [$startDate, $endDate])
+                      ->orWhereBetween('end_date', [$startDate, $endDate])
+                      ->orWhere(function ($q) use ($startDate, $endDate) {
+                          $q->where('start_date', '<=', $startDate)
+                            ->where('end_date', '>=', $endDate);
+                      });
+            })
+            ->exists();
+
+        if ($conflictRental) {
+            return back()->withInput()->with('error', 'Bus ini sedang disewa (Rental) pada rentang tanggal tersebut.');
+        }
+
+        // Cek bentrok dengan Tour Booking lain
+        $conflictTour = \App\Models\TourBooking::where('bus_id', $validated['bus_id'])
+            ->whereIn('payment_status', ['paid', 'pending'])
+            ->join('tour_packages', 'tour_bookings.tour_package_id', '=', 'tour_packages.id')
+            ->whereRaw("? <= DATE_ADD(travel_date, INTERVAL tour_packages.duration_days - 1 DAY) AND ? >= travel_date", [$endDate->toDateString(), $startDate->toDateString()])
+            ->exists();
+
+        if ($conflictTour) {
+            return back()->withInput()->with('error', 'Bus ini sudah dipesan untuk paket wisata lain pada rentang tanggal tersebut.');
+        }
 
         $finalPricePerPerson = $package->final_price;
         $subtotal = $finalPricePerPerson * $validated['passenger_count'];
@@ -82,6 +127,7 @@ class TourController extends Controller
                 'promo_banner_id' => $promo ? $promo->id : null,
                 'travel_date' => $validated['travel_date'],
                 'passenger_count' => $validated['passenger_count'],
+                'bus_id' => $validated['bus_id'],
                 'total_price' => $totalPrice,
                 'discount_amount' => $discountAmount,
                 'payment_status' => 'pending',

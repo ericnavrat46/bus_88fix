@@ -94,7 +94,7 @@ class PromoBanner extends Model
         $discount = 0;
         if ($this->discount_type === 'percent') {
             $discount = $amount * ($this->discount_value / 100);
-            if ($this->max_discount && $discount > $this->max_discount) {
+            if ($this->max_discount > 0 && $discount > $this->max_discount) {
                 $discount = $this->max_discount;
             }
         } else {

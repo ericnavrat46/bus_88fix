@@ -13,6 +13,7 @@ class TourBooking extends Model
         'booking_code',
         'user_id',
         'tour_package_id',
+        'bus_id',
         'promo_banner_id',
         'travel_date',
         'passenger_count',

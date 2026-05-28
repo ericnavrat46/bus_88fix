@@ -79,6 +79,10 @@
                         <span class="text-gray-warm-500 text-sm">Jumlah Peserta</span>
                         <span class="font-semibold text-dark">{{ $booking->passenger_count }} orang</span>
                     </div>
+                    <div class="flex justify-between items-center py-3 border-b border-gray-warm-50">
+                        <span class="text-gray-warm-500 text-sm">Bus Terpilih</span>
+                        <span class="font-semibold text-dark">{{ $booking->bus->name ?? '-' }}</span>
+                    </div>
                     @if($booking->tourPackage?->duration_days)
                     <div class="flex justify-between items-center py-3 border-b border-gray-warm-50">
                         <span class="text-gray-warm-500 text-sm">Durasi Wisata</span>

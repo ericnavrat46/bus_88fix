@@ -59,6 +59,25 @@ class ScheduleController extends Controller
             'status' => 'required|in:active,cancelled',
         ]);
 
+        $conflict = Schedule::where('bus_id', $validated['bus_id'])
+            ->whereDate('departure_date', $validated['departure_date'])
+            ->exists();
+
+        if ($conflict) {
+            return back()->withInput()->with('error', 'Bus ini sudah memiliki jadwal reguler pada tanggal tersebut. Silakan pilih bus lain atau ganti tanggal.');
+        }
+
+        // Cek bentrok dengan jadwal Sewa (Rental)
+        $conflictRental = \App\Models\Rental::where('bus_id', $validated['bus_id'])
+            ->where('approval_status', '!=', 'rejected')
+            ->whereDate('start_date', '<=', $validated['departure_date'])
+            ->whereDate('end_date', '>=', $validated['departure_date'])
+            ->exists();
+
+        if ($conflictRental) {
+            return back()->withInput()->with('error', 'Bus ini sedang disewa (Rental) pada tanggal tersebut. Silakan pilih bus lain atau ganti tanggal.');
+        }
+
         $bus = Bus::findOrFail($validated['bus_id']);
         $validated['available_seats'] = $bus->capacity;
 
@@ -86,6 +105,26 @@ class ScheduleController extends Controller
             'price' => 'required|numeric|min:0',
             'status' => 'required|in:active,cancelled,completed',
         ]);
+
+        $conflict = Schedule::where('bus_id', $validated['bus_id'])
+            ->whereDate('departure_date', $validated['departure_date'])
+            ->where('id', '!=', $schedule->id)
+            ->exists();
+
+        if ($conflict) {
+            return back()->withInput()->with('error', 'Bus ini sudah memiliki jadwal reguler pada tanggal tersebut. Silakan pilih bus lain atau ganti tanggal.');
+        }
+
+        // Cek bentrok dengan jadwal Sewa (Rental)
+        $conflictRental = \App\Models\Rental::where('bus_id', $validated['bus_id'])
+            ->where('approval_status', '!=', 'rejected')
+            ->whereDate('start_date', '<=', $validated['departure_date'])
+            ->whereDate('end_date', '>=', $validated['departure_date'])
+            ->exists();
+
+        if ($conflictRental) {
+            return back()->withInput()->with('error', 'Bus ini sedang disewa (Rental) pada tanggal tersebut. Silakan pilih bus lain atau ganti tanggal.');
+        }
 
         // Jika bus diganti, sesuaikan available_seats dengan kapasitas bus baru
         if ((int)$validated['bus_id'] !== $schedule->bus_id) {

@@ -104,12 +104,12 @@ class RefundController extends Controller
         $refund->update(['status' => $request->status]);
 
         // Update payment_status booking
-        if (in_array($request->status, ['approved', 'processed'])) {
-            $refund->booking->update(['payment_status' => 'refund']);
-        } elseif ($request->status === 'rejected') {
-            $refund->booking->update(['payment_status' => 'paid']);
+        if ($request->status === 'approved') {
+    $refund->booking->update(['payment_status' => 'pending_refund']);
+        } elseif ($request->status === 'processed') {
+            $refund->booking->update(['payment_status' => 'refunded']); // ← ini yang penting
         }
-        [$title, $body] = match ($request->status) {
+                [$title, $body] = match ($request->status) {
             'approved'  => [
                 '✅ Refund Disetujui',
                 'Refund booking ' . $refund->booking->booking_code . ' disetujui. Dana segera ditransfer.',

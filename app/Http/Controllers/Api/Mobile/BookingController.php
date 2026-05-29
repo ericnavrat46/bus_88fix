@@ -51,28 +51,30 @@ class BookingController extends Controller
             $status = 'pending_payment';
 
             if (in_array($booking->payment_status, ['cancelled', 'canceled'])) {
-                $status = 'canceled';
-            } elseif ($booking->payment_status == 'expired') {
-                $status = 'canceled';
-            } elseif ($booking->payment_status == 'refund') {
-                $status = 'refund';
-            } elseif ($booking->payment_status == 'paid') {
-                if (now()->gt(\Carbon\Carbon::parse($booking->departure_date)->addDay())) {
-                    $status = 'completed';
-                } else {
-                    $status = 'paid';
-                }
-            } elseif ($booking->payment_status == 'pending') {
-                if ($booking->payment_proof) {
-                    $status = 'waiting_confirmation';
-                } else {
-                    if ($booking->expired_at && now()->gt(\Carbon\Carbon::parse($booking->expired_at))) {
-                        $status = 'canceled';
+                    $status = 'canceled';
+                } elseif ($booking->payment_status == 'expired') {
+                    $status = 'canceled';
+                } elseif ($booking->payment_status == 'refunded') {
+                    $status = 'completed'; // → masuk riwayat
+                } elseif (in_array($booking->payment_status, ['refund', 'pending_refund', 'refund_rejected'])) {
+                    $status = 'paid'; // → tetap di pesanan aktif
+                } elseif ($booking->payment_status == 'paid') {
+                    if (now()->gt(\Carbon\Carbon::parse($booking->departure_date)->addDay())) {
+                        $status = 'completed';
                     } else {
-                        $status = 'pending_payment';
+                        $status = 'paid';
+                    }
+                } elseif ($booking->payment_status == 'pending') {
+                    if ($booking->payment_proof) {
+                        $status = 'waiting_confirmation';
+                    } else {
+                        if ($booking->expired_at && now()->gt(\Carbon\Carbon::parse($booking->expired_at))) {
+                            $status = 'canceled';
+                        } else {
+                            $status = 'pending_payment';
+                        }
                     }
                 }
-            }
 
             $arr = (array) $booking;
             $arr['status_final'] = $status;

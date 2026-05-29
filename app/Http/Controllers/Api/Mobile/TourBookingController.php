@@ -72,8 +72,10 @@ class TourBookingController extends Controller
                 $status = 'canceled';
             } elseif ($t->payment_status == 'expired') {
                 $status = 'canceled';
-            } elseif ($t->payment_status == 'refund') {
-                $status = 'refund';
+            } elseif ($t->payment_status == 'refunded') {
+                $status = 'completed';
+            } elseif (in_array($t->payment_status, ['refund', 'pending_refund', 'refund_rejected'])) {
+                $status = 'paid'; 
             } elseif ($t->payment_status == 'paid') {
                 if (now()->gt(\Carbon\Carbon::parse($t->travel_date)->addDay())) {
                     $status = 'completed';

@@ -55,9 +55,9 @@ class BookingController extends Controller
                 } elseif ($booking->payment_status == 'expired') {
                     $status = 'canceled';
                 } elseif ($booking->payment_status == 'refunded') {
-                    $status = 'completed'; // → masuk riwayat
+                    $status = 'completed'; 
                 } elseif (in_array($booking->payment_status, ['refund', 'pending_refund', 'refund_rejected'])) {
-                    $status = 'paid'; // → tetap di pesanan aktif
+                    $status = 'paid'; 
                 } elseif ($booking->payment_status == 'paid') {
                     if (now()->gt(\Carbon\Carbon::parse($booking->departure_date)->addDay())) {
                         $status = 'completed';

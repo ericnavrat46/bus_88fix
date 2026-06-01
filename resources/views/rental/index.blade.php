@@ -20,7 +20,7 @@
     position: absolute;
     inset: 0;
     z-index: 0;
-    background: url('https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&q=80&w=1600') center/cover;
+    background: url('{{ asset("images/hero_sewa.png") }}') center/cover no-repeat;
     opacity: 0.4;
     pointer-events: none;
 }

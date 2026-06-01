@@ -41,7 +41,6 @@
         }
     </style>
 @endpush
-
 @section('content')
     {{-- Hero Section --}}
     <section class="relative overflow-hidden hero-section" style="min-height: 90vh;">

@@ -14,7 +14,7 @@
 <body class="min-h-screen bg-gray-warm-50" 
       x-data="{ sidebarOpen: window.innerWidth >= 1024, isDesktop: window.innerWidth >= 1024 }"
       @resize.window="isDesktop = window.innerWidth >= 1024; if (isDesktop) { sidebarOpen = true } else { sidebarOpen = false }">
-    <div class="flex min-h-screen">
+    <div class="min-h-screen">
         {{-- Mobile Sidebar Backdrop --}}
         <div x-show="sidebarOpen && !isDesktop" 
              style="display: none;"
@@ -28,8 +28,8 @@
              @click="sidebarOpen = false"></div>
 
         {{-- Sidebar --}}
-        <aside class="fixed lg:sticky left-0 top-0 h-screen w-64 bg-gradient-to-b from-merah-800 via-merah-900 to-merah-950 text-white z-40 transition-all duration-300 shadow-2xl shadow-merah-950/50 flex-shrink-0"
-               :class="sidebarOpen ? 'translate-x-0 ml-0' : '-translate-x-full lg:-ml-64'">
+        <aside class="fixed left-0 top-0 h-screen z-40 w-64 bg-gradient-to-b from-merah-800 via-merah-900 to-merah-950 text-white transition-all duration-300 shadow-2xl shadow-merah-950/50"
+               :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'">
             <div class="flex flex-col h-full overflow-hidden">
                 <div class="flex items-center gap-3 px-6 py-3 border-b border-white/10 flex-shrink-0">
                     <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-lg shadow-white/10">
@@ -130,7 +130,7 @@
         </aside>
 
         {{-- Main Content --}}
-        <div class="flex-1 min-w-0 w-full lg:w-auto">
+        <div class="min-h-screen transition-all duration-300" :style="sidebarOpen && isDesktop ? 'margin-left: 16rem' : 'margin-left: 0'">
             {{-- Top Bar --}}
             <header class="sticky top-0 z-30 bg-white/80 backdrop-blur-xl border-b border-gray-warm-100">
                 <div class="flex items-center justify-between px-6 py-4">

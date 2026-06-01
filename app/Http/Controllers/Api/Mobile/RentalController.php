@@ -67,7 +67,8 @@ class RentalController extends Controller
                 'users.name',
                 'users.email',
                 'users.phone',
-                'buses.name as bus_name'
+                'buses.name as bus_name',
+                'buses.capacity as bus_capacity'
             )
             ->where('rentals.user_id', $user_id)
             ->orderBy('rentals.created_at', 'desc')

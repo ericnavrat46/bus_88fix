@@ -148,6 +148,28 @@ Route::middleware('auth')->group(function () {
     // Refund
     Route::get('/dashboard/booking/{booking}/refund', [RefundController::class, 'create'])->name('booking.refund');
     Route::post('/dashboard/booking/{booking}/refund', [RefundController::class, 'store']);
+    Route::get('/dashboard/tour/{tourBooking}/refund', [RefundController::class, 'createTour'])->name('tour.refund');
+    Route::post('/dashboard/tour/{tourBooking}/refund', [RefundController::class, 'storeTour']);
+
+    // Temporary Migration & Clear Cache Route (Untuk Deploy cPanel)
+    Route::get('/run-migration', function () {
+        try {
+            \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+            \Illuminate\Support\Facades\Artisan::call('optimize:clear');
+            return 'Database Migrated & Cache Cleared Successfully! Aplikasi siap digunakan.';
+        } catch (\Exception $e) {
+            return 'Error: ' . $e->getMessage() . '<br><br>' . nl2br($e->getTraceAsString());
+        }
+    });
+
+    // View Logs Route
+    Route::get('/view-logs', function () {
+        $logPath = storage_path('logs/laravel.log');
+        if (file_exists($logPath)) {
+            return response()->file($logPath);
+        }
+        return 'No logs found.';
+    });
 
     // Review
     Route::post('/review/store', [ReviewController::class, 'store'])->name('review.store');

@@ -168,7 +168,8 @@ class TicketController extends Controller
         if ($b->payment_status !== 'paid')
             return ['valid' => false, 'message' => 'Belum lunas.'];
 
-        $dep = Carbon::parse($b->schedule->departure_date . ' ' . $b->schedule->departure_time);
+        $departureDateStr = $b->schedule->departure_date instanceof Carbon ? $b->schedule->departure_date->format('Y-m-d') : Carbon::parse($b->schedule->departure_date)->format('Y-m-d');
+        $dep = Carbon::parse($departureDateStr . ' ' . $b->schedule->departure_time);
 
         $route = $b->schedule->route;
         $ori = $route->origin ?? '-';
@@ -244,7 +245,7 @@ class TicketController extends Controller
 
     private function authorizeAccess($userId)
     {
-        if ($userId !== Auth::id() && !Auth::user()?->isAdmin()) {
+        if ($userId != Auth::id() && !Auth::user()?->isAdmin()) {
             abort(403);
         }
     }

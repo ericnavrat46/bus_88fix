@@ -18,7 +18,7 @@ class RefundController extends Controller
     public function create(Booking $booking)
     {
         // Check ownership
-        if ($booking->user_id !== Auth::id() && !Auth::user()?->isAdmin()) {
+        if ($booking->user_id != Auth::id() && !Auth::user()?->isAdmin()) {
             abort(403);
         }
 
@@ -31,13 +31,15 @@ class RefundController extends Controller
         $departure = Carbon::parse($booking->schedule->departure_date->format('Y-m-d') . ' ' . $booking->schedule->departure_time);
         $hoursDiff = now()->diffInHours($departure, false);
 
-        // H-1 means at least 24 hours before departure
-        if ($hoursDiff < 24) {
-            return redirect()->back()->with('error', 'Refund hanya dapat dilakukan maksimal H-1 (24 jam) sebelum keberangkatan.');
+        if ($hoursDiff >= 24) {
+            $refundPercentage = 90;
+        } elseif ($hoursDiff >= 6) {
+            $refundPercentage = 70;
+        } else {
+            return redirect()->back()->with('error', 'Refund hanya dapat dilakukan maksimal 6 jam sebelum keberangkatan.');
         }
 
-        $refundPercentage = 100; // Full refund as it is "real"
-        $refundAmount = $booking->total_price;
+        $refundAmount = $booking->total_price * ($refundPercentage / 100);
 
         return view('dashboard.refund-request', compact('booking', 'refundAmount', 'refundPercentage'));
     }
@@ -47,7 +49,7 @@ class RefundController extends Controller
      */
     public function store(Request $request, Booking $booking)
     {
-        if ($booking->user_id !== Auth::id() && !Auth::user()?->isAdmin()) abort(403);
+        if ($booking->user_id != Auth::id() && !Auth::user()?->isAdmin()) abort(403);
 
         $request->validate([
             'reason' => 'required|string|min:10',
@@ -63,11 +65,15 @@ class RefundController extends Controller
         $departure = Carbon::parse($booking->schedule->departure_date->format('Y-m-d') . ' ' . $booking->schedule->departure_time);
         $hoursDiff = now()->diffInHours($departure, false);
 
-        if ($hoursDiff < 24) {
-            return redirect()->back()->with('error', 'Batas waktu pengajuan refund (minimal 24 jam/H-1 sebelum berangkat) telah habis.');
+        if ($hoursDiff >= 24) {
+            $refundPercentage = 90;
+        } elseif ($hoursDiff >= 6) {
+            $refundPercentage = 70;
+        } else {
+            return redirect()->back()->with('error', 'Batas waktu pengajuan refund (minimal 6 jam sebelum berangkat) telah habis.');
         }
 
-        $refundAmount = $booking->total_price;
+        $refundAmount = $booking->total_price * ($refundPercentage / 100);
 
         Refund::create([
             'booking_id' => $booking->id,
@@ -84,6 +90,88 @@ class RefundController extends Controller
         $booking->update(['payment_status' => 'pending_refund']);
 
         return redirect()->route('dashboard.booking', $booking)->with('success', 'Permintaan refund berhasil dikirim. Tiket Anda kini dalam status "Menunggu Verifikasi Refund".');
+    }
+
+    /**
+     * Show refund request form for Tour Booking
+     */
+    public function createTour(\App\Models\TourBooking $tourBooking)
+    {
+        // Check ownership
+        if ($tourBooking->user_id != Auth::id() && !Auth::user()?->isAdmin()) {
+            abort(403);
+        }
+
+        // Check if already refunded or requested
+        if ($tourBooking->payment_status === 'refunded' || $tourBooking->payment_status === 'pending_refund') {
+            return redirect()->back()->with('error', 'Refund sudah diajukan atau sudah diproses.');
+        }
+
+        // Check policy
+        $departure = Carbon::parse($tourBooking->travel_date->format('Y-m-d') . ' 00:00:00');
+        $hoursDiff = now()->diffInHours($departure, false);
+
+        if ($hoursDiff >= 24) {
+            $refundPercentage = 90;
+        } elseif ($hoursDiff >= 6) {
+            $refundPercentage = 70;
+        } else {
+            return redirect()->back()->with('error', 'Refund hanya dapat dilakukan maksimal 6 jam sebelum keberangkatan.');
+        }
+
+        $refundAmount = $tourBooking->total_price * ($refundPercentage / 100);
+
+        // We can reuse the same view but pass tourBooking
+        $booking = $tourBooking; // Use $booking variable for view compatibility
+        $isTour = true;
+        return view('dashboard.refund-request', compact('booking', 'refundAmount', 'refundPercentage', 'isTour'));
+    }
+
+    /**
+     * Store refund request for Tour Booking
+     */
+    public function storeTour(Request $request, \App\Models\TourBooking $tourBooking)
+    {
+        if ($tourBooking->user_id != Auth::id() && !Auth::user()?->isAdmin()) abort(403);
+
+        $request->validate([
+            'reason' => 'required|string|min:10',
+            'bank_name' => 'required|string',
+            'account_number' => 'required|string',
+            'account_name' => 'required|string',
+        ]);
+
+        if ($tourBooking->payment_status === 'pending_refund') {
+            return redirect()->back()->with('error', 'Refund sedang dalam proses verifikasi.');
+        }
+
+        $departure = Carbon::parse($tourBooking->travel_date->format('Y-m-d') . ' 00:00:00');
+        $hoursDiff = now()->diffInHours($departure, false);
+
+        if ($hoursDiff >= 24) {
+            $refundPercentage = 90;
+        } elseif ($hoursDiff >= 6) {
+            $refundPercentage = 70;
+        } else {
+            return redirect()->back()->with('error', 'Batas waktu pengajuan refund (minimal 6 jam sebelum berangkat) telah habis.');
+        }
+
+        $refundAmount = $tourBooking->total_price * ($refundPercentage / 100);
+
+        Refund::create([
+            'tour_booking_id' => $tourBooking->id,
+            'user_id' => Auth::id(),
+            'refund_amount' => $refundAmount,
+            'reason' => $request->reason,
+            'bank_name' => $request->bank_name,
+            'account_number' => $request->account_number,
+            'account_name' => $request->account_name,
+            'status' => 'pending',
+        ]);
+
+        $tourBooking->update(['payment_status' => 'pending_refund']);
+
+        return redirect()->route('dashboard.tour', $tourBooking)->with('success', 'Permintaan refund berhasil dikirim. Paket wisata Anda kini dalam status "Menunggu Verifikasi Refund".');
     }
 
     /**
@@ -119,28 +207,31 @@ class RefundController extends Controller
             'processed_at' => now(),
         ]);
 
-        if ($request->status === 'completed') {
-            $refund->booking->update(['payment_status' => 'refunded']);
+        $parentBooking = $refund->booking ?? $refund->tourBooking;
+        $bookingCode = $parentBooking->booking_code ?? '';
+
+        if ($request->status === 'completed' && $parentBooking) {
+            $parentBooking->update(['payment_status' => 'refunded']);
         }
-        if ($request->status === 'rejected') {
-            $refund->booking->update(['payment_status' => 'paid']);
+        if ($request->status === 'rejected' && $parentBooking) {
+            $parentBooking->update(['payment_status' => 'paid']);
         }
         [$title, $body] = match ($request->status) {
             'approved'  => [
                 '✅ Refund Disetujui',
-                'Refund booking ' . $refund->booking->booking_code . ' telah disetujui. Dana akan segera ditransfer.',
+                'Refund pesanan ' . $bookingCode . ' telah disetujui. Dana akan segera ditransfer.',
             ],
             'rejected'  => [
                 '❌ Refund Ditolak',
-                'Maaf, refund booking ' . $refund->booking->booking_code . ' ditolak. Hubungi admin untuk info lebih lanjut.',
+                'Maaf, refund pesanan ' . $bookingCode . ' ditolak. Hubungi admin untuk info lebih lanjut.',
             ],
             'completed' => [
                 '💸 Refund Selesai',
-                'Dana refund booking ' . $refund->booking->booking_code . ' telah berhasil ditransfer ke rekening kamu.',
+                'Dana refund pesanan ' . $bookingCode . ' telah berhasil ditransfer ke rekening kamu.',
             ],
             default => [
                 '🔔 Update Refund',
-                'Status refund booking ' . $refund->booking->booking_code . ' telah diperbarui.',
+                'Status refund pesanan ' . $bookingCode . ' telah diperbarui.',
             ],
         };
 

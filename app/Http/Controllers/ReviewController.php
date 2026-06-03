@@ -31,7 +31,7 @@ class ReviewController extends Controller
         $reviewable = $modelClass::findOrFail($validated['reviewable_id']);
 
         // Security: Ensure user owns this and it's paid
-        if ($reviewable->user_id !== auth()->id() || $reviewable->payment_status !== 'paid') {
+        if ($reviewable->user_id != auth()->id() || $reviewable->payment_status !== 'paid') {
             abort(403, 'Unauthorized action.');
         }
 

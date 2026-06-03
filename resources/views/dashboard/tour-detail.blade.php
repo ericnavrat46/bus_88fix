@@ -114,21 +114,71 @@
                         </div>
                 </div>
 
-            @elseif($booking->payment_status === 'paid')
+            @elseif($booking->payment_status === 'refunded')
                 <div class="mt-8 pt-8 border-t border-gray-warm-100">
-                    <div class="p-6 bg-emerald-50 rounded-2xl border border-emerald-100 text-center">
+                    <div class="p-6 bg-blue-50 rounded-2xl border border-blue-100 text-center">
+                        <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                            <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/></svg>
+                        </div>
+                        <h4 class="font-bold text-blue-800 mb-1">Tiket Telah Direfund</h4>
+                        <p class="text-sm text-blue-600">Dana pembayaran Anda sedang diproses untuk dikembalikan. Hubungi admin jika ada pertanyaan.</p>
+                    </div>
+                </div>
+            @elseif($booking->payment_status === 'paid' || $booking->payment_status === 'pending_refund')
+                @php 
+                    $refund = \App\Models\Refund::where('tour_booking_id', $booking->id)->first();
+                    $departure = \Carbon\Carbon::parse($booking->travel_date->format('Y-m-d') . ' 00:00:00');
+                    $canRefund = now()->diffInHours($departure, false) >= 6;
+                @endphp
+                
+                <div class="mt-8 pt-8 border-t border-gray-warm-100">
+                    <div class="p-6 bg-emerald-50 rounded-2xl border border-emerald-100 text-center mb-6">
                         <div class="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-3">
                             <svg class="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
                         </div>
                         <h4 class="font-bold text-emerald-800 mb-1">Telah Terbayar</h4>
-                        <p class="text-sm text-emerald-600">Terima kasih! Pembayaran Anda telah dikonfirmasi. Bersiaplah untuk perjalanan wisata yang menyenangkan! 🎉</p>
-                        @if($booking->payment_proof)
-                        <div class="mt-6">
-                            <p class="text-xs text-gray-warm-400 mb-3 font-medium uppercase tracking-widest">Bukti Pembayaran</p>
-                            <img src="{{ asset('storage/' . $booking->payment_proof) }}" class="max-w-xs mx-auto rounded-xl shadow-md grayscale opacity-50">
-                        </div>
-                        @endif
+                        <p class="text-sm text-emerald-600">Terima kasih! Pembayaran Anda telah dikonfirmasi.</p>
                     </div>
+
+                    @if($booking->payment_status === 'pending_refund' || $refund)
+                        <div class="p-6 bg-amber-50 rounded-2xl border border-amber-100">
+                            <div class="flex items-center gap-3 mb-4">
+                                <div class="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center">
+                                    <svg class="w-5 h-5 text-amber-600 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-amber-800">Menunggu Verifikasi Refund</h4>
+                                    <p class="text-xs text-amber-600 italic">Pesanan tidak dapat digunakan selama proses pemeriksaan.</p>
+                                </div>
+                            </div>
+                            @if($refund && $refund->status !== 'pending')
+                            <div class="p-4 bg-white/50 rounded-xl text-sm text-amber-700">
+                                <p class="font-bold mb-1">Status Verifikasi: {{ ucfirst($refund->status) }}</p>
+                                <p class="italic text-xs">{{ $refund->admin_notes ?? 'Sedang ditinjau oleh Admin...' }}</p>
+                            </div>
+                            @endif
+                        </div>
+                    @else
+                        @if($canRefund)
+                            <div class="p-6 bg-gray-warm-50 rounded-2xl border border-gray-warm-100">
+                                <h4 class="font-bold text-dark mb-2">Punya Rencana Lain?</h4>
+                                <p class="text-sm text-gray-warm-500 mb-4">Anda dapat mengajukan refund dengan aturan berikut:</p>
+                                <ul class="text-[11px] text-gray-400 space-y-1 mb-6 list-disc list-inside">
+                                    <li><strong>> 24 jam</strong> sebelum keberangkatan: <strong>Refund 90%</strong></li>
+                                    <li><strong>6 - 24 jam</strong> sebelum keberangkatan: <strong>Refund 70%</strong></li>
+                                    <li>Kurang dari 6 jam: Refund tidak tersedia.</li>
+                                    <li>Dana akan dikembalikan ke rekening Anda (dipotong biaya admin bank jika ada).</li>
+                                </ul>
+                                <a href="{{ route('tour.refund', $booking) }}" class="btn-secondary w-full py-3 text-sm font-bold text-center block">
+                                    AJUKAN REFUND
+                                </a>
+                            </div>
+                        @else
+                            <div class="p-4 bg-gray-100 rounded-xl text-center">
+                                <p class="text-xs text-gray-400 italic font-medium">Batas waktu refund habis (maksimal 6 jam sebelum berangkat).</p>
+                            </div>
+                        @endif
+                    @endif
                 </div>
 
             @else

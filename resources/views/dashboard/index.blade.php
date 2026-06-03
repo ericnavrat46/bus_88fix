@@ -59,7 +59,7 @@
         'icon' => '🚌',
         'id' => $r->rental_code,
         'date' => $r->created_at,
-        'status' => $r->payment_status,
+        'status' => ($r->payment_status === 'unpaid' && $r->approval_status !== 'pending') ? $r->approval_status : $r->payment_status,
         'title' => $r->pickup_location . ' - ' . $r->destination,
         'url' => route('dashboard.rental', $r),
         'download_url' => $r->payment_status === 'paid' ? route('ticket.rental.download', $r) : null,

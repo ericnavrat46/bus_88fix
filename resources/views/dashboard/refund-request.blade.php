@@ -3,10 +3,17 @@
 @section('content')
 <div class="bg-gradient-to-b from-merah-50 to-cream min-h-screen py-10">
     <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
+        @if(isset($isTour) && $isTour)
+        <a href="{{ route('dashboard.tour', $booking) }}" class="inline-flex items-center gap-1 text-sm text-merah-600 hover:underline mb-6">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+            Kembali ke Detail Pesanan
+        </a>
+        @else
         <a href="{{ route('dashboard.booking', $booking) }}" class="inline-flex items-center gap-1 text-sm text-merah-600 hover:underline mb-6">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
             Kembali ke Detail Booking
         </a>
+        @endif
 
         <div class="card p-8">
             <h1 class="text-2xl font-bold text-dark mb-2">Pengajuan Refund</h1>
@@ -18,12 +25,13 @@
                     Kebijakan Refund
                 </h4>
                 <ul class="list-disc list-inside space-y-1 opacity-80">
-                    <li>Dapat diajukan maksimal H-1 (24 jam) sebelum keberangkatan.</li>
-                    <li>Estimasi dana kembali adalah 100% (Full Refund).</li>
+                    <li>Dapat diajukan maksimal <strong>6 jam</strong> sebelum keberangkatan.</li>
+                    <li><strong>> 24 jam</strong> sebelum berangkat: Refund <strong>90%</strong>.</li>
+                    <li><strong>6 - 24 jam</strong> sebelum berangkat: Refund <strong>70%</strong>.</li>
                 </ul>
             </div>
 
-            <form action="{{ route('booking.refund', $booking) }}" method="POST" class="space-y-6">
+            <form action="{{ isset($isTour) && $isTour ? route('tour.refund', $booking) : route('booking.refund', $booking) }}" method="POST" class="space-y-6">
                 @csrf
                 <div class="p-6 bg-gray-warm-50 rounded-2xl border border-gray-warm-100 mb-6">
                     <div class="flex justify-between items-center mb-4">

@@ -165,7 +165,7 @@
                 @php 
                     $refund = \App\Models\Refund::where('booking_id', $booking->id)->first();
                     $departure = \Carbon\Carbon::parse($booking->schedule->departure_date->format('Y-m-d') . ' ' . $booking->schedule->departure_time);
-                    $canRefund = now()->diffInHours($departure, false) >= 24;
+                    $canRefund = now()->diffInHours($departure, false) >= 6;
                 @endphp
                 
                 <div class="mt-8 pt-8 border-t border-gray-warm-100">
@@ -193,8 +193,10 @@
                                 <h4 class="font-bold text-dark mb-2">Punya Rencana Lain?</h4>
                                 <p class="text-sm text-gray-warm-500 mb-4">Anda dapat mengajukan refund dengan aturan berikut:</p>
                                 <ul class="text-[11px] text-gray-400 space-y-1 mb-6 list-disc list-inside">
-                                    <li>Refund dapat dilakukan maksimal <strong>H-1 (24 jam)</strong> sebelum keberangkatan.</li>
-                                    <li>Dana akan dikembalikan 100% ke rekening Anda (dipotong biaya admin bank jika ada).</li>
+                                    <li><strong>> 24 jam</strong> sebelum keberangkatan: <strong>Refund 90%</strong></li>
+                                    <li><strong>6 - 24 jam</strong> sebelum keberangkatan: <strong>Refund 70%</strong></li>
+                                    <li>Kurang dari 6 jam: Refund tidak tersedia.</li>
+                                    <li>Dana akan dikembalikan ke rekening Anda (dipotong biaya admin bank jika ada).</li>
                                 </ul>
                                 <a href="{{ route('booking.refund', $booking) }}" class="btn-secondary w-full py-3 text-sm font-bold text-center">
                                     AJUKAN REFUND
@@ -202,7 +204,7 @@
                             </div>
                         @else
                             <div class="p-4 bg-gray-100 rounded-xl text-center">
-                                <p class="text-xs text-gray-400 italic font-medium">Batas waktu refund habis (maksimal H-1 sebelum berangkat).</p>
+                                <p class="text-xs text-gray-400 italic font-medium">Batas waktu refund habis (maksimal 6 jam sebelum berangkat).</p>
                             </div>
                         @endif
                     @endif

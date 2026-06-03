@@ -8,6 +8,7 @@ class Refund extends Model
 {
     protected $fillable = [
         'booking_id',
+        'tour_booking_id',
         'user_id',
         'refund_amount',
         'reason',
@@ -22,6 +23,11 @@ class Refund extends Model
     public function booking()
     {
         return $this->belongsTo(Booking::class);
+    }
+
+    public function tourBooking()
+    {
+        return $this->belongsTo(TourBooking::class, 'tour_booking_id');
     }
 
     public function user()

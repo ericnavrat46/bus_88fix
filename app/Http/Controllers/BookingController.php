@@ -190,7 +190,7 @@ class BookingController extends Controller
      */
     public function checkout(Booking $booking)
     {
-        if ($booking->user_id !== auth()->id() && !auth()->user()?->isAdmin()) {
+        if ($booking->user_id != auth()->id() && !auth()->user()?->isAdmin()) {
             abort(403);
         }
 

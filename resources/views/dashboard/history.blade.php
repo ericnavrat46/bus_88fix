@@ -60,7 +60,7 @@
                     $activity = [
                         'id' => $item->booking_code ?? $item->rental_code,
                         'date' => $item->created_at,
-                        'status' => $item->payment_status,
+                        'status' => (isset($item->approval_status) && $item->payment_status === 'unpaid' && $item->approval_status !== 'pending') ? $item->approval_status : $item->payment_status,
                         'url' => '#',
                         'icon' => '🎫',
                         'title' => 'Item',

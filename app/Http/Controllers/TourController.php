@@ -147,7 +147,7 @@ class TourController extends Controller
 
     public function checkout(TourBooking $booking)
     {
-        if ($booking->user_id !== auth()->id() && !auth()->user()?->isAdmin()) {
+        if ($booking->user_id != auth()->id() && !auth()->user()?->isAdmin()) {
             abort(403);
         }
 

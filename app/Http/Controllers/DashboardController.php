@@ -165,7 +165,7 @@ class DashboardController extends Controller
 
     public function bookingDetail(Booking $booking)
     {
-        if ($booking->user_id !== auth()->id()) {
+        if ($booking->user_id !== auth()->id() && !auth()->user()?->isAdmin()) {
             abort(403);
         }
 
@@ -179,7 +179,7 @@ class DashboardController extends Controller
 
     public function rentalDetail(Rental $rental)
     {
-        if ($rental->user_id !== auth()->id()) {
+        if ($rental->user_id !== auth()->id() && !auth()->user()?->isAdmin()) {
             abort(403);
         }
 
@@ -190,7 +190,7 @@ class DashboardController extends Controller
 
     public function tourDetail(TourBooking $booking)
     {
-        if ($booking->user_id !== auth()->id()) {
+        if ($booking->user_id !== auth()->id() && !auth()->user()?->isAdmin()) {
             abort(403);
         }
 
@@ -201,7 +201,7 @@ class DashboardController extends Controller
 
     public function cancelBooking(Booking $booking)
     {
-        if ($booking->user_id !== auth()->id()) abort(403);
+        if ($booking->user_id !== auth()->id() && !auth()->user()?->isAdmin()) abort(403);
         if ($booking->payment_status === 'pending' || $booking->payment_status === 'unpaid') {
             $booking->update(['payment_status' => 'cancelled']);
             
@@ -221,7 +221,7 @@ class DashboardController extends Controller
 
     public function cancelRental(Rental $rental)
     {
-        if ($rental->user_id !== auth()->id()) abort(403);
+        if ($rental->user_id !== auth()->id() && !auth()->user()?->isAdmin()) abort(403);
         if ($rental->payment_status === 'pending' || $rental->payment_status === 'unpaid') {
             $rental->update(['payment_status' => 'cancelled']);
             
@@ -240,7 +240,7 @@ class DashboardController extends Controller
 
     public function cancelTour(TourBooking $booking)
     {
-        if ($booking->user_id !== auth()->id()) abort(403);
+        if ($booking->user_id !== auth()->id() && !auth()->user()?->isAdmin()) abort(403);
         if ($booking->payment_status === 'pending' || $booking->payment_status === 'unpaid') {
             $booking->update(['payment_status' => 'cancelled']);
             

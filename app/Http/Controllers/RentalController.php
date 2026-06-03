@@ -90,7 +90,7 @@ class RentalController extends Controller
      */
     public function pay(Rental $rental)
     {
-        if ($rental->user_id !== auth()->id()) {
+        if ($rental->user_id !== auth()->id() && !auth()->user()?->isAdmin()) {
             abort(403);
         }
 

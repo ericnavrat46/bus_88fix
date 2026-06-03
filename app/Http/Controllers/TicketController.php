@@ -244,7 +244,7 @@ class TicketController extends Controller
 
     private function authorizeAccess($userId)
     {
-        if ($userId !== Auth::id() && !Auth::user()?->is_admin) {
+        if ($userId !== Auth::id() && !Auth::user()?->isAdmin()) {
             abort(403);
         }
     }

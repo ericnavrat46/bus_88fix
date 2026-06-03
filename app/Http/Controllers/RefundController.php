@@ -18,7 +18,7 @@ class RefundController extends Controller
     public function create(Booking $booking)
     {
         // Check ownership
-        if ($booking->user_id !== Auth::id()) {
+        if ($booking->user_id !== Auth::id() && !Auth::user()?->isAdmin()) {
             abort(403);
         }
 
@@ -47,7 +47,7 @@ class RefundController extends Controller
      */
     public function store(Request $request, Booking $booking)
     {
-        if ($booking->user_id !== Auth::id()) abort(403);
+        if ($booking->user_id !== Auth::id() && !Auth::user()?->isAdmin()) abort(403);
 
         $request->validate([
             'reason' => 'required|string|min:10',

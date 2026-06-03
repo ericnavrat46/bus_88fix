@@ -226,3 +226,14 @@ Route::get('/test-payment-broadcast/{payment_id}', function ($payment_id) {
         'channel' => "payment.{$payment_id}",
     ]);
 });
+
+// Route Fallback untuk melayani foto secara langsung (Tanpa perlu Symlink!)
+Route::get('/storage/{folder}/{filename}', function ($folder, $filename) {
+    $path = storage_path('app/public/' . $folder . '/' . $filename);
+
+    if (!file_exists($path)) {
+        abort(404);
+    }
+
+    return response()->file($path);
+})->where('filename', '.*');
